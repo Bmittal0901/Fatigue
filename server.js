@@ -2,13 +2,23 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
-const LOG_FILE = path.join(__dirname, 'log.csv');
+// Serve static files from 'public' folder
+app.use(express.static(path.join(__dirname, 'public')));
 
-app.use(express.static('public'));
+// Parse incoming JSON
 app.use(express.json());
 
+// Log file path
+const LOG_FILE = path.join(__dirname, 'log.csv');
+
+// Serve index.html at root URL
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Save typing log
 app.post('/save-log', (req, res) => {
   const { username, wpm, errorRate, avgIKI, kspc, backspaces } = req.body;
 
@@ -17,7 +27,6 @@ app.post('/save-log', (req, res) => {
   }
 
   const newRow = `${username},${wpm},${errorRate},${avgIKI},${kspc},${backspaces}\n`;
-
   const header = 'Username,WPM,Error Rate (%),Avg IKI (ms),KSPC,Backspaces\n';
 
   if (!fs.existsSync(LOG_FILE)) {
