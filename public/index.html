@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Fatigue Detection Typing Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h2 {
+      font-size: 24px;
+    }
+    textarea, input[type="text"] {
+      width: 100%;
+      font-size: 16px;
+      margin-top: 10px;
+      padding: 10px;
+    }
+    textarea {
+      height: 150px;
+    }
+    button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+    .status, .metrics {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h2>Fatigue Detection Typing Test</h2>
+
+  <label for="username">Enter your name:</label>
+  <input type="text" id="username" placeholder="e.g. bhavya123"/>
+
+  <p id="typingSentence">Loading sentence...</p>
+  <textarea id="typingArea" placeholder="Start typing here..."></textarea><br>
+  <button onclick="saveLog()">Submit Typing Log</button>
+
+  <div class="status" id="statusLabel"></div>
+  <div class="metrics" id="metricsDisplay"></div>
+
+  <script>
+    const sentences = [
+      "The quick brown fox jumps over the lazy dog.",
+      "Typing speed can reveal your level of alertness.",
+      "Consistency in typing patterns indicates low fatigue.",
+      "Backspace usage often increases when you're tired.",
+      "Stay focused and type the sentence shown above.",
+      "Fast typing isn't always accurate typing.",
+      "How many times do you press backspace per minute?",
+      "Fatigue can impact typing rhythm and timing.",
+      "A sleepy mind types with heavy fingers.",
+      "Reaction time between keystrokes says a lot."
+    ];
+
+    const selectedSentence = sentences[Math.floor(Math.random() * sentences.length)];
+    document.getElementById("typingSentence").innerText = selectedSentence;
+
+    const typingArea = document.getElementById("typingArea");
+    let keystrokes = 0;
+    let totalBackspaces = 0;
+    let startTime = null;
+    let lastKeyTime = performance.now();
+    let delays = [];
+
+    typingArea.addEventListener("keydown", function (event) {
+      if (!startTime) startTime = performance.now();
+
+      const now = performance.now();
+      if (event.key === "Backspace") totalBackspaces++;
+      else if (event.key.length === 1 || event.key === " ") keystrokes++;
+
+      delays.push(now - lastKeyTime);
+      lastKeyTime = now;
+    });
+
+    function saveLog() {
+      const username = document.getElementById("username").value.trim();
+      if (!username) {
+        alert("Please enter your username.");
+        return;
+      }
+
+      const typedText = typingArea.value.trim();
+      const totalTime = (performance.now() - startTime) / 1000;
+      const wpm = ((typedText.length / 5) / (totalTime / 60)).toFixed(2);
+      const errors = calculateErrorRate(selectedSentence, typedText);
+      const kspc = (keystrokes / typedText.length).toFixed(2);
+      const avgIKI = (delays.reduce((a, b) => a + b, 0) / delays.length).toFixed(2);
+
+      const payload = {
+        username: username,
+        wpm: wpm,
+        errorRate: errors,
+        avgIKI: avgIKI,
+        kspc: kspc,
+        backspaces: totalBackspaces
+      };
+
+      fetch('/save-log', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      }).then(res => {
+        if (res.ok) {
+          document.getElementById("statusLabel").innerText = "✅ Log saved successfully!";
+          document.getElementById("metricsDisplay").innerHTML = `
+            WPM: ${wpm}<br>
+            Error Rate: ${errors}%<br>
+            Average IKI: ${avgIKI} ms<br>
+            KSPC: ${kspc}<br>
+            Error Corrections (Backspaces): ${totalBackspaces}
+          `;
+        } else {
+          document.getElementById("statusLabel").innerText = "❌ Failed to save log!";
+        }
+      });
+    }
+
+    function calculateErrorRate(target, typed) {
+      let errors = 0;
+      const len = Math.max(target.length, typed.length);
+      for (let i = 0; i < len; i++) {
+        if (target[i] !== typed[i]) errors++;
+      }
+      return ((errors / len) * 100).toFixed(2);
+    }
+  </script>
+</body>
+</html>
