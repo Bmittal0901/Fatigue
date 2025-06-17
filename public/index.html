@@ -33,10 +33,6 @@
       font-weight: bold;
     }
   </style>
-
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
 <body>
   <h2>Fatigue Detection Typing Test</h2>
@@ -46,26 +42,31 @@
 
   <p id="typingSentence">Loading sentence...</p>
   <textarea id="typingArea" placeholder="Start typing here..."></textarea><br>
+
   <button onclick="saveLog()">Submit Typing Log</button>
+  <button onclick="downloadCSV()">Download CSV Log</button>
 
   <div class="status" id="statusLabel"></div>
   <div class="metrics" id="metricsDisplay"></div>
 
+  <!-- Firebase Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+
   <script>
-    // Firebase configuration
+    // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyDU56-FribrzudeFeh1-gz7ch25HHoWAGk",
       authDomain: "fatiguedetection-e13a1.firebaseapp.com",
       databaseURL: "https://fatiguedetection-e13a1-default-rtdb.firebaseio.com",
       projectId: "fatiguedetection-e13a1",
-      storageBucket: "fatiguedetection-e13a1.firebasestorage.app",
+      storageBucket: "fatiguedetection-e13a1.appspot.com",
       messagingSenderId: "239129487774",
       appId: "1:239129487774:web:e6ceb32ddbaea27a7a8e8f"
     };
 
-    // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+    const database = firebase.database();
 
     const sentences = [
       "The quick brown fox jumps over the lazy dog.",
@@ -115,20 +116,21 @@
       const kspc = (keystrokes / typedText.length).toFixed(2);
       const avgIKI = (delays.reduce((a, b) => a + b, 0) / delays.length).toFixed(2);
 
-      const payload = {
-        username,
-        wpm,
+      const logData = {
+        username: username,
+        wpm: wpm,
         errorRate: errors,
-        avgIKI,
-        kspc,
+        avgIKI: avgIKI,
+        kspc: kspc,
         backspaces: totalBackspaces,
         timestamp: new Date().toISOString()
       };
 
-      // Save to Firebase
-      db.ref("typingLogs").push(payload)
-        .then(() => {
-          document.getElementById("statusLabel").innerText = "✅ Log saved to Firebase!";
+      database.ref("typingLogs").push(logData, (error) => {
+        if (error) {
+          document.getElementById("statusLabel").innerText = "❌ Failed to save log!";
+        } else {
+          document.getElementById("statusLabel").innerText = "✅ Log saved successfully!";
           document.getElementById("metricsDisplay").innerHTML = `
             WPM: ${wpm}<br>
             Error Rate: ${errors}%<br>
@@ -136,11 +138,8 @@
             KSPC: ${kspc}<br>
             Error Corrections (Backspaces): ${totalBackspaces}
           `;
-        })
-        .catch((error) => {
-          console.error("Firebase save error:", error);
-          document.getElementById("statusLabel").innerText = "❌ Failed to save log!";
-        });
+        }
+      });
     }
 
     function calculateErrorRate(target, typed) {
@@ -150,6 +149,46 @@
         if (target[i] !== typed[i]) errors++;
       }
       return ((errors / len) * 100).toFixed(2);
+    }
+
+    function downloadCSV() {
+      const dbRef = firebase.database().ref("typingLogs");
+
+      dbRef.once("value").then((snapshot) => {
+        const logs = snapshot.val();
+        if (!logs) {
+          alert("No logs found.");
+          return;
+        }
+
+        const rows = [["Username", "WPM", "Error Rate (%)", "Avg IKI (ms)", "KSPC", "Backspaces", "Timestamp"]];
+        
+        Object.values(logs).forEach(log => {
+          rows.push([
+            log.username || "",
+            log.wpm || "",
+            log.errorRate || "",
+            log.avgIKI || "",
+            log.kspc || "",
+            log.backspaces || "",
+            log.timestamp || ""
+          ]);
+        });
+
+        const csvContent = rows.map(e => e.join(",")).join("\n");
+        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+
+        link.setAttribute("href", url);
+        link.setAttribute("download", "typing_logs.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }).catch(error => {
+        console.error("Failed to download CSV:", error);
+        alert("Error fetching logs.");
+      });
     }
   </script>
 </body>
