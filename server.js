@@ -41,3 +41,15 @@ app.post('/save-log', (req, res) => {
 app.listen(PORT, () => {
   console.log(`✅ Server running at http://localhost:${PORT}`);
 });
+
+// Clear the log file
+app.post('/clear-log', (req, res) => {
+  const header = 'Username,WPM,Error Rate (%),Avg IKI (ms),KSPC,Backspaces\n';
+
+  try {
+    fs.writeFileSync(LOG_FILE, header, 'utf8');
+    res.status(200).json({ message: 'Log file cleared' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to clear log file' });
+  }
+});
