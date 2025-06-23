@@ -22,6 +22,7 @@
     }
     textarea {
       height: 150px;
+      user-select: none;
     }
     button {
       margin-top: 15px;
@@ -32,6 +33,13 @@
       margin-top: 20px;
       font-weight: bold;
     }
+
+    @media (max-width: 600px) {
+      textarea, input[type="text"] {
+        font-size: 18px;
+        padding: 15px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -41,7 +49,14 @@
   <input type="text" id="username" placeholder="e.g. bhavya123"/>
 
   <p id="typingSentence">Loading sentence...</p>
-  <textarea id="typingArea" placeholder="Start typing here..."></textarea><br>
+  <textarea 
+    id="typingArea" 
+    placeholder="Start typing here..." 
+    autocorrect="off" 
+    autocomplete="off" 
+    autocapitalize="off" 
+    spellcheck="false"
+  ></textarea><br>
 
   <button onclick="saveLog()">Submit Typing Log</button>
   <button onclick="downloadCSV()">Download CSV Log</button>
@@ -91,6 +106,23 @@
     let lastKeyTime = performance.now();
     let delays = [];
 
+    // Lock cursor to end
+    function lockCursorToEnd() {
+      const valLen = typingArea.value.length;
+      typingArea.setSelectionRange(valLen, valLen);
+    }
+
+    typingArea.addEventListener("mousedown", (e) => {
+      e.preventDefault();
+      lockCursorToEnd();
+    });
+    typingArea.addEventListener("touchstart", (e) => {
+      e.preventDefault();
+      lockCursorToEnd();
+    });
+    typingArea.addEventListener("keyup", lockCursorToEnd);
+    typingArea.addEventListener("input", lockCursorToEnd);
+
     typingArea.addEventListener("keydown", function (event) {
       if (!startTime) startTime = performance.now();
 
@@ -102,6 +134,34 @@
       lastKeyTime = now;
     });
 
+    // Keyboard layout map
+    const keyboardLayout = {
+      'q':[0,0],'w':[1,0],'e':[2,0],'r':[3,0],'t':[4,0],'y':[5,0],'u':[6,0],'i':[7,0],'o':[8,0],'p':[9,0],
+      'a':[0.5,1],'s':[1.5,1],'d':[2.5,1],'f':[3.5,1],'g':[4.5,1],'h':[5.5,1],'j':[6.5,1],'k':[7.5,1],'l':[8.5,1],
+      'z':[1,2],'x':[2,2],'c':[3,2],'v':[4,2],'b':[5,2],'n':[6,2],'m':[7,2],
+      ' ':[5,3]
+    };
+
+    function getKeyDistance(a, b) {
+      a = a.toLowerCase();
+      b = b.toLowerCase();
+      if (!keyboardLayout[a] || !keyboardLayout[b]) return 1;
+      const [x1, y1] = keyboardLayout[a];
+      const [x2, y2] = keyboardLayout[b];
+      return Math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2);
+    }
+
+    function calculateErrorRate(target, typed) {
+      let totalDistance = 0;
+      const maxLength = Math.max(target.length, typed.length);
+      for (let i = 0; i < maxLength; i++) {
+        const targetChar = target[i] || "";
+        const typedChar = typed[i] || "";
+        totalDistance += getKeyDistance(targetChar, typedChar);
+      }
+      return ((totalDistance / maxLength) * 10).toFixed(2); // Scaled %
+    }
+
     function saveLog() {
       const username = document.getElementById("username").value.trim();
       if (!username) {
@@ -112,16 +172,16 @@
       const typedText = typingArea.value.trim();
       const totalTime = (performance.now() - startTime) / 1000;
       const wpm = ((typedText.length / 5) / (totalTime / 60)).toFixed(2);
-      const errors = calculateErrorRate(selectedSentence, typedText);
+      const errorRate = calculateErrorRate(selectedSentence, typedText);
       const kspc = (keystrokes / typedText.length).toFixed(2);
       const avgIKI = (delays.reduce((a, b) => a + b, 0) / delays.length).toFixed(2);
 
       const logData = {
-        username: username,
-        wpm: wpm,
-        errorRate: errors,
-        avgIKI: avgIKI,
-        kspc: kspc,
+        username,
+        wpm,
+        errorRate,
+        avgIKI,
+        kspc,
         backspaces: totalBackspaces,
         timestamp: new Date().toISOString()
       };
@@ -133,22 +193,13 @@
           document.getElementById("statusLabel").innerText = "✅ Log saved successfully!";
           document.getElementById("metricsDisplay").innerHTML = `
             WPM: ${wpm}<br>
-            Error Rate: ${errors}%<br>
+            Error Rate (distance-based): ${errorRate}%<br>
             Average IKI: ${avgIKI} ms<br>
             KSPC: ${kspc}<br>
-            Error Corrections (Backspaces): ${totalBackspaces}
+            Backspaces: ${totalBackspaces}
           `;
         }
       });
-    }
-
-    function calculateErrorRate(target, typed) {
-      let errors = 0;
-      const len = Math.max(target.length, typed.length);
-      for (let i = 0; i < len; i++) {
-        if (target[i] !== typed[i]) errors++;
-      }
-      return ((errors / len) * 100).toFixed(2);
     }
 
     function downloadCSV() {
@@ -162,7 +213,6 @@
         }
 
         const rows = [["Username", "WPM", "Error Rate (%)", "Avg IKI (ms)", "KSPC", "Backspaces", "Timestamp"]];
-        
         Object.values(logs).forEach(log => {
           rows.push([
             log.username || "",
