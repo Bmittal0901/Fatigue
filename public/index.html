@@ -112,16 +112,16 @@
       typingArea.setSelectionRange(valLen, valLen);
     }
 
-    typingArea.addEventListener("mousedown", (e) => {
-      e.preventDefault();
-      lockCursorToEnd();
+    typingArea.addEventListener("mouseup", () => {
+      setTimeout(lockCursorToEnd, 0);
     });
-    typingArea.addEventListener("touchstart", (e) => {
-      e.preventDefault();
-      lockCursorToEnd();
+
+    typingArea.addEventListener("touchend", () => {
+      setTimeout(lockCursorToEnd, 0);
     });
-    typingArea.addEventListener("keyup", lockCursorToEnd);
+
     typingArea.addEventListener("input", lockCursorToEnd);
+    typingArea.addEventListener("keyup", lockCursorToEnd);
 
     typingArea.addEventListener("keydown", function (event) {
       if (!startTime) startTime = performance.now();
