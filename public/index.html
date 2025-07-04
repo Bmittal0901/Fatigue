@@ -161,18 +161,6 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <script>
-const firebaseConfig = {
-  apiKey: "AIzaSyDU56-FribrzudeFeh1-gz7ch25HHoWAGk",
-  authDomain: "fatiguedetection-e13a1.firebaseapp.com",
-  databaseURL: "https://fatiguedetection-e13a1-default-rtdb.firebaseio.com",
-  projectId: "fatiguedetection-e13a1",
-  storageBucket: "fatiguedetection-e13a1.appspot.com",
-  messagingSenderId: "239129487774",
-  appId: "1:239129487774:web:e6ceb32ddbaea27a7a8e8f"
-};
-firebase.initializeApp(firebaseConfig);
-const database = firebase.database();
-
 const sentences = [
   "The quick brown fox jumps over the lazy dog.",
   "Typing speed can reveal your level of alertness.",
@@ -194,14 +182,26 @@ let backspaces = 0;
 let delays = [];
 let lastKeyTime = 0;
 let startTime = 0;
-let typingArea = document.getElementById("typingArea");
+
+const typingArea = document.getElementById("typingArea");
+
+// Block cursor movement via mouse/touchpad/touch/keyboard arrows
+typingArea.addEventListener("mousedown", e => e.preventDefault());
+typingArea.addEventListener("touchstart", e => e.preventDefault());
+typingArea.addEventListener("selectstart", e => e.preventDefault());
+typingArea.style.caretColor = "transparent"; // Hide cursor
 
 typingArea.addEventListener("keydown", e => {
   const now = performance.now();
 
   if (!startTime) startTime = now;
 
-  // Count keystrokes and backspaces only for actual characters or space
+  // Block arrow keys and Home/End/Delete
+  if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End", "Delete"].includes(e.key)) {
+    e.preventDefault();
+    return;
+  }
+
   if (e.key.length === 1 || e.key === " ") {
     keystrokes++;
   } else if (e.key === "Backspace") {
@@ -228,10 +228,15 @@ function calculateErrorRate(a, b) {
 function updateUI() {
   document.getElementById("typingSentence").innerText = sentences[index];
   document.getElementById("progressText").innerText = `Sentence ${index + 1} of ${sentences.length}`;
-  document.getElementById("progressBar").style.width = `${((index) / sentences.length) * 100}%`;
+  document.getElementById("progressBar").style.width = `${(index / sentences.length) * 100}%`;
   typingArea.value = "";
   typingArea.disabled = false;
+  typingArea.readOnly = false;       // temporarily allow input
   typingArea.focus();
+  setTimeout(() => {
+    typingArea.readOnly = true;      // lock it again after focusing to prevent touch placement
+  }, 10);
+
   keystrokes = 0;
   backspaces = 0;
   delays = [];
@@ -269,7 +274,7 @@ function submitDemographics() {
     submittedAt: new Date().toLocaleString().replace(",", "")
   };
 
-  firebase.database().ref(`summaryLogs/${username}/demographics`).set(demographics).then(() => {
+  database.ref(`summaryLogs/${username}/demographics`).set(demographics).then(() => {
     loadUserProgress();
     typingArea.removeAttribute("disabled");
     document.getElementById("statusLabel").innerText = "✅ Test Started";
@@ -281,17 +286,12 @@ function submitSentence() {
 
   const typed = typingArea.value.trim();
 
-  if (!startTime) {
+  if (!startTime || !typed.length) {
     alert("Please type before submitting.");
     return;
   }
 
   const elapsed = (performance.now() - startTime) / 1000;
-  if (elapsed <= 0 || !typed.length) {
-    alert("Please type the sentence before submitting.");
-    return;
-  }
-
   const wpm = ((typed.length / 5) / (elapsed / 60)).toFixed(2);
   const errorRate = calculateErrorRate(sentences[index], typed);
   const avgIKI = (delays.length > 0 ? (delays.reduce((a, b) => a + b, 0) / delays.length) : 0).toFixed(2);
@@ -299,16 +299,17 @@ function submitSentence() {
 
   logs.push({ wpm, errorRate, avgIKI, kspc, backspaces });
 
+  // Show live metrics
+  document.getElementById("liveWpm").innerText = wpm;
+  document.getElementById("liveError").innerText = errorRate + "%";
+  document.getElementById("liveIki").innerText = avgIKI;
+  document.getElementById("liveKspc").innerText = kspc;
+  document.getElementById("liveBackspace").innerText = backspaces;
+
   index++;
 
   if (index < sentences.length) {
-   // ✅ Update live metrics AFTER resetting fields
-    document.getElementById("liveWpm").innerText = wpm;
-    document.getElementById("liveError").innerText = errorRate + "%";
-    document.getElementById("liveIki").innerText = avgIKI;
-    document.getElementById("liveKspc").innerText = kspc;
-    document.getElementById("liveBackspace").innerText = backspaces;
-    updateUI(); // reset typing state
+    updateUI();
   } else {
     saveFinalSummary();
   }
@@ -331,7 +332,7 @@ function saveFinalSummary() {
     errorRate: (sum.errorRate / count).toFixed(2),
     avgIKI: (sum.avgIKI / count).toFixed(2),
     kspc: (sum.kspc / count).toFixed(2),
-    backspaces: sum.backspaces,
+    backspaces: (sum.backspaces / count).toFixed(2),
     timestamp: new Date().toLocaleString().replace(",", "")
   };
 
