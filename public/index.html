@@ -5,30 +5,32 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Fatigue Detection Typing Test</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
     body {
+      background: #f1f4f9;
       font-family: 'Inter', sans-serif;
-      background: linear-gradient(135deg, #f0f4ff, #ffffff);
-      color: #333;
     }
-    .sidebar, .control-panel, .main-panel {
-      background: rgba(255, 255, 255, 0.8);
-      backdrop-filter: blur(10px);
-      border-radius: 16px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    .sidebar, .main-panel, .control-panel {
+      background-color: #ffffffcc;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
       padding: 1.5rem;
-      margin: 1rem 0;
+      height: 100vh;
+      overflow-y: auto;
     }
     textarea {
       height: 150px;
-      resize: none;
     }
     .metrics-box span {
       display: block;
       font-weight: bold;
-      font-size: 1.2rem;
+      font-size: 1.1rem;
+    }
+    .form-label.required::after {
+      content: " *";
+      color: red;
     }
     .fade-in {
       animation: fadeIn 0.6s ease-in-out;
@@ -37,66 +39,58 @@
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
     }
-    .badge-unlock {
-      font-size: 1.2rem;
-      color: #fff;
-      background: linear-gradient(45deg, #00b09b, #96c93d);
-      border-radius: 30px;
-      padding: 5px 15px;
-      display: inline-block;
-    }
   </style>
 </head>
 <body>
 <div class="container-fluid">
   <div class="row">
     <!-- Left Sidebar -->
-    <div class="col-md-3 sidebar fade-in">
+    <div class="col-md-3 sidebar">
       <h5 class="mb-3"><i class="fas fa-user"></i> Participant Info</h5>
       <div class="mb-3">
-        <label class="form-label">Name</label>
-        <input type="text" id="username" class="form-control">
+        <label class="form-label required">Name</label>
+        <input type="text" id="username" class="form-control" required>
       </div>
       <div class="mb-3">
-        <label class="form-label">Age Group</label>
-        <select id="ageGroup" class="form-select">
+        <label class="form-label required">Age Group</label>
+        <select id="ageGroup" class="form-select" required>
           <option value="">Select</option>
           <option>Under 18</option><option>18–25</option><option>26–35</option>
           <option>36–50</option><option>51+</option>
         </select>
       </div>
       <div class="mb-3">
-        <label class="form-label">Gender</label>
-        <select id="gender" class="form-select">
+        <label class="form-label required">Gender</label>
+        <select id="gender" class="form-select" required>
           <option value="">Select</option>
           <option>Male</option><option>Female</option><option>Other</option><option>Prefer not to say</option>
         </select>
       </div>
       <div class="mb-3">
-        <label class="form-label">Typing Skill</label>
-        <select id="typingSkill" class="form-select">
+        <label class="form-label required">Typing Skill</label>
+        <select id="typingSkill" class="form-select" required>
           <option value="">Select</option>
           <option>Beginner</option><option>Intermediate</option><option>Advanced</option>
         </select>
       </div>
       <div class="mb-3">
-        <label class="form-label">Occupation</label>
-        <input type="text" id="occupation" class="form-control">
+        <label class="form-label required">Occupation</label>
+        <input type="text" id="occupation" class="form-control" required>
       </div>
       <div class="mb-3">
-        <label class="form-label">Typing Hours</label>
-        <select id="typingHours" class="form-select">
+        <label class="form-label required">Typing Hours</label>
+        <select id="typingHours" class="form-select" required>
           <option value="">Select</option>
           <option><1</option><option>1–2</option><option>2–4</option><option>4–6</option><option>6+</option>
         </select>
       </div>
       <div class="mb-3">
-        <label class="form-label">Mental Fatigue (1–5)</label>
-        <input type="range" min="1" max="5" id="mentalFatigue" class="form-range">
+        <label class="form-label required">Mental Fatigue (1–5)</label>
+        <input type="range" id="mentalFatigue" class="form-range" min="1" max="5">
       </div>
       <div class="mb-3">
-        <label class="form-label">Physical Fatigue (1–5)</label>
-        <input type="range" min="1" max="5" id="physicalFatigue" class="form-range">
+        <label class="form-label required">Physical Fatigue (1–5)</label>
+        <input type="range" id="physicalFatigue" class="form-range" min="1" max="5">
       </div>
       <button class="btn btn-primary w-100" onclick="submitDemographics()"><i class="fas fa-play"></i> Start Test</button>
     </div>
@@ -104,38 +98,44 @@
     <!-- Center Panel -->
     <div class="col-md-6 main-panel fade-in">
       <h4 class="mb-3">⌨️ Typing Test</h4>
-      <p id="typingSentence" class="text-muted">Please enter details to start the test.</p>
+      <p id="typingSentence">Please enter details to start the test.</p>
       <textarea id="typingArea" class="form-control" disabled placeholder="Your typing area..."></textarea>
       <div class="progress my-3">
         <div id="progressBar" class="progress-bar" role="progressbar" style="width: 0%"></div>
       </div>
-      <p class="text-end text-secondary" id="progressText">Sentence 0 of 10</p>
+      <p class="text-end" id="progressText">Sentence 0 of 10</p>
       <div class="d-grid gap-2">
-        <button class="btn btn-success" onclick="submitSentence()">Submit Sentence</button>
+        <button class="btn btn-success" onclick="submitSentence()"><i class="fas fa-check"></i> Submit Sentence</button>
       </div>
       <div class="text-success mt-3" id="statusLabel"></div>
       <div class="text-muted mt-2" id="metricsDisplay"></div>
     </div>
 
     <!-- Right Sidebar -->
-    <div class="col-md-3 control-panel fade-in">
+    <div class="col-md-3 control-panel">
       <h5 class="mb-3"><i class="fas fa-chart-line"></i> Live Analytics</h5>
       <div class="mb-3 metrics-box">
         <label>Live WPM</label>
         <span id="liveWpm">0</span>
         <label>Error %</label>
         <span id="liveError">0%</span>
+        <label>Avg IKI (ms)</label>
+        <span id="liveIki">0</span>
+        <label>KSPC</label>
+        <span id="liveKspc">0</span>
+        <label>Backspaces</label>
+        <span id="liveBackspace">0</span>
       </div>
-      <div id="badges" class="my-3"></div>
+      <hr>
       <button class="btn btn-outline-secondary w-100 mb-2" onclick="downloadSummaryCSV()"><i class="fas fa-download"></i> Download CSV</button>
       <button class="btn btn-outline-danger w-100" onclick="clearAllSummaries()"><i class="fas fa-trash"></i> Clear Logs</button>
     </div>
   </div>
 </div>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <script>
   const firebaseConfig = {
@@ -330,6 +330,7 @@ function clearAllSummaries() {
     });
   }
 }
+
 </script>
 </body>
 </html>
