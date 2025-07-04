@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Fatigue Detection Typing Test</title>
   <style>
     body {
@@ -45,12 +45,6 @@
       width: 0%;
       background-color: #4caf50;
     }
-    @media (max-width: 600px) {
-      textarea, input[type="text"] {
-        font-size: 18px;
-        padding: 15px;
-      }
-    }
   </style>
 </head>
 <body>
@@ -68,8 +62,8 @@
   <p id="progressText">Sentence 0 of 10</p>
 
   <button onclick="saveLog()">Submit Typing Log</button>
-  <button onclick="downloadCSV()">Download Full CSV Log</button>
-  <button id="downloadSummaryBtn" onclick="downloadUserSummary()" style="display:none;">Download Summary CSV</button>
+  <button onclick="downloadAllSummaries()">Download All Summaries</button>
+  <button onclick="clearAllLogs()">Clear All Logs</button>
 
   <div class="status" id="statusLabel"></div>
   <div class="metrics" id="metricsDisplay"></div>
@@ -87,9 +81,8 @@
       messagingSenderId: "239129487774",
       appId: "1:239129487774:web:e6ceb32ddbaea27a7a8e8f"
     };
-
     firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
+    const db = firebase.database();
 
     const sentencePool = [
       "The quick brown fox jumps over the lazy dog.",
@@ -105,6 +98,7 @@
     ];
 
     let sentenceIndex = 0;
+    let userLogs = [];
     const typingArea = document.getElementById("typingArea");
     let keystrokes = 0;
     let totalBackspaces = 0;
@@ -115,33 +109,28 @@
     const keyboardLayout = {
       'q':[0,0],'w':[1,0],'e':[2,0],'r':[3,0],'t':[4,0],'y':[5,0],'u':[6,0],'i':[7,0],'o':[8,0],'p':[9,0],
       'a':[0.5,1],'s':[1.5,1],'d':[2.5,1],'f':[3.5,1],'g':[4.5,1],'h':[5.5,1],'j':[6.5,1],'k':[7.5,1],'l':[8.5,1],
-      'z':[1,2],'x':[2,2],'c':[3,2],'v':[4,2],'b':[5,2],'n':[6,2],'m':[7,2],
-      ' ':[5,3]
+      'z':[1,2],'x':[2,2],'c':[3,2],'v':[4,2],'b':[5,2],'n':[6,2],'m':[7,2],' ':[5,3]
     };
 
     function getKeyDistance(a, b) {
-      a = a.toLowerCase();
-      b = b.toLowerCase();
+      a = a.toLowerCase(); b = b.toLowerCase();
       if (!keyboardLayout[a] || !keyboardLayout[b]) return 1;
-      const [x1, y1] = keyboardLayout[a];
-      const [x2, y2] = keyboardLayout[b];
+      const [x1, y1] = keyboardLayout[a], [x2, y2] = keyboardLayout[b];
       return Math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2);
     }
 
     function calculateErrorRate(target, typed) {
-      let totalDistance = 0;
-      const maxLength = Math.max(target.length, typed.length);
+      let totalDistance = 0, maxLength = Math.max(target.length, typed.length);
       for (let i = 0; i < maxLength; i++) {
-        const targetChar = target[i] || "";
-        const typedChar = typed[i] || "";
+        const targetChar = target[i] || "", typedChar = typed[i] || "";
         totalDistance += getKeyDistance(targetChar, typedChar);
       }
       return ((totalDistance / maxLength) * 10).toFixed(2);
     }
 
     function updateProgress() {
-      const progressPercent = ((sentenceIndex) / sentencePool.length) * 100;
-      document.getElementById("progressBar").style.width = `${progressPercent}%`;
+      const percent = ((sentenceIndex) / sentencePool.length) * 100;
+      document.getElementById("progressBar").style.width = `${percent}%`;
       document.getElementById("progressText").innerText = `Sentence ${sentenceIndex} of ${sentencePool.length}`;
     }
 
@@ -149,21 +138,13 @@
       const username = document.getElementById("username").value.trim();
       if (!username) return;
       localStorage.setItem("username", username);
-      database.ref(`typingLogs/${username}`).once("value").then((snapshot) => {
-        const logs = snapshot.val();
-        sentenceIndex = logs ? Object.keys(logs).length : 0;
-        if (sentenceIndex >= sentencePool.length) {
-          document.getElementById("typingSentence").innerText = "✅ All 10 sentences completed!";
-          typingArea.disabled = true;
-          document.getElementById("downloadSummaryBtn").style.display = "inline-block";
-          showUserSummary();
-        } else {
-          loadNextSentence();
-        }
-      });
+      sentenceIndex = 0;
+      userLogs = [];
+      loadNextSentence();
     }
 
     function loadNextSentence() {
+      if (sentenceIndex >= sentencePool.length) return;
       document.getElementById("typingSentence").innerText = sentencePool[sentenceIndex];
       typingArea.value = "";
       typingArea.disabled = false;
@@ -175,11 +156,11 @@
       updateProgress();
     }
 
-    typingArea.addEventListener("keydown", function (event) {
+    typingArea.addEventListener("keydown", function (e) {
       if (!startTime) startTime = performance.now();
       const now = performance.now();
-      if (event.key === "Backspace") totalBackspaces++;
-      else if (event.key.length === 1 || event.key === " ") keystrokes++;
+      if (e.key === "Backspace") totalBackspaces++;
+      else if (e.key.length === 1 || e.key === " ") keystrokes++;
       delays.push(now - lastKeyTime);
       lastKeyTime = now;
     });
@@ -187,110 +168,73 @@
     function saveLog() {
       const username = document.getElementById("username").value.trim();
       if (!username) return alert("Please enter your username.");
-      document.getElementById("username").disabled = true;
+
       if (sentenceIndex >= sentencePool.length) return;
 
-      const targetSentence = sentencePool[sentenceIndex];
-      const typedText = typingArea.value.trim();
-      const totalTime = (performance.now() - startTime) / 1000;
-      const wpm = ((typedText.length / 5) / (totalTime / 60)).toFixed(2);
-      const errorRate = calculateErrorRate(targetSentence, typedText);
-      const kspc = (keystrokes / typedText.length).toFixed(2);
+      const target = sentencePool[sentenceIndex];
+      const typed = typingArea.value.trim();
+      const timeTaken = (performance.now() - startTime) / 1000;
+      const wpm = ((typed.length / 5) / (timeTaken / 60)).toFixed(2);
+      const errorRate = calculateErrorRate(target, typed);
+      const kspc = (keystrokes / typed.length).toFixed(2);
       const avgIKI = (delays.reduce((a, b) => a + b, 0) / delays.length).toFixed(2);
 
-      const logData = {
+      userLogs.push({ wpm: parseFloat(wpm), errorRate: parseFloat(errorRate), avgIKI: parseFloat(avgIKI), kspc: parseFloat(kspc), backspaces: totalBackspaces });
+      sentenceIndex++;
+
+      document.getElementById("metricsDisplay").innerHTML = `WPM: ${wpm}<br>Error Rate: ${errorRate}%<br>Avg IKI: ${avgIKI} ms<br>KSPC: ${kspc}<br>Backspaces: ${totalBackspaces}`;
+
+      if (sentenceIndex < sentencePool.length) loadNextSentence();
+      else {
+        typingArea.disabled = true;
+        document.getElementById("typingSentence").innerText = " All 10 sentences completed!";
+        saveUserSummary(username);
+      }
+    }
+
+    function saveUserSummary(username) {
+      let totalWPM = 0, totalErr = 0, totalIKI = 0, totalKSPC = 0, totalBack = 0;
+      userLogs.forEach(log => {
+        totalWPM += log.wpm;
+        totalErr += log.errorRate;
+        totalIKI += log.avgIKI;
+        totalKSPC += log.kspc;
+        totalBack += log.backspaces;
+      });
+      const summary = {
         username,
-        sentenceNumber: sentenceIndex + 1,
-        target: targetSentence,
-        typed: typedText,
-        wpm,
-        errorRate,
-        avgIKI,
-        kspc,
-        backspaces: totalBackspaces,
+        avgWPM: (totalWPM / userLogs.length).toFixed(2),
+        avgErrorRate: (totalErr / userLogs.length).toFixed(2),
+        avgIKI: (totalIKI / userLogs.length).toFixed(2),
+        avgKSPC: (totalKSPC / userLogs.length).toFixed(2),
+        totalBackspaces: totalBack,
         timestamp: new Date().toISOString()
       };
-
-      database.ref(`typingLogs/${username}`).push(logData).then(() => {
-        document.getElementById("statusLabel").innerText = `✅ Sentence ${sentenceIndex + 1} saved!`;
-        document.getElementById("metricsDisplay").innerHTML = `
-          WPM: ${wpm}<br>
-          Error Rate: ${errorRate}%<br>
-          Avg IKI: ${avgIKI} ms<br>
-          KSPC: ${kspc}<br>
-          Backspaces: ${totalBackspaces}`;
-        sentenceIndex++;
-        if (sentenceIndex < sentencePool.length) {
-          loadNextSentence();
-        } else {
-          document.getElementById("typingSentence").innerText = "✅ All 10 sentences completed!";
-          typingArea.disabled = true;
-          document.getElementById("downloadSummaryBtn").style.display = "inline-block";
-          showUserSummary();
-        }
-      });
+      db.ref(`summaryLogs/${username}`).set(summary)
+        .then(() => document.getElementById("statusLabel").innerText = " Final summary saved!")
+        .catch(err => alert(" Failed to save summary."));
     }
 
-    function showUserSummary() {
-      const username = document.getElementById("username").value.trim();
-      database.ref(`typingLogs/${username}`).once("value").then(snapshot => {
+    function downloadAllSummaries() {
+      db.ref("summaryLogs").once("value").then(snapshot => {
         const logs = snapshot.val();
-        let totalWPM = 0, totalErr = 0, totalIKI = 0, totalKSPC = 0, totalBack = 0;
-        const count = Object.keys(logs).length;
+        const rows = [["Username", "Avg WPM", "Avg Error Rate", "Avg IKI", "Avg KSPC", "Total Backspaces", "Timestamp"]];
         Object.values(logs).forEach(log => {
-          totalWPM += parseFloat(log.wpm);
-          totalErr += parseFloat(log.errorRate);
-          totalIKI += parseFloat(log.avgIKI);
-          totalKSPC += parseFloat(log.kspc);
-          totalBack += parseInt(log.backspaces);
+          rows.push([log.username, log.avgWPM, log.avgErrorRate, log.avgIKI, log.avgKSPC, log.totalBackspaces, log.timestamp]);
         });
-        document.getElementById("metricsDisplay").innerHTML += `<hr><strong>Summary (10 Sentences):</strong><br>Avg WPM: ${(totalWPM / count).toFixed(2)}<br>Avg Error Rate: ${(totalErr / count).toFixed(2)}%<br>Avg IKI: ${(totalIKI / count).toFixed(2)} ms<br>Avg KSPC: ${(totalKSPC / count).toFixed(2)}<br>Total Backspaces: ${totalBack}`;
+        const csv = rows.map(r => r.join(",")).join("\n");
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "summary_logs.csv";
+        link.click();
       });
     }
 
-    function downloadUserSummary() {
-      const username = document.getElementById("username").value.trim();
-      database.ref(`typingLogs/${username}`).once("value").then(snapshot => {
-        const logs = snapshot.val();
-        const rows = [["Sentence #", "Target Sentence", "Typed Sentence", "WPM", "Error Rate (%)", "Avg IKI (ms)", "KSPC", "Backspaces", "Timestamp"]];
-        Object.values(logs).forEach((log, idx) => {
-          rows.push([idx + 1, `"${log.target}"`, `"${log.typed}"`, log.wpm, log.errorRate, log.avgIKI, log.kspc, log.backspaces, log.timestamp]);
-        });
-        const csvContent = rows.map(row => row.join(",")).join("\n");
-        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `${username}_summary.csv`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-      });
-    }
-
-    function downloadCSV() {
-      database.ref("typingLogs").once("value").then(snapshot => {
-        const logs = snapshot.val();
-        const rows = [["Username", "Sentence #", "Target", "Typed", "WPM", "Error Rate", "Avg IKI", "KSPC", "Backspaces", "Timestamp"]];
-        for (let user in logs) {
-          for (let key in logs[user]) {
-            const log = logs[user][key];
-            rows.push([
-              user, log.sentenceNumber, `"${log.target}"`, `"${log.typed}"`,
-              log.wpm, log.errorRate, log.avgIKI, log.kspc, log.backspaces, log.timestamp
-            ]);
-          }
-        }
-        const csvContent = rows.map(r => r.join(",")).join("\n");
-        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `all_typing_logs.csv`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-      });
+    function clearAllLogs() {
+      if (confirm(" This will delete ALL summary logs. Are you sure?")) {
+        db.ref("summaryLogs").remove().then(() => alert(" All logs deleted."));
+      }
     }
 
     window.onload = () => {
