@@ -255,19 +255,30 @@ function submitSentence() {
   if (!username || index >= sentences.length) return;
 
   const typed = typingArea.value.trim();
+
+  if (!startTime) {
+    alert("Please type before submitting.");
+    return;
+  }
+
   const elapsed = (performance.now() - startTime) / 1000;
+  if (elapsed <= 0 || !typed.length) {
+    alert("Please type the sentence before submitting.");
+    return;
+  }
+
   const wpm = ((typed.length / 5) / (elapsed / 60)).toFixed(2);
   const errorRate = calculateErrorRate(sentences[index], typed);
   const avgIKI = (delays.reduce((a, b) => a + b, 0) / delays.length || 0).toFixed(2);
-  const kspc = (keystrokes / typed.length || 0).toFixed(2);
+  const kspc = (typed.length > 0 ? (keystrokes / typed.length) : 0).toFixed(2);
 
   logs.push({ wpm, errorRate, avgIKI, kspc, backspaces });
 
-  // Update live metrics
-  document.getElementById("liveWpm").innerText = wpm;
-  document.getElementById("liveError").innerText = errorRate + "%";
-  document.getElementById("liveIki").innerText = avgIKI;
-  document.getElementById("liveKspc").innerText = kspc;
+  // Update live metrics with fallback for NaN
+  document.getElementById("liveWpm").innerText = isNaN(wpm) ? "0" : wpm;
+  document.getElementById("liveError").innerText = isNaN(errorRate) ? "0%" : errorRate + "%";
+  document.getElementById("liveIki").innerText = isNaN(avgIKI) ? "0" : avgIKI;
+  document.getElementById("liveKspc").innerText = isNaN(kspc) ? "0" : kspc;
   document.getElementById("liveBackspace").innerText = backspaces;
 
   index++;
@@ -277,6 +288,7 @@ function submitSentence() {
     saveFinalSummary();
   }
 }
+
 
 function saveFinalSummary() {
   let sum = logs.reduce((acc, curr) => {
