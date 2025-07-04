@@ -11,10 +11,10 @@
       max-width: 800px;
       margin: auto;
     }
-    h2 {
+    h2, h3 {
       font-size: 24px;
     }
-    textarea, input[type="text"] {
+    textarea, input[type="text"], select {
       width: 100%;
       font-size: 16px;
       margin-top: 10px;
@@ -56,27 +56,70 @@
 <body>
   <h2>Fatigue Detection Typing Test</h2>
 
-  <label for="username">Enter your name:</label>
-  <input type="text" id="username" placeholder="e.g. bhavya123" onblur="loadUserProgress()" />
-
-  <p id="typingSentence">Loading sentence...</p>
-  <textarea id="typingArea" placeholder="Start typing here..." autocorrect="off" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea>
-
-  <div id="progressContainer">
-    <div id="progressBar"></div>
+  <div id="demographicForm">
+    <h3>Demographic Information</h3>
+    <label>Name: <input type="text" id="username" /></label><br><br>
+    <label>Age Group:
+      <select id="ageGroup">
+        <option value="">Select</option>
+        <option>Under 18</option><option>18–25</option><option>26–35</option>
+        <option>36–50</option><option>51+</option>
+      </select>
+    </label><br><br>
+    <label>Gender:
+      <select id="gender">
+        <option value="">Select</option>
+        <option>Male</option><option>Female</option><option>Other</option><option>Prefer not to say</option>
+      </select>
+    </label><br><br>
+    <label>Typing Skill:
+      <select id="typingSkill">
+        <option value="">Select</option>
+        <option>Beginner</option><option>Intermediate</option><option>Advanced</option>
+      </select>
+    </label><br><br>
+    <label>Occupation: <input type="text" id="occupation" /></label><br><br>
+    <label>Daily Typing Hours:
+      <select id="typingHours">
+        <option value="">Select</option>
+        <option>&lt;1</option><option>1–2</option><option>2–4</option><option>4–6</option><option>6+</option>
+      </select>
+    </label><br><br>
+    <label>Mental Fatigue Level (1–5):
+      <select id="mentalFatigue">
+        <option value="">Select</option>
+        <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+      </select>
+    </label><br><br>
+    <label>Physical Fatigue Level (1–5):
+      <select id="physicalFatigue">
+        <option value="">Select</option>
+        <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+      </select>
+    </label><br><br>
+    <button onclick="submitDemographics()">Start Test</button>
   </div>
-  <p id="progressText">Sentence 0 of 10</p>
 
-  <button onclick="submitSentence()">Submit Sentence</button>
-  <button onclick="downloadSummaryCSV()">Download Summary CSV</button>
-  <button onclick="clearAllSummaries()">Clear All Summaries</button>
+  <div id="typingTestContainer" style="display:none;">
+    <p id="typingSentence">Loading sentence...</p>
+    <textarea id="typingArea" placeholder="Start typing here..." autocorrect="off" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea>
 
-  <div class="status" id="statusLabel"></div>
-  <div class="metrics" id="metricsDisplay"></div>
+    <div id="progressContainer">
+      <div id="progressBar"></div>
+    </div>
+    <p id="progressText">Sentence 0 of 10</p>
+
+    <button onclick="submitSentence()">Submit Sentence</button>
+    <button onclick="downloadSummaryCSV()">Download Summary CSV</button>
+    <button onclick="clearAllSummaries()">Clear All Summaries</button>
+
+    <div class="status" id="statusLabel"></div>
+    <div class="metrics" id="metricsDisplay"></div>
+  </div>
 
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-
+  <script src="https://unpkg.com/@firebase/util"></script>
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyDU56-FribrzudeFeh1-gz7ch25HHoWAGk",
@@ -193,10 +236,10 @@
         avgIKI: (sum.avgIKI / count).toFixed(2),
         kspc: (sum.kspc / count).toFixed(2),
         backspaces: sum.backspaces,
-        timestamp: new Date().toLocaleString().replace(",", "")
+        timestamp: new Date().toLocaleString()
       };
 
-      database.ref(`summaryLogs/${username}`).set(average).then(() => {
+      database.ref(`summaryLogs/${username}/metrics`).set(average).then(() => {
         document.getElementById("statusLabel").innerText = "✅ All 10 sentences completed and summary saved!";
         document.getElementById("metricsDisplay").innerHTML = `
           WPM: ${average.wpm}<br>
@@ -212,10 +255,11 @@
     function downloadSummaryCSV() {
       database.ref("summaryLogs").once("value").then(snapshot => {
         const logs = snapshot.val();
-        const rows = [["Username", "WPM", "Error Rate (%)", "Avg IKI (ms)", "KSPC", "Backspaces", "Timestamp"]];
+        const rows = [["Username", "WPM", "Error Rate (%)", "Avg IKI (ms)", "KSPC", "Backspaces", "Timestamp", "Age Group", "Gender", "Typing Skill", "Occupation", "Typing Hours", "Mental Fatigue", "Physical Fatigue"]];
         for (let user in logs) {
-          const l = logs[user];
-          rows.push([user, l.wpm, l.errorRate, l.avgIKI, l.kspc, l.backspaces, l.timestamp]);
+          const m = logs[user].metrics || {};
+          const d = logs[user].demographics || {};
+          rows.push([user, m.wpm, m.errorRate, m.avgIKI, m.kspc, m.backspaces, m.timestamp, d.ageGroup, d.gender, d.typingSkill, d.occupation, d.typingHours, d.mentalFatigue, d.physicalFatigue]);
         }
         const csv = rows.map(r => r.join(",")).join("\n");
         const blob = new Blob([csv], { type: "text/csv" });
@@ -237,13 +281,37 @@
       }
     }
 
-    window.onload = () => {
-      const saved = localStorage.getItem("username");
-      if (saved) {
-        document.getElementById("username").value = saved;
-        loadUserProgress();
+    function submitDemographics() {
+      const usernameInput = document.getElementById("username");
+      const usernameVal = usernameInput.value.trim();
+      const ageGroup = document.getElementById("ageGroup").value;
+      const gender = document.getElementById("gender").value;
+      const typingSkill = document.getElementById("typingSkill").value;
+      const occupation = document.getElementById("occupation").value;
+      const typingHours = document.getElementById("typingHours").value;
+      const mentalFatigue = document.getElementById("mentalFatigue").value;
+      const physicalFatigue = document.getElementById("physicalFatigue").value;
+
+      if (!usernameVal || !ageGroup || !gender || !typingSkill || !occupation || !typingHours || !mentalFatigue || !physicalFatigue) {
+        alert("Please fill in all fields.");
+        return;
       }
-    };
+
+      localStorage.setItem("username", usernameVal);
+      username = usernameVal;
+
+      const demographics = {
+        ageGroup, gender, typingSkill, occupation,
+        typingHours, mentalFatigue, physicalFatigue,
+        submittedAt: new Date().toLocaleString()
+      };
+
+      firebase.database().ref(`summaryLogs/${username}/demographics`).set(demographics).then(() => {
+        document.getElementById("demographicForm").style.display = "none";
+        document.getElementById("typingTestContainer").style.display = "block";
+        loadUserProgress();
+      });
+    }
   </script>
 </body>
 </html>
