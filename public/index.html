@@ -206,13 +206,6 @@ function updateUI() {
   delays = [];
   startTime = 0;
   lastKeyTime = 0;
-
-  // Reset live metrics
-  document.getElementById("liveWpm").innerText = "0";
-  document.getElementById("liveError").innerText = "0%";
-  document.getElementById("liveIki").innerText = "0";
-  document.getElementById("liveKspc").innerText = "0";
-  document.getElementById("liveBackspace").innerText = "0";
 }
 
 function loadUserProgress() {
@@ -275,18 +268,17 @@ function submitSentence() {
 
   logs.push({ wpm, errorRate, avgIKI, kspc, backspaces });
 
-  // ✅ Update live metrics BEFORE reset
-  document.getElementById("liveWpm").innerText = wpm;
-  document.getElementById("liveError").innerText = errorRate + "%";
-  document.getElementById("liveIki").innerText = avgIKI;
-  document.getElementById("liveKspc").innerText = kspc;
-  document.getElementById("liveBackspace").innerText = backspaces;
-
   index++;
 
   if (index < sentences.length) {
-    // ✅ Then reset all counters for next sentence
-    updateUI();
+    updateUI(); // reset typing state
+
+    // ✅ Update live metrics AFTER resetting fields
+    document.getElementById("liveWpm").innerText = wpm;
+    document.getElementById("liveError").innerText = errorRate + "%";
+    document.getElementById("liveIki").innerText = avgIKI;
+    document.getElementById("liveKspc").innerText = kspc;
+    document.getElementById("liveBackspace").innerText = backspaces;
   } else {
     saveFinalSummary();
   }
