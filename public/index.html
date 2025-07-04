@@ -185,29 +185,33 @@ let startTime = 0;
 
 const typingArea = document.getElementById("typingArea");
 
-// Block cursor movement via mouse/touchpad/touch/keyboard arrows
+// Prevent cursor movement and selection without blocking typing
 typingArea.addEventListener("mousedown", e => e.preventDefault());
 typingArea.addEventListener("touchstart", e => e.preventDefault());
 typingArea.addEventListener("selectstart", e => e.preventDefault());
-typingArea.style.caretColor = "transparent"; // Hide cursor
+typingArea.style.userSelect = "none";         // Disable text selection
+typingArea.style.caretColor = "transparent";  // Hide blinking cursor
 
 typingArea.addEventListener("keydown", e => {
   const now = performance.now();
 
   if (!startTime) startTime = now;
 
-  // Block arrow keys and Home/End/Delete
-  if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End", "Delete"].includes(e.key)) {
+  // Block navigation keys only
+  const blockedKeys = ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End", "Delete"];
+  if (blockedKeys.includes(e.key)) {
     e.preventDefault();
     return;
   }
 
+  // Count keystrokes and backspaces
   if (e.key.length === 1 || e.key === " ") {
     keystrokes++;
   } else if (e.key === "Backspace") {
     backspaces++;
   }
 
+  // Capture delay between keystrokes
   if (lastKeyTime > 0) {
     delays.push(now - lastKeyTime);
   }
