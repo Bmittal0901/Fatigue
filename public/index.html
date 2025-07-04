@@ -209,44 +209,7 @@ typingArea.addEventListener("selectstart", e => e.preventDefault());
 typingArea.style.userSelect = "none";         // Disable text selection
 typingArea.style.caretColor = "transparent";  // Hide blinking cursor
 
-typingArea.addEventListener("keydown", e => {
-  const now = performance.now();
-
-  if (!startTime) startTime = now;
-
-  // Block navigation keys only
-  const blockedKeys = ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End", "Delete"];
-  if (blockedKeys.includes(e.key)) {
-    e.preventDefault();
-    return;
-  }
-
-  // Count keystrokes and backspaces
-  if (e.key.length === 1 || e.key === " ") {
-    keystrokes++;
-  } else if (e.key === "Backspace") {
-    backspaces++;
-  }
-
-  // Capture delay between keystrokes
-  if (lastKeyTime > 0) {
-    delays.push(now - lastKeyTime);
-  }
-  lastKeyTime = now;
-});
-
-function getKeyDistance(a, b) {
-  return a === b ? 0 : 1;
-}
-
-function calculateErrorRate(a, b) {
-  let sum = 0;
-  const len = Math.max(a.length, b.length);
-  for (let i = 0; i < len; i++) sum += getKeyDistance(a[i] || "", b[i] || "");
-  return ((sum / len) * 100).toFixed(2);
-}
-
-typingArea.addEventListener("keydown", e => {
+  typingArea.addEventListener("keydown", e => {
   const now = performance.now();
 
   if (!startTime) startTime = now;
@@ -268,6 +231,7 @@ typingArea.addEventListener("keydown", e => {
   }
   lastKeyTime = now;
 });
+
 
 function updateUI() {
   document.getElementById("typingSentence").innerText = sentences[index];
@@ -312,7 +276,6 @@ function loadUserProgress() {
   if (!username) return;
   index = 0;
   logs = [];
-  updateUI();
 }
 
 function submitDemographics() {
@@ -342,6 +305,7 @@ function submitDemographics() {
     typingArea.removeAttribute("disabled");
     document.getElementById("statusLabel").innerText = "✅ Test Started";
   });
+    updateUI();
 }
 
 function submitSentence() {
