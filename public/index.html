@@ -130,198 +130,202 @@
   </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 <script>
-   const firebaseConfig = {
-      apiKey: "AIzaSyDU56-FribrzudeFeh1-gz7ch25HHoWAGk",
-      authDomain: "fatiguedetection-e13a1.firebaseapp.com",
-      databaseURL: "https://fatiguedetection-e13a1-default-rtdb.firebaseio.com",
-      projectId: "fatiguedetection-e13a1",
-      storageBucket: "fatiguedetection-e13a1.appspot.com",
-      messagingSenderId: "239129487774",
-      appId: "1:239129487774:web:e6ceb32ddbaea27a7a8e8f"
-    };
+  const firebaseConfig = {
+  apiKey: "AIzaSyDU56-FribrzudeFeh1-gz7ch25HHoWAGk",
+  authDomain: "fatiguedetection-e13a1.firebaseapp.com",
+  databaseURL: "https://fatiguedetection-e13a1-default-rtdb.firebaseio.com",
+  projectId: "fatiguedetection-e13a1",
+  storageBucket: "fatiguedetection-e13a1.appspot.com",
+  messagingSenderId: "239129487774",
+  appId: "1:239129487774:web:e6ceb32ddbaea27a7a8e8f"
+};
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
 
-    firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
+const sentences = [
+  "The quick brown fox jumps over the lazy dog.",
+  "Typing speed can reveal your level of alertness.",
+  "Consistency in typing patterns indicates low fatigue.",
+  "Backspace usage often increases when you're tired.",
+  "Stay focused and type the sentence shown above.",
+  "Fast typing isn't always accurate typing.",
+  "How many times do you press backspace per minute?",
+  "Fatigue can impact typing rhythm and timing.",
+  "A sleepy mind types with heavy fingers.",
+  "Reaction time between keystrokes says a lot."
+];
 
-    const sentences = [
-      "The quick brown fox jumps over the lazy dog.",
-      "Typing speed can reveal your level of alertness.",
-      "Consistency in typing patterns indicates low fatigue.",
-      "Backspace usage often increases when you're tired.",
-      "Stay focused and type the sentence shown above.",
-      "Fast typing isn't always accurate typing.",
-      "How many times do you press backspace per minute?",
-      "Fatigue can impact typing rhythm and timing.",
-      "A sleepy mind types with heavy fingers.",
-      "Reaction time between keystrokes says a lot."
-    ];
+let username = "";
+let index = 0;
+let logs = [];
+let keystrokes = 0;
+let backspaces = 0;
+let delays = [];
+let lastKeyTime = 0;
+let startTime = 0;
+let typingArea = document.getElementById("typingArea");
 
-    let username = "";
-    let index = 0;
-    let logs = [];
-    let keystrokes = 0;
-    let backspaces = 0;
-    let delays = [];
-    let lastKeyTime = 0;
-    let startTime = 0;
+typingArea.addEventListener("keydown", e => {
+  if (!startTime) startTime = performance.now();
+  const now = performance.now();
+  if (e.key === "Backspace") backspaces++;
+  else if (e.key.length === 1 || e.key === " ") keystrokes++;
+  if (lastKeyTime > 0) delays.push(now - lastKeyTime);
+  lastKeyTime = now;
+});
 
-    const typingArea = document.getElementById("typingArea");
+function getKeyDistance(a, b) {
+  return a === b ? 0 : 1;
+}
 
-    typingArea.addEventListener("keydown", e => {
-      if (!startTime) startTime = performance.now();
-      const now = performance.now();
-      if (e.key === "Backspace") backspaces++;
-      else if (e.key.length === 1 || e.key === " ") keystrokes++;
-      delays.push(now - lastKeyTime);
-      lastKeyTime = now;
+function calculateErrorRate(a, b) {
+  let sum = 0;
+  const len = Math.max(a.length, b.length);
+  for (let i = 0; i < len; i++) sum += getKeyDistance(a[i] || "", b[i] || "");
+  return ((sum / len) * 100).toFixed(2);
+}
+
+function updateUI() {
+  document.getElementById("typingSentence").innerText = sentences[index];
+  document.getElementById("progressText").innerText = `Sentence ${index + 1} of ${sentences.length}`;
+  document.getElementById("progressBar").style.width = `${((index) / sentences.length) * 100}%`;
+  typingArea.value = "";
+  typingArea.disabled = false;
+  typingArea.focus();
+  keystrokes = 0;
+  backspaces = 0;
+  delays = [];
+  startTime = 0;
+  lastKeyTime = 0;
+}
+
+function loadUserProgress() {
+  username = document.getElementById("username").value.trim();
+  if (!username) return;
+  index = 0;
+  logs = [];
+  updateUI();
+}
+
+function submitDemographics() {
+  const u = document.getElementById("username").value.trim();
+  const ageGroup = document.getElementById("ageGroup").value;
+  const gender = document.getElementById("gender").value;
+  const typingSkill = document.getElementById("typingSkill").value;
+  const occupation = document.getElementById("occupation").value;
+  const typingHours = document.getElementById("typingHours").value;
+  const mentalFatigue = document.getElementById("mentalFatigue").value;
+  const physicalFatigue = document.getElementById("physicalFatigue").value;
+
+  if (!u || !ageGroup || !gender || !typingSkill || !occupation || !typingHours || !mentalFatigue || !physicalFatigue) {
+    alert("Please fill in all fields.");
+    return;
+  }
+
+  username = u;
+  const demographics = {
+    ageGroup, gender, typingSkill, occupation,
+    typingHours, mentalFatigue, physicalFatigue,
+    submittedAt: new Date().toLocaleString().replace(",", "")
+  };
+
+  firebase.database().ref(`summaryLogs/${username}/demographics`).set(demographics).then(() => {
+    loadUserProgress();
+    typingArea.removeAttribute("disabled");
+    document.getElementById("statusLabel").innerText = "✅ Test Started";
+  });
+}
+
+function submitSentence() {
+  if (!username || index >= sentences.length) return;
+
+  const typed = typingArea.value.trim();
+  const elapsed = (performance.now() - startTime) / 1000;
+  const wpm = ((typed.length / 5) / (elapsed / 60)).toFixed(2);
+  const errorRate = calculateErrorRate(sentences[index], typed);
+  const avgIKI = (delays.reduce((a, b) => a + b, 0) / delays.length || 0).toFixed(2);
+  const kspc = (keystrokes / typed.length || 0).toFixed(2);
+
+  logs.push({ wpm, errorRate, avgIKI, kspc, backspaces });
+
+  // Update live metrics
+  document.getElementById("liveWpm").innerText = wpm;
+  document.getElementById("liveError").innerText = errorRate + "%";
+
+  index++;
+  if (index < sentences.length) {
+    updateUI();
+  } else {
+    saveFinalSummary();
+  }
+}
+
+function saveFinalSummary() {
+  let sum = logs.reduce((acc, curr) => {
+    acc.wpm += parseFloat(curr.wpm);
+    acc.errorRate += parseFloat(curr.errorRate);
+    acc.avgIKI += parseFloat(curr.avgIKI);
+    acc.kspc += parseFloat(curr.kspc);
+    acc.backspaces += parseInt(curr.backspaces);
+    return acc;
+  }, { wpm: 0, errorRate: 0, avgIKI: 0, kspc: 0, backspaces: 0 });
+
+  const count = logs.length;
+  const average = {
+    username,
+    wpm: (sum.wpm / count).toFixed(2),
+    errorRate: (sum.errorRate / count).toFixed(2),
+    avgIKI: (sum.avgIKI / count).toFixed(2),
+    kspc: (sum.kspc / count).toFixed(2),
+    backspaces: sum.backspaces,
+    timestamp: new Date().toLocaleString().replace(",", "")
+  };
+
+  database.ref(`summaryLogs/${username}/metrics`).set(average).then(() => {
+    document.getElementById("statusLabel").innerText = "✅ All sentences complete. Summary saved!";
+    document.getElementById("metricsDisplay").innerHTML = `
+      <b>WPM:</b> ${average.wpm}<br>
+      <b>Error Rate:</b> ${average.errorRate}%<br>
+      <b>Avg IKI:</b> ${average.avgIKI} ms<br>
+      <b>KSPC:</b> ${average.kspc}<br>
+      <b>Backspaces:</b> ${average.backspaces}<br>
+      <b>Timestamp:</b> ${average.timestamp}`;
+    typingArea.disabled = true;
+  });
+}
+
+function downloadSummaryCSV() {
+  database.ref("summaryLogs").once("value").then(snapshot => {
+    const logs = snapshot.val();
+    const rows = [["Username", "WPM", "Error Rate (%)", "Avg IKI (ms)", "KSPC", "Backspaces", "Timestamp", "Age Group", "Gender", "Typing Skill", "Occupation", "Typing Hours", "Mental Fatigue", "Physical Fatigue"]];
+    for (let user in logs) {
+      const m = logs[user].metrics || {};
+      const d = logs[user].demographics || {};
+      rows.push([user, m.wpm, m.errorRate, m.avgIKI, m.kspc, m.backspaces, m.timestamp, d.ageGroup, d.gender, d.typingSkill, d.occupation, d.typingHours, d.mentalFatigue, d.physicalFatigue]);
+    }
+    const csv = rows.map(r => r.join(",")).join("\n");
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "summary_logs.csv";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  });
+}
+
+function clearAllSummaries() {
+  if (confirm("Clear all logs? This cannot be undone.")) {
+    database.ref("summaryLogs").remove().then(() => {
+      alert("✅ Logs cleared.");
     });
+  }
+}
 
-    function getKeyDistance(a, b) {
-      return a === b ? 0 : 1;
-    }
-
-    function calculateErrorRate(a, b) {
-      let sum = 0;
-      const len = Math.max(a.length, b.length);
-      for (let i = 0; i < len; i++) sum += getKeyDistance(a[i], b[i]);
-      return ((sum / len) * 100).toFixed(2);
-    }
-
-    function updateUI() {
-      document.getElementById("typingSentence").innerText = sentences[index];
-      document.getElementById("progressText").innerText = `Sentence ${index + 1} of ${sentences.length}`;
-      document.getElementById("progressBar").style.width = `${((index) / sentences.length) * 100}%`;
-      typingArea.value = "";
-      typingArea.disabled = false;
-      typingArea.focus();
-      keystrokes = 0;
-      backspaces = 0;
-      delays = [];
-      startTime = 0;
-    }
-
-    function loadUserProgress() {
-      username = document.getElementById("username").value.trim();
-      if (!username) return;
-      index = 0;
-      logs = [];
-      updateUI();
-    }
-
-    function submitSentence() {
-      if (!username || index >= sentences.length) return;
-      const typed = typingArea.value.trim();
-      const elapsed = (performance.now() - startTime) / 1000;
-      const wpm = ((typed.length / 5) / (elapsed / 60)).toFixed(2);
-      const errorRate = calculateErrorRate(sentences[index], typed);
-      const avgIKI = (delays.reduce((a, b) => a + b, 0) / delays.length).toFixed(2);
-      const kspc = (keystrokes / typed.length).toFixed(2);
-
-      logs.push({ wpm, errorRate, avgIKI, kspc, backspaces });
-      index++;
-
-      if (index < sentences.length) {
-        updateUI();
-      } else {
-        saveFinalSummary();
-      }
-    }
-
-    function saveFinalSummary() {
-      let sum = logs.reduce((acc, curr) => {
-        acc.wpm += parseFloat(curr.wpm);
-        acc.errorRate += parseFloat(curr.errorRate);
-        acc.avgIKI += parseFloat(curr.avgIKI);
-        acc.kspc += parseFloat(curr.kspc);
-        acc.backspaces += parseInt(curr.backspaces);
-        return acc;
-      }, { wpm: 0, errorRate: 0, avgIKI: 0, kspc: 0, backspaces: 0 });
-
-      const count = logs.length;
-      const average = {
-        username,
-        wpm: (sum.wpm / count).toFixed(2),
-        errorRate: (sum.errorRate / count).toFixed(2),
-        avgIKI: (sum.avgIKI / count).toFixed(2),
-        kspc: (sum.kspc / count).toFixed(2),
-        backspaces: sum.backspaces,
-        timestamp: new Date().toLocaleString().replace(",", "")
-      };
-
-      database.ref(`summaryLogs/${username}/metrics`).set(average).then(() => {
-        document.getElementById("statusLabel").innerText = "✅ All 10 sentences completed and summary saved!";
-        document.getElementById("metricsDisplay").innerHTML = `
-          WPM: ${average.wpm}<br>
-          Error Rate: ${average.errorRate}%<br>
-          Avg IKI: ${average.avgIKI} ms<br>
-          KSPC: ${average.kspc}<br>
-          Backspaces: ${average.backspaces}<br>
-          Timestamp: ${average.timestamp}`;
-        typingArea.disabled = true;
-      });
-    }
-
-    function downloadSummaryCSV() {
-      database.ref("summaryLogs").once("value").then(snapshot => {
-        const logs = snapshot.val();
-        const rows = [["Username", "WPM", "Error Rate (%)", "Avg IKI (ms)", "KSPC", "Backspaces", "Timestamp", "Age Group", "Gender", "Typing Skill", "Occupation", "Typing Hours", "Mental Fatigue", "Physical Fatigue"]];
-        for (let user in logs) {
-          const m = logs[user].metrics || {};
-          const d = logs[user].demographics || {};
-          rows.push([user, m.wpm, m.errorRate, m.avgIKI, m.kspc, m.backspaces, m.timestamp, d.ageGroup, d.gender, d.typingSkill, d.occupation, d.typingHours, d.mentalFatigue, d.physicalFatigue]);
-        }
-        const csv = rows.map(r => r.join(",")).join("\n");
-        const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "summary_logs.csv";
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-      });
-    }
-
-    function clearAllSummaries() {
-      if (confirm("Are you sure you want to delete all summary logs?")) {
-        database.ref("summaryLogs").remove().then(() => {
-          alert("✅ All summary logs cleared.");
-        });
-      }
-    }
-
-    function submitDemographics() {
-      const usernameInput = document.getElementById("username");
-      const usernameVal = usernameInput.value.trim();
-      const ageGroup = document.getElementById("ageGroup").value;
-      const gender = document.getElementById("gender").value;
-      const typingSkill = document.getElementById("typingSkill").value;
-      const occupation = document.getElementById("occupation").value;
-      const typingHours = document.getElementById("typingHours").value;
-      const mentalFatigue = document.getElementById("mentalFatigue").value;
-      const physicalFatigue = document.getElementById("physicalFatigue").value;
-
-      if (!usernameVal || !ageGroup || !gender || !typingSkill || !occupation || !typingHours || !mentalFatigue || !physicalFatigue) {
-        alert("Please fill in all fields.");
-        return;
-      }
-
-      localStorage.setItem("username", usernameVal);
-      username = usernameVal;
-
-      const demographics = {
-        ageGroup, gender, typingSkill, occupation,
-        typingHours, mentalFatigue, physicalFatigue,
-        submittedAt: new Date().toLocaleString().replace(",", "")
-      };
-
-      firebase.database().ref(`summaryLogs/${username}/demographics`).set(demographics).then(() => {
-        document.getElementById("demographicForm").style.display = "none";
-        document.getElementById("typingTestContainer").style.display = "block";
-        loadUserProgress();
-      });
-    }
 </script>
 </body>
 </html>
