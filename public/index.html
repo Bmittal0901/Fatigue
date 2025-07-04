@@ -6,27 +6,32 @@
   <title>Fatigue Detection Typing Test</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Space+Grotesk:wght@400;600&display=swap" rel="stylesheet">
   <style>
     body {
-      background: #f1f4f9;
-      font-family: 'Inter', sans-serif;
+      background: linear-gradient(to right, #eef2f3, #ffffff);
+      font-family: 'Space Grotesk', 'Inter', sans-serif;
     }
     .sidebar, .main-panel, .control-panel {
-      background-color: #ffffffcc;
-      backdrop-filter: blur(8px);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      background-color: #ffffffdd;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
       padding: 1.5rem;
       height: 100vh;
       overflow-y: auto;
+      border-radius: 0.75rem;
+    }
+    h4, h5 {
+      font-weight: 600;
     }
     textarea {
-      height: 150px;
+      height: 160px;
+      border-radius: 0.5rem;
     }
     .metrics-box span {
       display: block;
       font-weight: bold;
-      font-size: 1.1rem;
+      font-size: 1.2rem;
     }
     .form-label.required::after {
       content: " *";
@@ -39,12 +44,30 @@
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
     }
+    button {
+      border-radius: 0.5rem;
+    }
+    #statusLabel {
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+    .progress {
+      height: 10px;
+      border-radius: 5px;
+    }
+    .progress-bar {
+      background: #1f8ef1;
+    }
+    #metricsDisplay b {
+      display: inline-block;
+      width: 120px;
+    }
   </style>
 </head>
 <body>
 <div class="container-fluid">
-  <div class="row">
-    <!-- Left Sidebar -->
+  <div class="row g-3">
+    <!-- Sidebar -->
     <div class="col-md-3 sidebar">
       <h5 class="mb-3"><i class="fas fa-user"></i> Participant Info</h5>
       <div class="mb-3">
@@ -87,24 +110,23 @@
       <div class="mb-3">
         <label class="form-label">Mental Fatigue (0–5): <span id="mentalFatigueValue">0</span></label>
         <input type="range" id="mentalFatigue" class="form-range" min="0" max="5" value="0" oninput="document.getElementById('mentalFatigueValue').innerText = this.value">
-     </div>
-    <div class="mb-3">
-      <label class="form-label">Physical Fatigue (0–5): <span id="physicalFatigueValue">0</span></label>
-      <input type="range" id="physicalFatigue" class="form-range" min="0" max="5" value="0" oninput="document.getElementById('physicalFatigueValue').innerText = this.value">
-</div>
-
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Physical Fatigue (0–5): <span id="physicalFatigueValue">0</span></label>
+        <input type="range" id="physicalFatigue" class="form-range" min="0" max="5" value="0" oninput="document.getElementById('physicalFatigueValue').innerText = this.value">
+      </div>
       <button class="btn btn-primary w-100" onclick="submitDemographics()"><i class="fas fa-play"></i> Start Test</button>
     </div>
 
-    <!-- Center Panel -->
+    <!-- Main Typing Panel -->
     <div class="col-md-6 main-panel fade-in">
       <h4 class="mb-3">⌨️ Typing Test</h4>
-      <p id="typingSentence">Please enter details to start the test.</p>
+      <p id="typingSentence" class="fs-5 fw-semibold">Please enter details to start the test.</p>
       <textarea id="typingArea" class="form-control" disabled placeholder="Your typing area..."></textarea>
       <div class="progress my-3">
         <div id="progressBar" class="progress-bar" role="progressbar" style="width: 0%"></div>
       </div>
-      <p class="text-end" id="progressText">Sentence 0 of 10</p>
+      <p class="text-end fw-semibold" id="progressText">Sentence 0 of 10</p>
       <div class="d-grid gap-2">
         <button class="btn btn-success" onclick="submitSentence()"><i class="fas fa-check"></i> Submit Sentence</button>
       </div>
