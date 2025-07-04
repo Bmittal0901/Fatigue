@@ -33,7 +33,18 @@
       margin-top: 20px;
       font-weight: bold;
     }
-
+    #progressContainer {
+      margin-top: 10px;
+      height: 20px;
+      background: #eee;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+    #progressBar {
+      height: 100%;
+      width: 0%;
+      background-color: #4caf50;
+    }
     @media (max-width: 600px) {
       textarea, input[type="text"] {
         font-size: 18px;
@@ -46,30 +57,27 @@
   <h2>Fatigue Detection Typing Test</h2>
 
   <label for="username">Enter your name:</label>
-  <input type="text" id="username" placeholder="e.g. bhavya123"/>
+  <input type="text" id="username" placeholder="e.g. bhavya123" onblur="loadUserProgress()" />
 
   <p id="typingSentence">Loading sentence...</p>
-  <textarea 
-    id="typingArea" 
-    placeholder="Start typing here..." 
-    autocorrect="off" 
-    autocomplete="off" 
-    autocapitalize="off" 
-    spellcheck="false"
-  ></textarea><br>
+  <textarea id="typingArea" placeholder="Start typing here..." autocorrect="off" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea>
+
+  <div id="progressContainer">
+    <div id="progressBar"></div>
+  </div>
+  <p id="progressText">Sentence 0 of 10</p>
 
   <button onclick="saveLog()">Submit Typing Log</button>
-  <button onclick="downloadCSV()">Download CSV Log</button>
+  <button onclick="downloadCSV()">Download Full CSV Log</button>
+  <button id="downloadSummaryBtn" onclick="downloadUserSummary()" style="display:none;">Download Summary CSV</button>
 
   <div class="status" id="statusLabel"></div>
   <div class="metrics" id="metricsDisplay"></div>
 
-  <!-- Firebase Scripts -->
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 
   <script>
-    // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyDU56-FribrzudeFeh1-gz7ch25HHoWAGk",
       authDomain: "fatiguedetection-e13a1.firebaseapp.com",
@@ -83,7 +91,7 @@
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
-    const sentences = [
+    const sentencePool = [
       "The quick brown fox jumps over the lazy dog.",
       "Typing speed can reveal your level of alertness.",
       "Consistency in typing patterns indicates low fatigue.",
@@ -96,9 +104,7 @@
       "Reaction time between keystrokes says a lot."
     ];
 
-    const selectedSentence = sentences[Math.floor(Math.random() * sentences.length)];
-    document.getElementById("typingSentence").innerText = selectedSentence;
-
+    let sentenceIndex = 0;
     const typingArea = document.getElementById("typingArea");
     let keystrokes = 0;
     let totalBackspaces = 0;
@@ -106,139 +112,131 @@
     let lastKeyTime = performance.now();
     let delays = [];
 
-    // Lock cursor to end
-    function lockCursorToEnd() {
-      const valLen = typingArea.value.length;
-      typingArea.setSelectionRange(valLen, valLen);
+    function updateProgress() {
+      const progressPercent = ((sentenceIndex) / sentencePool.length) * 100;
+      document.getElementById("progressBar").style.width = `${progressPercent}%`;
+      document.getElementById("progressText").innerText = `Sentence ${sentenceIndex} of ${sentencePool.length}`;
     }
 
-    typingArea.addEventListener("mouseup", () => {
-      setTimeout(lockCursorToEnd, 0);
-    });
+    function loadUserProgress() {
+      const username = document.getElementById("username").value.trim();
+      if (!username) return;
+      localStorage.setItem("username", username);
+      database.ref(`typingLogs/${username}`).once("value").then((snapshot) => {
+        const logs = snapshot.val();
+        sentenceIndex = logs ? Object.keys(logs).length : 0;
+        if (sentenceIndex >= sentencePool.length) {
+          document.getElementById("typingSentence").innerText = "✅ All 10 sentences completed!";
+          typingArea.disabled = true;
+          document.getElementById("downloadSummaryBtn").style.display = "inline-block";
+          showUserSummary();
+        } else {
+          loadNextSentence();
+        }
+      });
+    }
 
-    typingArea.addEventListener("touchend", () => {
-      setTimeout(lockCursorToEnd, 0);
-    });
-
-    typingArea.addEventListener("input", lockCursorToEnd);
-    typingArea.addEventListener("keyup", lockCursorToEnd);
+    function loadNextSentence() {
+      document.getElementById("typingSentence").innerText = sentencePool[sentenceIndex];
+      typingArea.value = "";
+      typingArea.disabled = false;
+      startTime = null;
+      keystrokes = 0;
+      totalBackspaces = 0;
+      delays = [];
+      lastKeyTime = performance.now();
+      updateProgress();
+    }
 
     typingArea.addEventListener("keydown", function (event) {
       if (!startTime) startTime = performance.now();
-
       const now = performance.now();
       if (event.key === "Backspace") totalBackspaces++;
       else if (event.key.length === 1 || event.key === " ") keystrokes++;
-
       delays.push(now - lastKeyTime);
       lastKeyTime = now;
     });
 
-    // Keyboard layout map
-    const keyboardLayout = {
-      'q':[0,0],'w':[1,0],'e':[2,0],'r':[3,0],'t':[4,0],'y':[5,0],'u':[6,0],'i':[7,0],'o':[8,0],'p':[9,0],
-      'a':[0.5,1],'s':[1.5,1],'d':[2.5,1],'f':[3.5,1],'g':[4.5,1],'h':[5.5,1],'j':[6.5,1],'k':[7.5,1],'l':[8.5,1],
-      'z':[1,2],'x':[2,2],'c':[3,2],'v':[4,2],'b':[5,2],'n':[6,2],'m':[7,2],
-      ' ':[5,3]
-    };
+    const keyboardLayout = { ... } // (Same as your existing layout)
 
-    function getKeyDistance(a, b) {
-      a = a.toLowerCase();
-      b = b.toLowerCase();
-      if (!keyboardLayout[a] || !keyboardLayout[b]) return 1;
-      const [x1, y1] = keyboardLayout[a];
-      const [x2, y2] = keyboardLayout[b];
-      return Math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2);
-    }
+    function getKeyDistance(a, b) { ... } // (Same as your existing function)
 
-    function calculateErrorRate(target, typed) {
-      let totalDistance = 0;
-      const maxLength = Math.max(target.length, typed.length);
-      for (let i = 0; i < maxLength; i++) {
-        const targetChar = target[i] || "";
-        const typedChar = typed[i] || "";
-        totalDistance += getKeyDistance(targetChar, typedChar);
-      }
-      return ((totalDistance / maxLength) * 10).toFixed(2); // Scaled %
-    }
+    function calculateErrorRate(target, typed) { ... } // (Same as your existing function)
 
     function saveLog() {
       const username = document.getElementById("username").value.trim();
-      if (!username) {
-        alert("Please enter your username.");
-        return;
-      }
+      if (!username) return alert("Please enter your username.");
+      document.getElementById("username").disabled = true;
+      if (sentenceIndex >= sentencePool.length) return;
 
+      const targetSentence = sentencePool[sentenceIndex];
       const typedText = typingArea.value.trim();
       const totalTime = (performance.now() - startTime) / 1000;
       const wpm = ((typedText.length / 5) / (totalTime / 60)).toFixed(2);
-      const errorRate = calculateErrorRate(selectedSentence, typedText);
+      const errorRate = calculateErrorRate(targetSentence, typedText);
       const kspc = (keystrokes / typedText.length).toFixed(2);
       const avgIKI = (delays.reduce((a, b) => a + b, 0) / delays.length).toFixed(2);
 
-      const logData = {
-        username,
-        wpm,
-        errorRate,
-        avgIKI,
-        kspc,
-        backspaces: totalBackspaces,
-        timestamp: new Date().toISOString()
-      };
+      const logData = { username, sentenceNumber: sentenceIndex + 1, target: targetSentence, typed: typedText, wpm, errorRate, avgIKI, kspc, backspaces: totalBackspaces, timestamp: new Date().toISOString() };
 
-      database.ref("typingLogs").push(logData, (error) => {
-        if (error) {
-          document.getElementById("statusLabel").innerText = "❌ Failed to save log!";
+      database.ref(`typingLogs/${username}`).push(logData).then(() => {
+        document.getElementById("statusLabel").innerText = `✅ Sentence ${sentenceIndex + 1} saved!`;
+        document.getElementById("metricsDisplay").innerHTML = `WPM: ${wpm}<br>Error Rate: ${errorRate}%<br>Avg IKI: ${avgIKI} ms<br>KSPC: ${kspc}<br>Backspaces: ${totalBackspaces}`;
+        sentenceIndex++;
+        if (sentenceIndex < sentencePool.length) {
+          loadNextSentence();
         } else {
-          document.getElementById("statusLabel").innerText = "✅ Log saved successfully!";
-          document.getElementById("metricsDisplay").innerHTML = `
-            WPM: ${wpm}<br>
-            Error Rate (distance-based): ${errorRate}%<br>
-            Average IKI: ${avgIKI} ms<br>
-            KSPC: ${kspc}<br>
-            Backspaces: ${totalBackspaces}
-          `;
+          document.getElementById("typingSentence").innerText = "✅ All 10 sentences completed!";
+          typingArea.disabled = true;
+          document.getElementById("downloadSummaryBtn").style.display = "inline-block";
+          showUserSummary();
         }
       });
     }
 
-    function downloadCSV() {
-      const dbRef = firebase.database().ref("typingLogs");
-
-      dbRef.once("value").then((snapshot) => {
+    function showUserSummary() {
+      const username = document.getElementById("username").value.trim();
+      database.ref(`typingLogs/${username}`).once("value").then(snapshot => {
         const logs = snapshot.val();
-        if (!logs) {
-          alert("No logs found.");
-          return;
-        }
-
-        const rows = [["Username", "WPM", "Error Rate (%)", "Avg IKI (ms)", "KSPC", "Backspaces", "Timestamp"]];
+        let totalWPM = 0, totalErr = 0, totalIKI = 0, totalKSPC = 0, totalBack = 0;
+        const count = Object.keys(logs).length;
         Object.values(logs).forEach(log => {
-          rows.push([
-            log.username || "",
-            log.wpm || "",
-            log.errorRate || "",
-            log.avgIKI || "",
-            log.kspc || "",
-            log.backspaces || "",
-            log.timestamp || ""
-          ]);
+          totalWPM += parseFloat(log.wpm);
+          totalErr += parseFloat(log.errorRate);
+          totalIKI += parseFloat(log.avgIKI);
+          totalKSPC += parseFloat(log.kspc);
+          totalBack += parseInt(log.backspaces);
         });
+        document.getElementById("metricsDisplay").innerHTML += `<hr><strong>Summary (10 Sentences):</strong><br>Avg WPM: ${(totalWPM / count).toFixed(2)}<br>Avg Error Rate: ${(totalErr / count).toFixed(2)}%<br>Avg IKI: ${(totalIKI / count).toFixed(2)} ms<br>Avg KSPC: ${(totalKSPC / count).toFixed(2)}<br>Total Backspaces: ${totalBack}`;
+      });
+    }
 
-        const csvContent = rows.map(e => e.join(",")).join("\n");
+    function downloadUserSummary() {
+      const username = document.getElementById("username").value.trim();
+      database.ref(`typingLogs/${username}`).once("value").then(snapshot => {
+        const logs = snapshot.val();
+        const rows = [["Sentence #", "Target Sentence", "Typed Sentence", "WPM", "Error Rate (%)", "Avg IKI (ms)", "KSPC", "Backspaces", "Timestamp"]];
+        Object.values(logs).forEach((log, idx) => {
+          rows.push([idx + 1, `"${log.target}"`, `"${log.typed}"`, log.wpm, log.errorRate, log.avgIKI, log.kspc, log.backspaces, log.timestamp]);
+        });
+        const csvContent = rows.map(row => row.join(",")).join("\n");
         const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
         const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-
-        link.setAttribute("href", url);
-        link.setAttribute("download", "typing_logs.csv");
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      }).catch(error => {
-        console.error("Failed to download CSV:", error);
-        alert("Error fetching logs.");
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${username}_summary.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
       });
+    }
+
+    window.onload = () => {
+      const savedUser = localStorage.getItem("username");
+      if (savedUser) {
+        document.getElementById("username").value = savedUser;
+        loadUserProgress();
+      }
     }
   </script>
 </body>
