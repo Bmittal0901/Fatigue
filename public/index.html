@@ -7,108 +7,133 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body {
-      padding: 2rem;
+      background-color: #f8f9fa;
+    }
+    .sidebar {
+      min-height: 100vh;
+      background: #ffffff;
+      border-right: 1px solid #dee2e6;
+      padding: 1.5rem;
+    }
+    .metrics-card {
+      background: #ffffff;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    .metrics-title {
+      font-size: 0.9rem;
+      color: #6c757d;
+    }
+    .metrics-value {
+      font-size: 1.5rem;
+      font-weight: bold;
     }
     textarea {
       height: 150px;
-    }
-    .fade-in {
-      animation: fadeIn 0.5s ease-in-out;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
+      font-size: 16px;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h2 class="text-center mb-4">🖋️ Fatigue Detection Typing Test</h2>
+<div class="container-fluid">
+  <div class="row">
 
-    <div id="demographicForm" class="card p-4 fade-in">
-      <h4 class="mb-3">Personal Information</h4>
-      <div class="row g-3">
-        <div class="col-md-6">
-          <label class="form-label">Name</label>
-          <input type="text" id="username" class="form-control" />
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">Age Group</label>
-          <select id="ageGroup" class="form-select">
-            <option value="">Select</option>
-            <option>Under 18</option><option>18–25</option><option>26–35</option>
-            <option>36–50</option><option>51+</option>
-          </select>
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">Gender</label>
-          <select id="gender" class="form-select">
-            <option value="">Select</option>
-            <option>Male</option><option>Female</option><option>Other</option><option>Prefer not to say</option>
-          </select>
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">Typing Skill</label>
-          <select id="typingSkill" class="form-select">
-            <option value="">Select</option>
-            <option>Beginner</option><option>Intermediate</option><option>Advanced</option>
-          </select>
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">Occupation</label>
-          <input type="text" id="occupation" class="form-control" />
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">Daily Typing Hours</label>
-          <select id="typingHours" class="form-select">
-            <option value="">Select</option>
-            <option><1</option><option>1–2</option><option>2–4</option><option>4–6</option><option>6+</option>
-          </select>
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">Mental Fatigue Level (1–5)</label>
-          <select id="mentalFatigue" class="form-select">
-            <option value="">Select</option>
-            <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
-          </select>
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">Physical Fatigue Level (1–5)</label>
-          <select id="physicalFatigue" class="form-select">
-            <option value="">Select</option>
-            <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
-          </select>
-        </div>
+    <!-- Sidebar -->
+    <div class="col-md-3 sidebar">
+      <h4>👤 Demographics</h4>
+      <div class="mb-3">
+        <label class="form-label">Name</label>
+        <input type="text" class="form-control" id="username">
       </div>
-      <button class="btn btn-primary mt-4 w-100" onclick="submitDemographics()">Start Typing Test</button>
+      <div class="mb-3">
+        <label class="form-label">Age Group</label>
+        <select class="form-select" id="ageGroup">
+          <option value="">Select</option>
+          <option>Under 18</option><option>18–25</option><option>26–35</option>
+          <option>36–50</option><option>51+</option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Gender</label>
+        <select class="form-select" id="gender">
+          <option value="">Select</option>
+          <option>Male</option><option>Female</option><option>Other</option><option>Prefer not to say</option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Typing Skill</label>
+        <select class="form-select" id="typingSkill">
+          <option value="">Select</option>
+          <option>Beginner</option><option>Intermediate</option><option>Advanced</option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Occupation</label>
+        <input type="text" class="form-control" id="occupation">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Typing Hours</label>
+        <select class="form-select" id="typingHours">
+          <option value="">Select</option>
+          <option><1</option><option>1–2</option><option>2–4</option><option>4–6</option><option>6+</option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Mental Fatigue (1–5)</label>
+        <select class="form-select" id="mentalFatigue">
+          <option value="">Select</option>
+          <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Physical Fatigue (1–5)</label>
+        <select class="form-select" id="physicalFatigue">
+          <option value="">Select</option>
+          <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+        </select>
+      </div>
+      <button class="btn btn-primary w-100" onclick="submitDemographics()">Start Typing Test</button>
     </div>
 
-    <div id="typingTestContainer" class="fade-in" style="display:none;">
-      <div class="card p-4 mt-4">
-        <p class="lead" id="typingSentence">Loading sentence...</p>
+    <!-- Main typing area -->
+    <div class="col-md-6 py-4" id="typingTestContainer" style="display:none;">
+      <div class="mb-3">
+        <h4 id="typingSentence">Loading...</h4>
         <textarea id="typingArea" class="form-control" placeholder="Start typing here..."></textarea>
-
-        <div class="progress my-3">
-          <div id="progressBar" class="progress-bar" role="progressbar" style="width: 0%"></div>
-        </div>
-        <p class="text-end" id="progressText">Sentence 0 of 10</p>
-
-        <div class="d-grid gap-2">
-          <button class="btn btn-success" onclick="submitSentence()">Submit Sentence</button>
-          <button class="btn btn-outline-secondary" onclick="downloadSummaryCSV()">Download Summary CSV</button>
-          <button class="btn btn-outline-danger" onclick="clearAllSummaries()">Clear All Summaries</button>
-        </div>
-
-        <div class="status mt-3 text-success" id="statusLabel"></div>
-        <div class="metrics mt-2 text-muted" id="metricsDisplay"></div>
+        <small class="text-muted d-block text-end mt-1" id="progressText">Sentence 0 of 10</small>
+      </div>
+      <div class="progress">
+        <div id="progressBar" class="progress-bar" role="progressbar" style="width: 0%"></div>
       </div>
     </div>
-  </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-  <script>
+    <!-- Right panel -->
+    <div class="col-md-3 py-4">
+      <div class="metrics-card">
+        <div class="metrics-title">Live WPM</div>
+        <div class="metrics-value" id="liveWpm">0</div>
+      </div>
+      <div class="metrics-card">
+        <div class="metrics-title">Live Error %</div>
+        <div class="metrics-value" id="liveError">0%</div>
+      </div>
+      <div class="metrics-card">
+        <button class="btn btn-success w-100 mb-2" onclick="submitSentence()">Submit Sentence</button>
+        <button class="btn btn-secondary w-100 mb-2" onclick="downloadSummaryCSV()">Download CSV</button>
+        <button class="btn btn-danger w-100" onclick="clearAllSummaries()">Clear All</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Firebase + Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+<script>
       const firebaseConfig = {
       apiKey: "AIzaSyDU56-FribrzudeFeh1-gz7ch25HHoWAGk",
       authDomain: "fatiguedetection-e13a1.firebaseapp.com",
@@ -300,6 +325,6 @@
         loadUserProgress();
       });
     }
-  </script>
+</script>
 </body>
 </html>
