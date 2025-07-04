@@ -236,7 +236,7 @@
         avgIKI: (sum.avgIKI / count).toFixed(2),
         kspc: (sum.kspc / count).toFixed(2),
         backspaces: sum.backspaces,
-        timestamp: new Date().toLocaleString()
+        timestamp: new Date().toLocaleString().replace(",", "")
       };
 
       database.ref(`summaryLogs/${username}/metrics`).set(average).then(() => {
