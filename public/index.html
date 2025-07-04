@@ -233,13 +233,23 @@ function updateUI() {
   document.getElementById("typingSentence").innerText = sentences[index];
   document.getElementById("progressText").innerText = `Sentence ${index + 1} of ${sentences.length}`;
   document.getElementById("progressBar").style.width = `${(index / sentences.length) * 100}%`;
-  typingArea.value = "";
   typingArea.disabled = false;
-  typingArea.readOnly = false;       // temporarily allow input
-  typingArea.focus();
-  setTimeout(() => {
-    typingArea.readOnly = true;      // lock it again after focusing to prevent touch placement
-  }, 10);
+typingArea.readOnly = false;
+typingArea.value = "";
+typingArea.focus();
+
+// Force caret to end and immediately reset scroll
+setTimeout(() => {
+  typingArea.selectionStart = typingArea.selectionEnd = typingArea.value.length;
+}, 5);
+
+// Keep caret hidden and prevent repositioning via mouse/touch
+typingArea.addEventListener("mousedown", e => e.preventDefault());
+typingArea.addEventListener("touchstart", e => e.preventDefault());
+typingArea.addEventListener("selectstart", e => e.preventDefault());
+typingArea.style.userSelect = "none";
+typingArea.style.caretColor = "transparent";
+
 
   keystrokes = 0;
   backspaces = 0;
