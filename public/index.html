@@ -303,7 +303,7 @@
       const demographics = {
         ageGroup, gender, typingSkill, occupation,
         typingHours, mentalFatigue, physicalFatigue,
-        submittedAt: new Date().toLocaleString()
+        submittedAt: new Date().toLocaleString().replace(",", "")
       };
 
       firebase.database().ref(`summaryLogs/${username}/demographics`).set(demographics).then(() => {
