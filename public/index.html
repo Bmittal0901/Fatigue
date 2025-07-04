@@ -280,14 +280,13 @@ function submitSentence() {
   index++;
 
   if (index < sentences.length) {
-    updateUI(); // reset typing state
-
-    // ✅ Update live metrics AFTER resetting fields
+   // ✅ Update live metrics AFTER resetting fields
     document.getElementById("liveWpm").innerText = wpm;
     document.getElementById("liveError").innerText = errorRate + "%";
     document.getElementById("liveIki").innerText = avgIKI;
     document.getElementById("liveKspc").innerText = kspc;
     document.getElementById("liveBackspace").innerText = backspaces;
+    updateUI(); // reset typing state
   } else {
     saveFinalSummary();
   }
