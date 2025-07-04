@@ -112,6 +112,33 @@
     let lastKeyTime = performance.now();
     let delays = [];
 
+    const keyboardLayout = {
+      'q':[0,0],'w':[1,0],'e':[2,0],'r':[3,0],'t':[4,0],'y':[5,0],'u':[6,0],'i':[7,0],'o':[8,0],'p':[9,0],
+      'a':[0.5,1],'s':[1.5,1],'d':[2.5,1],'f':[3.5,1],'g':[4.5,1],'h':[5.5,1],'j':[6.5,1],'k':[7.5,1],'l':[8.5,1],
+      'z':[1,2],'x':[2,2],'c':[3,2],'v':[4,2],'b':[5,2],'n':[6,2],'m':[7,2],
+      ' ':[5,3]
+    };
+
+    function getKeyDistance(a, b) {
+      a = a.toLowerCase();
+      b = b.toLowerCase();
+      if (!keyboardLayout[a] || !keyboardLayout[b]) return 1;
+      const [x1, y1] = keyboardLayout[a];
+      const [x2, y2] = keyboardLayout[b];
+      return Math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2);
+    }
+
+    function calculateErrorRate(target, typed) {
+      let totalDistance = 0;
+      const maxLength = Math.max(target.length, typed.length);
+      for (let i = 0; i < maxLength; i++) {
+        const targetChar = target[i] || "";
+        const typedChar = typed[i] || "";
+        totalDistance += getKeyDistance(targetChar, typedChar);
+      }
+      return ((totalDistance / maxLength) * 10).toFixed(2);
+    }
+
     function updateProgress() {
       const progressPercent = ((sentenceIndex) / sentencePool.length) * 100;
       document.getElementById("progressBar").style.width = `${progressPercent}%`;
@@ -157,12 +184,6 @@
       lastKeyTime = now;
     });
 
-    const keyboardLayout = { ... } // (Same as your existing layout)
-
-    function getKeyDistance(a, b) { ... } // (Same as your existing function)
-
-    function calculateErrorRate(target, typed) { ... } // (Same as your existing function)
-
     function saveLog() {
       const username = document.getElementById("username").value.trim();
       if (!username) return alert("Please enter your username.");
@@ -177,11 +198,27 @@
       const kspc = (keystrokes / typedText.length).toFixed(2);
       const avgIKI = (delays.reduce((a, b) => a + b, 0) / delays.length).toFixed(2);
 
-      const logData = { username, sentenceNumber: sentenceIndex + 1, target: targetSentence, typed: typedText, wpm, errorRate, avgIKI, kspc, backspaces: totalBackspaces, timestamp: new Date().toISOString() };
+      const logData = {
+        username,
+        sentenceNumber: sentenceIndex + 1,
+        target: targetSentence,
+        typed: typedText,
+        wpm,
+        errorRate,
+        avgIKI,
+        kspc,
+        backspaces: totalBackspaces,
+        timestamp: new Date().toISOString()
+      };
 
       database.ref(`typingLogs/${username}`).push(logData).then(() => {
         document.getElementById("statusLabel").innerText = `✅ Sentence ${sentenceIndex + 1} saved!`;
-        document.getElementById("metricsDisplay").innerHTML = `WPM: ${wpm}<br>Error Rate: ${errorRate}%<br>Avg IKI: ${avgIKI} ms<br>KSPC: ${kspc}<br>Backspaces: ${totalBackspaces}`;
+        document.getElementById("metricsDisplay").innerHTML = `
+          WPM: ${wpm}<br>
+          Error Rate: ${errorRate}%<br>
+          Avg IKI: ${avgIKI} ms<br>
+          KSPC: ${kspc}<br>
+          Backspaces: ${totalBackspaces}`;
         sentenceIndex++;
         if (sentenceIndex < sentencePool.length) {
           loadNextSentence();
@@ -231,13 +268,38 @@
       });
     }
 
+    function downloadCSV() {
+      database.ref("typingLogs").once("value").then(snapshot => {
+        const logs = snapshot.val();
+        const rows = [["Username", "Sentence #", "Target", "Typed", "WPM", "Error Rate", "Avg IKI", "KSPC", "Backspaces", "Timestamp"]];
+        for (let user in logs) {
+          for (let key in logs[user]) {
+            const log = logs[user][key];
+            rows.push([
+              user, log.sentenceNumber, `"${log.target}"`, `"${log.typed}"`,
+              log.wpm, log.errorRate, log.avgIKI, log.kspc, log.backspaces, log.timestamp
+            ]);
+          }
+        }
+        const csvContent = rows.map(r => r.join(",")).join("\n");
+        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `all_typing_logs.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      });
+    }
+
     window.onload = () => {
       const savedUser = localStorage.getItem("username");
       if (savedUser) {
         document.getElementById("username").value = savedUser;
         loadUserProgress();
       }
-    }
+    };
   </script>
 </body>
 </html>
