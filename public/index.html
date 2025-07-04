@@ -175,11 +175,20 @@ let startTime = 0;
 let typingArea = document.getElementById("typingArea");
 
 typingArea.addEventListener("keydown", e => {
-  if (!startTime) startTime = performance.now();
   const now = performance.now();
-  if (e.key === "Backspace") backspaces++;
-  else if (e.key.length === 1 || e.key === " ") keystrokes++;
-  if (lastKeyTime > 0) delays.push(now - lastKeyTime);
+
+  if (!startTime) startTime = now;
+
+  // Count keystrokes and backspaces only for actual characters or space
+  if (e.key.length === 1 || e.key === " ") {
+    keystrokes++;
+  } else if (e.key === "Backspace") {
+    backspaces++;
+  }
+
+  if (lastKeyTime > 0) {
+    delays.push(now - lastKeyTime);
+  }
   lastKeyTime = now;
 });
 
