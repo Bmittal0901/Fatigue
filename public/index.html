@@ -246,33 +246,65 @@ function calculateErrorRate(a, b) {
   return ((sum / len) * 100).toFixed(2);
 }
 
+typingArea.addEventListener("keydown", e => {
+  const now = performance.now();
+
+  if (!startTime) startTime = now;
+
+  const blockedKeys = ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End", "Delete"];
+  if (blockedKeys.includes(e.key)) {
+    e.preventDefault();
+    return;
+  }
+
+  if (e.key.length === 1 || e.key === " ") {
+    keystrokes++;
+  } else if (e.key === "Backspace") {
+    backspaces++;
+  }
+
+  if (lastKeyTime > 0) {
+    delays.push(now - lastKeyTime);
+  }
+  lastKeyTime = now;
+});
+
 function updateUI() {
   document.getElementById("typingSentence").innerText = sentences[index];
   document.getElementById("progressText").innerText = `Sentence ${index + 1} of ${sentences.length}`;
   document.getElementById("progressBar").style.width = `${(index / sentences.length) * 100}%`;
+
   typingArea.disabled = false;
-typingArea.readOnly = false;
-typingArea.value = "";
-typingArea.focus();
+  typingArea.readOnly = false;
+  typingArea.value = "";
+  typingArea.focus();
 
-// Force caret to end and immediately reset scroll
-setTimeout(() => {
-  typingArea.selectionStart = typingArea.selectionEnd = typingArea.value.length;
-}, 5);
+  // Make sure caret starts at end and input area is in view (especially on mobile)
+  setTimeout(() => {
+    typingArea.selectionStart = typingArea.selectionEnd = typingArea.value.length;
+    typingArea.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, 200);
 
-// Keep caret hidden and prevent repositioning via mouse/touch
-typingArea.addEventListener("mousedown", e => e.preventDefault());
-typingArea.addEventListener("touchstart", e => e.preventDefault());
-typingArea.addEventListener("selectstart", e => e.preventDefault());
-typingArea.style.userSelect = "none";
-typingArea.style.caretColor = "transparent";
-
-
+  // Reset tracking variables
   keystrokes = 0;
   backspaces = 0;
   delays = [];
   startTime = 0;
   lastKeyTime = 0;
+
+  // Prevent selection, touch-hold, or caret reposition
+  typingArea.addEventListener("mousedown", e => e.preventDefault());
+  typingArea.addEventListener("touchstart", e => e.preventDefault());
+  typingArea.addEventListener("selectstart", e => e.preventDefault());
+
+  // Style to lock cursor and text selection
+  typingArea.style.userSelect = "none";
+  typingArea.style.caretColor = "transparent";
+
+  // Also ensure mobile keyboards don’t autocorrect or suggest
+  typingArea.setAttribute("autocorrect", "off");
+  typingArea.setAttribute("autocapitalize", "off");
+  typingArea.setAttribute("spellcheck", "false");
 }
 
 function loadUserProgress() {
