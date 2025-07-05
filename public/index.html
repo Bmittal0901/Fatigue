@@ -1,664 +1,941 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Fatigue Detection Typing Test</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Space+Grotesk:wght@400;600&display=swap" rel="stylesheet">
-  <style>
-    /* CSS Variables for easy theme changes */
-    :root {
-      --primary-color: #36a3ff; /* A vibrant blue */
-      --secondary-color: #50E3C2; /* A fresh teal */
-      --background-light: #F8F9FA; /* Off-white for body background */
-      --panel-bg: #ffffff; /* Solid white for panels */
-      --text-dark: #343a40; /* Darker text for better contrast */
-      --border-color-light: #e9ecef; /* Light border for subtle separation */
-      --shadow-subtle: 0 4px 15px rgba(0,0,0,0.08);
-      --border-radius-base: 0.8rem; /* Slightly larger radius for softness */
-      --border-radius-sm: 0.5rem;
-    }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fatigue Detection Typing Test</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Space+Grotesk:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* CSS Variables for easy theme changes */
+        :root {
+            --primary-color: #36a3ff; /* A vibrant blue */
+            --secondary-color: #50E3C2; /* A fresh teal */
+            --background-light: #F8F9FA; /* Off-white for body background */
+            --panel-bg: #ffffff; /* Solid white for panels */
+            --text-dark: #343a40; /* Darker text for better contrast */
+            --border-color-light: #e9ecef; /* Light border for subtle separation */
+            --shadow-subtle: 0 4px 15px rgba(0,0,0,0.08);
+            --border-radius-base: 0.8rem; /* Slightly larger radius for softness */
+            --border-radius-sm: 0.5rem;
+        }
 
-    body {
-      background: linear-gradient(to bottom right, var(--background-light), #ffffff);
-      font-family: 'Space Grotesk', 'Inter', sans-serif;
-      color: var(--text-dark);
-      min-height: 100vh; /* Ensure body takes full height */
-      display: flex; /* Use flex to center content if needed */
-      align-items: center; /* Vertically center main container */
-      padding: 1.5rem 0; /* Add some vertical padding */
-    }
+        body {
+            background: linear-gradient(to bottom right, var(--background-light), #ffffff);
+            font-family: 'Space Grotesk', 'Inter', sans-serif;
+            color: var(--text-dark);
+            min-height: 100vh; /* Ensure body takes full height */
+            display: flex; /* Use flex to center content if needed */
+            align-items: center; /* Vertically center main container */
+            padding: 1.5rem 0; /* Add some vertical padding */
+        }
 
-    .container-fluid {
-      max-width: 1400px; /* Max width for the main content area */
-      margin: auto; /* Center the container */
-    }
+        .container-fluid {
+            max-width: 1400px; /* Max width for the main content area */
+            margin: auto; /* Center the container */
+        }
 
-    .sidebar, .main-panel, .control-panel {
-      background-color: var(--panel-bg);
-      box-shadow: var(--shadow-subtle);
-      padding: 2rem; /* Increased padding for more breathing room */
-      /* height: 100vh; */ /* Removed fixed height, let content define it */
-      min-height: 700px; /* Minimum height for consistency */
-      overflow-y: auto;
-      border-radius: var(--border-radius-base);
-      border: 1px solid var(--border-color-light); /* Subtle border */
-      display: flex; /* Flex container for better layout within panels */
-      flex-direction: column;
-    }
+        .sidebar, .main-panel, .control-panel {
+            background-color: var(--panel-bg);
+            box-shadow: var(--shadow-subtle);
+            padding: 2rem; /* Increased padding for more breathing room */
+            min-height: 700px; /* Minimum height for consistency */
+            overflow-y: auto;
+            border-radius: var(--border-radius-base);
+            border: 1px solid var(--border-color-light); /* Subtle border */
+            display: flex; /* Flex container for better layout within panels */
+            flex-direction: column;
+        }
 
-    /* Adjust specific panel heights for better balance */
-    .main-panel {
-      min-height: 700px; /* Ensure main typing area is tall enough */
-    }
-    .sidebar {
-      min-height: 700px;
-    }
-    .control-panel {
-      min-height: 700px;
-    }
+        /* Adjust specific panel heights for better balance */
+        .main-panel {
+            min-height: 700px; /* Ensure main typing area is tall enough */
+        }
+        .sidebar {
+            min-height: 700px;
+        }
+        .control-panel {
+            min-height: 700px;
+        }
 
-    h4, h5 {
-      font-weight: 600;
-      color: var(--primary-color);
-      margin-bottom: 1.5rem; /* More space below headings */
-    }
+        h4, h5 {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem; /* More space below headings */
+        }
 
-    textarea {
-      height: 180px; /* Slightly taller textarea */
-      border-radius: var(--border-radius-sm);
-      border: 1px solid var(--border-color-light);
-      padding: 1rem;
-      font-size: 1.1rem; /* Slightly larger font in textarea */
-      transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-      resize: vertical; /* Allow vertical resizing, but limit min height */
-      min-height: 100px;
-    }
+        textarea {
+            height: 180px; /* Slightly taller textarea */
+            border-radius: var(--border-radius-sm);
+            border: 1px solid var(--border-color-light);
+            padding: 1rem;
+            font-size: 1.1rem; /* Slightly larger font in textarea */
+            transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            resize: vertical; /* Allow vertical resizing, but limit min height */
+            min-height: 100px;
+        }
+        textarea:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(var(--primary-color), .25); /* Custom focus ring */
+            outline: none; /* Remove default outline */
+        }
 
-    textarea:focus {
-      border-color: var(--primary-color);
-      box-shadow: 0 0 0 0.25rem rgba(var(--primary-color), .25); /* Custom focus ring */
-      outline: none; /* Remove default outline */
-    }
+        .metrics-box {
+            background-color: var(--background-light); /* Light background for metrics */
+            border-radius: var(--border-radius-sm);
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border-color-light); /* Subtle border */
+        }
+        .metrics-box label {
+            font-weight: 500; /* Slightly bolder labels */
+            color: var(--text-dark);
+            margin-bottom: 0.2rem; /* Space between label and value */
+            display: block; /* Ensure labels are block elements */
+        }
+        .metrics-box span {
+            display: block;
+            font-weight: bold;
+            font-size: 1.5rem; /* Larger font for metric values */
+            color: var(--primary-color);
+            margin-bottom: 1rem; /* Space after each value */
+        }
 
-    .metrics-box {
-      background-color: var(--background-light); /* Light background for metrics */
-      border-radius: var(--border-radius-sm);
-      padding: 1.25rem;
-      margin-bottom: 1.5rem;
-    }
+        .form-label {
+            font-weight: 500;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem; /* Space below labels */
+        }
+        .form-control, .form-select {
+            border-radius: var(--border-radius-sm);
+            border: 1px solid var(--border-color-light);
+            padding: 0.6rem 0.75rem; /* Slightly more padding */
+            font-size: 0.95rem;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(var(--primary-color), .25);
+            outline: none;
+        }
 
-    .metrics-box label {
-      font-weight: 500; /* Slightly bolder labels */
-      color: var(--text-dark);
-      margin-bottom: 0.2rem; /* Space between label and value */
-      display: block; /* Ensure labels are block elements */
-    }
+        .form-label.required::after {
+            content: " *";
+            color: #dc3545; /* Bootstrap red */
+        }
 
-    .metrics-box span {
-      display: block;
-      font-weight: bold;
-      font-size: 1.5rem; /* Larger font for metric values */
-      color: var(--primary-color);
-      margin-bottom: 1rem; /* Space after each value */
-    }
+        .fade-in {
+            animation: fadeIn 0.6s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-    .form-label {
-      font-weight: 500;
-      color: var(--text-dark);
-      margin-bottom: 0.5rem; /* Space below labels */
-    }
-    .form-control, .form-select {
-        border-radius: var(--border-radius-sm);
-        border: 1px solid var(--border-color-light);
-        padding: 0.6rem 0.75rem; /* Slightly more padding */
-        font-size: 0.95rem;
-    }
-    .form-control:focus, .form-select:focus {
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 0.25rem rgba(var(--primary-color), .25);
-        outline: none;
-    }
-    .form-label.required::after {
-      content: " *";
-      color: #dc3545; /* Bootstrap red */
-    }
-    .fade-in {
-      animation: fadeIn 0.6s ease-in-out;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    button {
-      border-radius: var(--border-radius-sm);
-      padding: 0.75rem 1.25rem; /* More prominent buttons */
-      font-size: 1rem;
-      transition: all 0.2s ease-in-out;
-    }
-    button:hover {
-        transform: translateY(-2px); /* Lift effect on hover */
-        box-shadow: 0 6px 12px rgba(0,0,0,0.1);
-    }
+        button {
+            border-radius: var(--border-radius-sm);
+            padding: 0.75rem 1.25rem; /* More prominent buttons */
+            font-size: 1rem;
+            transition: all 0.2s ease-in-out;
+        }
+        button:hover {
+            transform: translateY(-2px); /* Lift effect on hover */
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+        }
 
-    .btn-primary {
-      background-color: var(--primary-color);
-      border-color: var(--primary-color);
-    }
-    .btn-primary:hover {
-      background-color: #2a8ae6; /* Slightly darker primary on hover */
-      border-color: #2a8ae6;
-    }
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        .btn-primary:hover {
+            background-color: #2a8ae6; /* Slightly darker primary on hover */
+            border-color: #2a8ae6;
+        }
 
-    .btn-success {
-      background-color: var(--secondary-color);
-      border-color: var(--secondary-color);
-      color: var(--text-dark); /* Ensure text is readable on light teal */
-    }
-    .btn-success:hover {
-      background-color: #40cfa9; /* Slightly darker secondary on hover */
-      border-color: #40cfa9;
-    }
+        .btn-success {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+            color: var(--text-dark); /* Ensure text is readable on light teal */
+        }
+        .btn-success:hover {
+            background-color: #40cfa9; /* Slightly darker secondary on hover */
+            border-color: #40cfa9;
+        }
 
-    .btn-outline-secondary {
-      border-color: var(--border-color-light);
-      color: var(--text-dark);
-    }
-    .btn-outline-secondary:hover {
-      background-color: var(--border-color-light);
-      border-color: var(--border-color-light);
-      color: var(--text-dark);
-    }
-    .btn-outline-danger {
-      border-color: #dc3545;
-      color: #dc3545;
-    }
-    .btn-outline-danger:hover {
-      background-color: #dc3545;
-      color: #ffffff;
-    }
+        .btn-outline-secondary {
+            border-color: var(--border-color-light);
+            color: var(--text-dark);
+        }
+        .btn-outline-secondary:hover {
+            background-color: var(--border-color-light);
+            border-color: var(--border-color-light);
+            color: var(--text-dark);
+        }
+        .btn-outline-danger {
+            border-color: #dc3545;
+            color: #dc3545;
+        }
+        .btn-outline-danger:hover {
+            background-color: #dc3545;
+            color: #ffffff;
+        }
 
-    #statusLabel {
-      font-weight: 700; /* Bolder status label */
-      font-size: 1.3rem; /* Larger font */
-      color: var(--primary-color); /* Primary color for success */
-      margin-top: 1.5rem; /* More space above */
-    }
-    .progress {
-      height: 12px; /* Thicker progress bar */
-      border-radius: 6px;
-      background-color: var(--border-color-light); /* Lighter background for empty part */
-    }
-    .progress-bar {
-      background: var(--primary-color);
-      transition: width 0.4s ease-in-out;
-    }
-    #metricsDisplay {
-      margin-top: 1.5rem; /* More space above */
-      background-color: var(--background-light);
-      border-radius: var(--border-radius-sm);
-      padding: 1.25rem;
-      border: 1px solid var(--border-color-light);
-    }
-    #metricsDisplay b {
-      display: inline-block;
-      width: 130px; /* Slightly wider for alignment */
-      font-weight: 600;
-      color: var(--primary-color); /* Labels in primary color */
-    }
+        #statusLabel {
+            font-weight: 700; /* Bolder status label */
+            font-size: 1.3rem; /* Larger font */
+            color: var(--primary-color); /* Primary color for success */
+            margin-top: 1.5rem; /* More space above */
+        }
+        #statusLabel.text-danger {
+            color: #dc3545; /* Red for errors */
+        }
 
-    /* Styling for when typing area is disabled */
-    #typingArea[disabled] {
-        background-color: #f1f4f6; /* A clear disabled background */
-        cursor: not-allowed;
-        opacity: 0.8;
-    }
+        .progress {
+            height: 12px; /* Thicker progress bar */
+            border-radius: 6px;
+            background-color: var(--border-color-light); /* Lighter background for empty part */
+        }
+        .progress-bar {
+            background: var(--primary-color);
+            transition: width 0.4s ease-in-out;
+        }
 
-    /* Responsive adjustments */
-    @media (max-width: 991px) {
-        .sidebar, .main-panel, .control-panel {
-            min-height: auto; /* Allow height to adjust on smaller screens */
-            margin-bottom: 1.5rem; /* Add space between stacked panels */
-        }
-        body {
-            padding: 1rem 0; /* Less padding on smaller screens */
-            display: block; /* Revert to block layout for stacking */
-        }
-    }
-    @media (max-width: 767px) {
-        .sidebar, .main-panel, .control-panel {
-            padding: 1rem; /* Smaller padding on very small screens */
-        }
-        h4, h5 {
-            font-size: 1.3rem;
-            margin-bottom: 1rem;
-        }
-        textarea {
-            height: 120px;
-            font-size: 1rem;
-        }
-        .metrics-box span {
-            font-size: 1.2rem;
-        }
-        button {
-            padding: 0.6rem 1rem;
-            font-size: 0.9rem;
-        }
-    }
-  </style>
+        #metricsDisplay {
+            margin-top: 1.5rem; /* More space above */
+            background-color: var(--background-light);
+            border-radius: var(--border-radius-sm);
+            padding: 1.25rem;
+            border: 1px solid var(--border-color-light);
+        }
+        #metricsDisplay b {
+            display: inline-block;
+            width: 130px; /* Slightly wider for alignment */
+            font-weight: 600;
+            color: var(--primary-color); /* Labels in primary color */
+        }
+
+        /* Styling for when typing area is disabled */
+        #typingArea[disabled] {
+            background-color: #f1f4f6; /* A clear disabled background */
+            cursor: not-allowed;
+            opacity: 0.8;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 991px) {
+            .sidebar, .main-panel, .control-panel {
+                min-height: auto; /* Allow height to adjust on smaller screens */
+                margin-bottom: 1.5rem; /* Add space between stacked panels */
+            }
+            body {
+                padding: 1rem 0; /* Less padding on smaller screens */
+                display: block; /* Revert to block layout for stacking */
+            }
+        }
+        @media (max-width: 767px) {
+            .sidebar, .main-panel, .control-panel {
+                padding: 1rem; /* Smaller padding on very small screens */
+            }
+            h4, h5 {
+                font-size: 1.3rem;
+                margin-bottom: 1rem;
+            }
+            textarea {
+                height: 120px;
+                font-size: 1rem;
+            }
+            .metrics-box span {
+                font-size: 1.2rem;
+            }
+            button {
+                padding: 0.6rem 1rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
 </head>
 <body>
+
 <div class="container-fluid">
-  <div class="row g-3">
-    <div class="col-md-3 sidebar">
-      <h5 class="mb-4"><i class="fas fa-user-circle me-2"></i> Participant Info</h5>
-      <div class="mb-3">
-        <label class="form-label required">Name</label>
-        <input type="text" id="username" class="form-control" required>
-      </div>
-      <div class="mb-3">
-        <label class="form-label required">Age Group</label>
-        <select id="ageGroup" class="form-select" required>
-          <option value="">Select</option>
-          <option>Under 18</option><option>18–25</option><option>26–35</option>
-          <option>36–50</option><option>51+</option>
-        </select>
-      </div>
-      <div class="mb-3">
-        <label class="form-label required">Gender</label>
-        <select id="gender" class="form-select" required>
-          <option value="">Select</option>
-          <option>Male</option><option>Female</option><option>Other</option><option>Prefer not to say</option>
-        </select>
-      </div>
-      <div class="mb-3">
-        <label class="form-label required">Typing Skill</label>
-        <select id="typingSkill" class="form-select" required>
-          <option value="">Select</option>
-          <option>Beginner</option><option>Intermediate</option><option>Advanced</option>
-        </select>
-      </div>
-      <div class="mb-3">
-        <label class="form-label required">Occupation</label>
-        <input type="text" id="occupation" class="form-control" required>
-      </div>
-      <div class="mb-3">
-        <label class="form-label required">Typing Hours</label>
-        <select id="typingHours" class="form-select" required>
-          <option value="">Select</option>
-          <option>&lt;1</option><option>1–2</option><option>2–4</option><option>4–6</option><option>6+</option>
-        </select>
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Mental Fatigue (0–5): <span id="mentalFatigueValue">0</span></label>
-        <input type="range" id="mentalFatigue" class="form-range" min="0" max="5" value="0" oninput="document.getElementById('mentalFatigueValue').innerText = this.value">
-      </div>
-      <div class="mb-4"> <label class="form-label">Physical Fatigue (0–5): <span id="physicalFatigueValue">0</span></label>
-        <input type="range" id="physicalFatigue" class="form-range" min="0" max="5" value="0" oninput="document.getElementById('physicalFatigueValue').innerText = this.value">
-      </div>
-      <button class="btn btn-primary w-100 mt-auto" onclick="submitDemographics()"><i class="fas fa-play me-2"></i> Start Test</button>
-    </div>
+    <div class="row g-3">
+        <div class="col-md-3 sidebar">
+            <h5 class="mb-4"><i class="fas fa-user-circle me-2"></i> Participant Info</h5>
+            <div class="mb-3">
+                <label for="username" class="form-label required">Name</label>
+                <input type="text" id="username" class="form-control" required placeholder="Enter your name" minlength="2">
+            </div>
+            <div class="mb-3">
+                <label for="ageGroup" class="form-label required">Age Group</label>
+                <select id="ageGroup" class="form-select" required>
+                    <option value="">Select</option>
+                    <option>Under 18</option>
+                    <option>18–25</option>
+                    <option>26–35</option>
+                    <option>36–50</option>
+                    <option>51+</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="gender" class="form-label required">Gender</label>
+                <select id="gender" class="form-select" required>
+                    <option value="">Select</option>
+                    <option>Male</option>
+                    <option>Female</option>
+                    <option>Other</option>
+                    <option>Prefer not to say</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="typingSkill" class="form-label required">Typing Skill</label>
+                <select id="typingSkill" class="form-select" required>
+                    <option value="">Select</option>
+                    <option>Beginner</option>
+                    <option>Intermediate</option>
+                    <option>Advanced</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="occupation" class="form-label required">Occupation</label>
+                <input type="text" id="occupation" class="form-control" required placeholder="e.g., Student, Engineer">
+            </div>
+            <div class="mb-3">
+                <label for="typingHours" class="form-label required">Typing Hours (Daily)</label>
+                <select id="typingHours" class="form-select" required>
+                    <option value="">Select</option>
+                    <option>&lt;1</option>
+                    <option>1–2</option>
+                    <option>2–4</option>
+                    <option>4–6</option>
+                    <option>6+</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="mentalFatigue" class="form-label">Mental Fatigue (0–5): <span id="mentalFatigueValue">0</span></label>
+                <input type="range" id="mentalFatigue" class="form-range" min="0" max="5" value="0" oninput="document.getElementById('mentalFatigueValue').innerText = this.value">
+            </div>
+            <div class="mb-4">
+                <label for="physicalFatigue" class="form-label">Physical Fatigue (0–5): <span id="physicalFatigueValue">0</span></label>
+                <input type="range" id="physicalFatigue" class="form-range" min="0" max="5" value="0" oninput="document.getElementById('physicalFatigueValue').innerText = this.value">
+            </div>
+            <button class="btn btn-primary w-100 mt-auto" onclick="submitDemographics()"><i class="fas fa-play me-2"></i> Start Test</button>
+        </div>
 
-    <div class="col-md-6 main-panel fade-in">
-      <h4 class="mb-4">⌨️ Typing Test</h4>
-      <p id="typingSentence" class="fs-5 fw-semibold text-muted mb-4">Please enter details to start the test.</p>
-      <textarea id="typingArea" class="form-control" disabled placeholder="Your typing area..."></textarea>
-      <div class="progress my-4"> <div id="progressBar" class="progress-bar" role="progressbar" style="width: 0%"></div>
-      </div>
-      <p class="text-end fw-semibold text-muted" id="progressText">Sentence 0 of 10</p>
-      <div class="d-grid gap-2 mt-4"> <button class="btn btn-success" onclick="submitSentence()"><i class="fas fa-check-circle me-2"></i> Submit Sentence</button>
-      </div>
-      <div class="text-success text-center mt-3" id="statusLabel"></div> <div class="text-muted mt-4" id="metricsDisplay"></div> </div>
+        <div class="col-md-6 main-panel fade-in">
+            <h4 class="mb-4">⌨️ Typing Test</h4>
+            <p id="typingSentence" class="fs-5 fw-semibold text-muted mb-4">Please enter details to start the test.</p>
+            <textarea id="typingArea" class="form-control" disabled placeholder="Your typing area..."></textarea>
+            <div class="progress my-4">
+                <div id="progressBar" class="progress-bar" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+            <p class="text-end fw-semibold text-muted" id="progressText">Sentence 0 of 10</p>
+            <div class="d-grid gap-2 mt-4">
+                <button class="btn btn-success" onclick="submitSentence()"><i class="fas fa-check-circle me-2"></i> Submit Sentence</button>
+            </div>
+            <div class="text-center mt-3" id="statusLabel"></div>
+            <div class="mt-4" id="metricsDisplay" style="display:none;"></div>
+        </div>
 
-    <div class="col-md-3 control-panel">
-      <h5 class="mb-4"><i class="fas fa-chart-line me-2"></i> Live Analytics</h5>
-      <div class="metrics-box">
-        <label>Live WPM</label>
-        <span id="liveWpm">0</span>
-        <label>Error %</label>
-        <span id="liveError">0%</span>
-        <label>Avg IKI (ms)</label>
-        <span id="liveIki">0</span>
-        <label>KSPC</label>
-        <span id="liveKspc">0</span>
-        <label>Backspaces</label>
-        <span id="liveBackspace">0</span>
-      </div>
-      <hr class="my-4"> <button class="btn btn-outline-secondary w-100 mb-3" onclick="downloadSummaryCSV()"><i class="fas fa-download me-2"></i> Download CSV</button>
-      <button class="btn btn-outline-danger w-100" onclick="clearAllSummaries()"><i class="fas fa-trash-alt me-2"></i> Clear Logs</button>
-    </div>
-  </div>
+        <div class="col-md-3 control-panel">
+            <h5 class="mb-4"><i class="fas fa-chart-line me-2"></i> Live Analytics</h5>
+            <div class="metrics-box">
+                <label>Live WPM</label>
+                <span id="liveWpm">0</span>
+                <label>Error %</label>
+                <span id="liveError">0%</span>
+                <label>Avg IKI (ms)</label>
+                <span id="liveIki">0</span>
+                <label>KSPC</label>
+                <span id="liveKspc">0</span>
+                <label>Backspaces</label>
+                <span id="liveBackspace">0</span>
+            </div>
+            <hr class="my-4">
+            <div class="d-grid gap-2 mt-auto">
+                <button class="btn btn-outline-secondary" onclick="downloadSummaryCSV()"><i class="fas fa-download me-2"></i> Download Full Log (CSV)</button>
+                <button class="btn btn-outline-danger" onclick="clearAllSummaries()"><i class="fas fa-trash-alt me-2"></i> Clear All Logs</button>
+            </div>
+        </div>
+    </div>
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 <script>
-  // Firebase Configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyDU56-FribrzudeFeh1-gz7ch25HHoWAGk",
-    authDomain: "fatiguedetection-e13a1.firebaseapp.com",
-    databaseURL: "https://fatiguedetection-e13a1-default-rtdb.firebaseio.com",
-    projectId: "fatiguedetection-e13a1",
-    storageBucket: "fatiguedetection-e13a1.appspot.com",
-    messagingSenderId: "239129487774",
-    appId: "1:239129487774:web:e6ceb32ddbaea27a7a8e8f"
-  };
-
-  // Initialize Firebase
-  firebase.initializeApp(firebaseConfig);
-  const database = firebase.database();
+    // Firebase Configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyDU56-FribrzudeFeh1-gz7ch25HHoWAGk",
+        authDomain: "fatiguedetection-e13a1.firebaseapp.com",
+        databaseURL: "https://fatiguedetection-e13a1-default-rtdb.firebaseio.com",
+        projectId: "fatiguedetection-e13a1",
+        storageBucket: "fatiguedetection-e13a1.appspot.com",
+        messagingSenderId: "239129487774",
+        appId: "1:239129487774:web:e6ceb32ddbaea27a7a8e8f"
+    };
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
 </script>
-
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <script>
-const sentences = [
-  "The quick brown fox jumps over the lazy dog, swiftly evading capture.",
-  "Typing speed, accuracy, and consistency can reveal your level of alertness.", 
-  "Maintaining focus and rhythm often indicates low cognitive fatigue; watch for deviations.", 
-  "Backspace usage significantly increases when a typist becomes tired or frustrated with errors.", 
-  "Please stay focused and meticulously type the sentence shown above, avoiding any omissions.", 
-  "Fast typing isn't always accurate typing; consider the trade-off.", 
-  "How many times do you find yourself pressing backspace per minute during an intense session?", 
-  "Fatigue can profoundly impact typing rhythm, timing, and overall dexterity. Pay attention.", 
-  "A sleepy mind types with heavy fingers, leading to miskeys and sluggish responses.", 
-  "Reaction time between keystrokes says a lot about one's current mental state, doesn't it?", 
-  "The ancient civilization mysteriously vanished, leaving behind only enigmatic hieroglyphs.",
-  "A truly ergonomic keyboard reduces strain; however, prolonged use still demands breaks.",
-  "Can you quantify the subtle changes in your inter-key interval over several concentrated paragraphs?", 
-  "The programming assignment required a thorough understanding of recursive algorithms.", 
-  "Remember: practice and rest are crucial for optimal typing performance!"
-];
+    const sentences = [
+        "The quick brown fox jumps over the lazy dog, swiftly evading capture.",
+        "Typing speed, accuracy, and consistency can reveal your level of alertness.",
+        "Maintaining focus and rhythm often indicates low cognitive fatigue; watch for deviations.",
+        "Backspace usage significantly increases when a typist becomes tired or frustrated with errors.",
+        "Please stay focused and meticulously type the sentence shown above, avoiding any omissions.",
+        "Fast typing isn't always accurate typing; consider the trade-off.",
+        "How many times do you find yourself pressing backspace per minute during an intense session?",
+        "Fatigue can profoundly impact typing rhythm, timing, and overall dexterity. Pay attention.",
+        "A sleepy mind types with heavy fingers, leading to miskeys and sluggish responses.",
+        "Reaction time between keystrokes says a lot about one's current mental state, doesn't it?",
+        "The ancient civilization mysteriously vanished, leaving behind only enigmatic hieroglyphs.",
+        "A truly ergonomic keyboard reduces strain; however, prolonged use still demands breaks.",
+        "Can you quantify the subtle changes in your inter-key interval over several concentrated paragraphs?",
+        "The programming assignment required a thorough understanding of recursive algorithms.",
+        "Remember: practice and rest are crucial for optimal typing performance!"
+    ];
 
-let username = "";
-let index = 0;
-let logs = [];
-let keystrokes = 0;
-let backspaces = 0;
-let delays = [];
-let lastKeyTime = 0;
-let startTime = 0;
+    let username = "";
+    let index = 0; // Current sentence index
+    let logs = []; // Logs for the current test session (individual sentences)
+    let keystrokes = 0; // Total keystrokes for the current sentence
+    let backspaces = 0; // Total backspaces for the current sentence
+    let delays = []; // Array of inter-key intervals (IKIs) for the current sentence
+    let lastKeyTime = 0; // Timestamp of the last key press
+    let startTime = 0; // Timestamp when the user starts typing the current sentence
+    let testActive = false; // Flag to indicate if a test is in progress
 
-const typingArea = document.getElementById("typingArea");
+    const typingArea = document.getElementById("typingArea");
+    const statusLabel = document.getElementById("statusLabel");
+    const metricsDisplay = document.getElementById("metricsDisplay");
 
-// Event listener for keydown on the typing area
-typingArea.addEventListener("keydown", e => {
-  const now = performance.now();
+    // Event listener for keydown on the typing area
+    typingArea.addEventListener("keydown", e => {
+        if (!testActive) return; // Only process keydowns if test is active
 
-  // Set startTime only on the very first key press for the current sentence
-  if (startTime === 0) {
-    startTime = now;
-  }
+        const now = performance.now();
 
-  // Block navigation keys, Home, End, and Delete
-  const blockedKeys = ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End", "Delete"];
-  if (blockedKeys.includes(e.key)) {
-    e.preventDefault();
-    return; // Stop processing if a blocked key is pressed
-  }
+        // Set startTime only on the very first alphanumeric/space key press for the current sentence
+        if (startTime === 0 && (e.key.length === 1 || e.key === " ")) {
+            startTime = now;
+        }
 
-  if (e.key.length === 1 || e.key === " ") {
-    keystrokes++;
-  } else if (e.key === "Backspace") {
-    backspaces++;
-  }
+        // Block navigation keys, Home, End, and Delete to prevent cursor movement
+        const blockedKeys = ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End", "Delete"];
+        if (blockedKeys.includes(e.key)) {
+            e.preventDefault();
+            return; // Stop processing if a blocked key is pressed
+        }
 
-  // Calculate IKI only if it's not the very first key of the sentence
-  if (lastKeyTime > 0) {
-    delays.push(now - lastKeyTime);
-  }
-  lastKeyTime = now;
+        // Increment keystrokes for any character, space, or backspace
+        if (e.key.length === 1 || e.key === " ") {
+            keystrokes++;
+        } else if (e.key === "Backspace") {
+            backspaces++;
+            keystrokes++; // Backspace is also a keystroke
+        }
 
-  // IMPORTANT: Ensure caret stays at the end after every key press
-  // This is crucial for preventing users from moving back.
-  setTimeout(() => {
-      typingArea.selectionStart = typingArea.selectionEnd = typingArea.value.length;
-  }, 0); // Use setTimeout to ensure this runs after the key's default action
-});
+        // Calculate IKI only if it's not the very first valid key of the sentence
+        if (lastKeyTime > 0) {
+            delays.push(now - lastKeyTime);
+        }
+        lastKeyTime = now;
 
-// Use the 'input' event to catch changes (including paste) and enforce caret position
-typingArea.addEventListener('input', () => {
-    // Ensure caret is always at the end after any input
-    typingArea.selectionStart = typingArea.selectionEnd = typingArea.value.length;
-});
+        // IMPORTANT: Ensure caret stays at the end after every key press
+        setTimeout(() => {
+            typingArea.selectionStart = typingArea.selectionEnd = typingArea.value.length;
+        }, 0); // Use setTimeout to ensure this runs after the key's default action
+    });
 
-// Optional: Add a 'focus' event listener to ensure caret is at the end when textarea is first focused
-typingArea.addEventListener('focus', () => {
-    typingArea.selectionStart = typingArea.selectionEnd = typingArea.value.length;
-});
+    // Use the 'input' event to catch changes (including paste) and enforce caret position
+    typingArea.addEventListener('input', () => {
+        if (!testActive) return; // Only process if test is active
+        // Ensure caret is always at the end after any input
+        typingArea.selectionStart = typingArea.selectionEnd = typingArea.value.length;
+        updateLiveMetrics(); // Update live metrics on every input
+    });
+
+    // Optional: Add a 'focus' event listener to ensure caret is at the end when textarea is first focused
+    typingArea.addEventListener('focus', () => {
+        typingArea.selectionStart = typingArea.selectionEnd = typingArea.value.length;
+    });
+
+    function updateUI() {
+        document.getElementById("typingSentence").innerText = sentences[index];
+        document.getElementById("progressText").innerText = `Sentence ${index + 1} of ${sentences.length}`;
+        document.getElementById("progressBar").style.width = `${(index / sentences.length) * 100}%`;
+        document.getElementById("progressBar").setAttribute('aria-valuenow', (index / sentences.length) * 100);
+
+        typingArea.disabled = false;
+        typingArea.readOnly = false; // Ensure it's not read-only
+        typingArea.value = "";
+        typingArea.focus();
+
+        // Reset tracking variables for the new sentence
+        keystrokes = 0;
+        backspaces = 0;
+        delays = [];
+        startTime = 0; // Reset startTime for the next sentence
+        lastKeyTime = 0; // Reset lastKeyTime for the next sentence
+
+        // Reset live metrics display immediately
+        updateLiveMetrics({
+            wpm: 0,
+            error: "0%",
+            iki: 0,
+            kspc: 0,
+            backspaces: 0,
+            initial: true // Flag to indicate initial reset for live metrics
+        });
+
+        // Apply strict caret control and selection prevention via CSS
+        typingArea.style.userSelect = "none";
+        // Ensure mobile keyboards don’t autocorrect or suggest
+        typingArea.setAttribute("autocorrect", "off");
+        typingArea.setAttribute("autocapitalize", "off");
+        typingArea.setAttribute("spellcheck", "false");
+
+        // Force caret to the end initially, and ensure input area is in view
+        setTimeout(() => {
+            typingArea.selectionStart = typingArea.selectionEnd = typingArea.value.length;
+            typingArea.scrollIntoView({
+                behavior: "smooth",
+                block: "center"
+            });
+        }, 200);
+    }
+
+    function loadUserProgress() {
+        username = document.getElementById("username").value.trim();
+        if (!username) return; // Should be handled by submitDemographics
+
+        index = 0; // Always start from the beginning for a new test session
+        logs = []; // Clear logs for a new test session
+    }
+
+    function submitDemographics() {
+        const u = document.getElementById("username").value.trim();
+        const ageGroup = document.getElementById("ageGroup").value;
+        const gender = document.getElementById("gender").value;
+        const typingSkill = document.getElementById("typingSkill").value;
+        const occupation = document.getElementById("occupation").value.trim();
+        const typingHours = document.getElementById("typingHours").value;
+        const mentalFatigue = document.getElementById("mentalFatigue").value;
+        const physicalFatigue = document.getElementById("physicalFatigue").value;
+
+        if (!u || !ageGroup || !gender || !typingSkill || !occupation || !typingHours) {
+            statusLabel.classList.remove('text-success');
+            statusLabel.classList.add('text-danger');
+            statusLabel.innerText = "🚨 Please fill in all required fields.";
+            return;
+        }
+
+        username = u;
+        const demographics = {
+            ageGroup,
+            gender,
+            typingSkill,
+            occupation,
+            typingHours,
+            mentalFatigue,
+            physicalFatigue,
+            submittedAt: new Date().toLocaleString()
+        };
+
+        // Disable the start button to prevent multiple submissions
+        document.querySelector('button[onclick="submitDemographics()"]').disabled = true;
+
+        // Store demographics in Firebase under a unique session ID
+        // Note: For actual fatigue study, you might want to store demographics once per user
+        // or tie them to each session for changes over time.
+        // For simplicity, we'll store them with each test session.
+
+        // You might want to check if a test is already active for this user,
+        // or if the user has completed a test and wants to start a new one.
+        // For now, starting a new session always.
+        loadUserProgress(); // Resets index and logs for a new user/test
+        typingArea.removeAttribute("disabled"); // Enable typing area
+        typingArea.placeholder = "Your typing area..."; // Reset placeholder
+        statusLabel.classList.remove('text-danger');
+        statusLabel.classList.add('text-success');
+        statusLabel.innerText = "✅ Test Started";
+        metricsDisplay.innerHTML = ""; // Clear previous summary
+        metricsDisplay.style.display = "none"; // Hide summary display
+        testActive = true; // Set test as active
+        updateUI(); // Load the first sentence and prepare the UI
+    }
+
+    // Function to calculate Levenshtein distance for more robust error detection
+    function levenshteinDistance(s1, s2) {
+        const m = s1.length;
+        const n = s2.length;
+        const dp = Array(m + 1).fill(0).map(() => Array(n + 1).fill(0));
+
+        for (let i = 0; i <= m; i++) dp[i][0] = i;
+        for (let j = 0; j <= n; j++) dp[0][j] = j;
+
+        for (let i = 1; i <= m; i++) {
+            for (let j = 1; j <= n; j++) {
+                const cost = (s1[i - 1] === s2[j - 1]) ? 0 : 1;
+                dp[i][j] = Math.min(
+                    dp[i - 1][j] + 1, // deletion
+                    dp[i][j - 1] + 1, // insertion
+                    dp[i - 1][j - 1] + cost // substitution
+                );
+            }
+        }
+        return dp[m][n];
+    }
+
+    // Function to calculate metrics and update live display
+    function updateLiveMetrics(override = {}) {
+        if (!testActive && !override.initial) return; // Only update if test is active, or during initial reset
+
+        const typed = typingArea.value;
+        const originalSentence = sentences[index];
+        const currentTime = performance.now();
+        const currentElapsed = startTime > 0 ? (currentTime - startTime) / 1000 : 0;
+
+        let currentWpm = 0;
+        if (currentElapsed > 0) {
+            currentWpm = ((typed.length / 5) / (currentElapsed / 60)).toFixed(2);
+        }
+
+        // Use Levenshtein distance for error calculation
+        const distance = levenshteinDistance(originalSentence, typed);
+        let currentErrorRate = (originalSentence.length > 0 ? (distance / originalSentence.length * 100) : 0).toFixed(2);
+        // Cap error rate at 100% for readability if it somehow exceeds (e.g., if typed is very different/long)
+        if (parseFloat(currentErrorRate) > 100) currentErrorRate = "100.00";
+
+        const currentAvgIKI = (delays.length > 0 ? (delays.reduce((a, b) => a + b, 0) / delays.length) : 0).toFixed(2);
+        // KSPC: total keystrokes (including backspaces) divided by length of currently typed text
+        const currentKspc = typed.length > 0 ? (keystrokes / typed.length).toFixed(2) : 0;
+
+        document.getElementById("liveWpm").innerText = override.wpm !== undefined ? override.wpm : currentWpm;
+        document.getElementById("liveError").innerText = override.error !== undefined ? override.error : `${currentErrorRate}%`;
+        document.getElementById("liveIki").innerText = override.iki !== undefined ? override.iki : currentAvgIKI;
+        document.getElementById("liveKspc").innerText = override.kspc !== undefined ? override.kspc : currentKspc;
+        document.getElementById("liveBackspace").innerText = override.backspaces !== undefined ? override.backspaces : backspaces;
+    }
+
+    function submitSentence() {
+        if (!testActive || index >= sentences.length) {
+            statusLabel.classList.remove('text-success');
+            statusLabel.classList.add('text-danger');
+            statusLabel.innerText = "🚨 Test completed or not started.";
+            return;
+        }
+
+        const typed = typingArea.value; // Get the raw typed value
+        const originalSentence = sentences[index];
+
+        if (startTime === 0 || typed.length === 0) { // Check for empty typed content or no typing initiated
+            statusLabel.classList.remove('text-success');
+            statusLabel.classList.add('text-danger');
+            statusLabel.innerText = "🚨 Please type before submitting.";
+            return;
+        }
+
+        const elapsed = (performance.now() - startTime) / 1000;
+        const wpm = ((typed.length / 5) / (elapsed / 60)).toFixed(2); // WPM calculation
+        const distance = levenshteinDistance(originalSentence, typed); // Use Levenshtein for final error rate
+        const errorRate = (originalSentence.length > 0 ? (distance / originalSentence.length * 100) : 0).toFixed(2);
+
+        const avgIKI = (delays.length > 0 ? (delays.reduce((a, b) => a + b, 0) / delays.length) : 0).toFixed(2);
+        const kspc = (typed.length > 0 ? (keystrokes / typed.length) : 0).toFixed(2); // Keystrokes per actual character typed
+
+        logs.push({
+            sentenceIndex: index,
+            originalSentence,
+            typedSentence: typed,
+            wpm: parseFloat(wpm),
+            errorRate: parseFloat(errorRate),
+            avgIKI: parseFloat(avgIKI),
+            kspc: parseFloat(kspc),
+            backspaces: parseInt(backspaces),
+            elapsedTime: parseFloat(elapsed.toFixed(2)),
+            timestamp: new Date().toLocaleString()
+        });
+
+        // Update live metrics one last time for the just-submitted sentence
+        updateLiveMetrics({
+            wpm: wpm,
+            error: errorRate + "%",
+            iki: avgIKI,
+            kspc: kspc,
+            backspaces: backspaces
+        });
+
+        index++; // Move to the next sentence
+
+        if (index < sentences.length) {
+            statusLabel.classList.remove('text-danger');
+            statusLabel.classList.add('text-success');
+            statusLabel.innerText = "✅ Sentence submitted. Next!";
+            updateUI(); // Load the next sentence
+        } else {
+            saveFinalSummary(); // All sentences are complete
+        }
+    }
+
+    function saveFinalSummary() {
+        // Only calculate averages for collected logs
+        if (logs.length === 0) {
+            statusLabel.classList.remove('text-success');
+            statusLabel.classList.add('text-danger');
+            statusLabel.innerText = "⚠️ No typing data to save.";
+            typingArea.disabled = true;
+            typingArea.value = "";
+            testActive = false;
+            return;
+        }
+
+        let sum = logs.reduce((acc, curr) => {
+            acc.wpm += curr.wpm;
+            acc.errorRate += curr.errorRate;
+            acc.avgIKI += curr.avgIKI;
+            acc.kspc += curr.kspc;
+            acc.backspaces += curr.backspaces;
+            return acc;
+        }, {
+            wpm: 0,
+            errorRate: 0,
+            avgIKI: 0,
+            kspc: 0,
+            backspaces: 0
+        });
+
+        const count = logs.length;
+        const average = {
+            username,
+            wpm: (sum.wpm / count).toFixed(2),
+            errorRate: (sum.errorRate / count).toFixed(2),
+            avgIKI: (sum.avgIKI / count).toFixed(2),
+            kspc: (sum.kspc / count).toFixed(2),
+            backspaces: (sum.backspaces / count).toFixed(2),
+            timestamp: new Date().toLocaleString()
+        };
+
+        // Store individual sentence logs under a session ID, not just averages
+        // This allows for time-series analysis for fatigue detection.
+        const sessionId = `${username}_${Date.now()}`; // Unique session ID
+
+        // Retrieve demographics from the form, as they are not part of `logs`
+        const demographics = {
+            ageGroup: document.getElementById("ageGroup").value,
+            gender: document.getElementById("gender").value,
+            typingSkill: document.getElementById("typingSkill").value,
+            occupation: document.getElementById("occupation").value,
+            typingHours: document.getElementById("typingHours").value,
+            mentalFatigue: document.getElementById("mentalFatigue").value,
+            physicalFatigue: document.getElementById("physicalFatigue").value,
+            submittedAt: new Date().toLocaleString()
+        };
+
+        database.ref(`detailedLogs/${sessionId}`).set({
+            demographics: demographics,
+            averageMetrics: average,
+            sentenceLogs: logs // Store all individual sentence logs
+        }).then(() => {
+            statusLabel.classList.remove('text-danger');
+            statusLabel.classList.add('text-success');
+            statusLabel.innerText = "✅ All sentences complete. Summary and detailed logs saved!";
+
+            metricsDisplay.innerHTML = `
+                <b>WPM:</b> ${average.wpm}<br>
+                <b>Error Rate:</b> ${average.errorRate}%<br>
+                <b>Avg IKI:</b> ${average.avgIKI} ms<br>
+                <b>KSPC:</b> ${average.kspc}<br>
+                <b>Backspaces:</b> ${average.backspaces}<br>
+                <b>Timestamp:</b> ${average.timestamp}`;
+            metricsDisplay.style.display = "block"; // Show summary display
+
+            typingArea.disabled = true; // Disable typing area after test completion
+            typingArea.value = ""; // Clear typing area
+            typingArea.placeholder = "Test completed!"; // Update placeholder
+            testActive = false; // Mark test as inactive
+            document.getElementById("progressBar").style.width = `100%`; // Ensure progress bar is full
+            document.getElementById("progressText").innerText = `Sentence ${sentences.length} of ${sentences.length}`;
+
+            // Re-enable the start button now that the test is fully completed
+            document.querySelector('button[onclick="submitDemographics()"]').disabled = false;
+
+        }).catch(error => {
+            console.error("Error saving final summary:", error);
+            statusLabel.classList.remove('text-success');
+            statusLabel.classList.add('text-danger');
+            statusLabel.innerText = "❌ Failed to save summary.";
+            // Re-enable the start button on error
+            document.querySelector('button[onclick="submitDemographics()"]').disabled = false;
+        });
+    }
+
+    function downloadSummaryCSV() {
+        // Fetch from 'detailedLogs' to get full session data
+        database.ref("detailedLogs").once("value").then(snapshot => {
+            const allSessions = snapshot.val();
+            if (!allSessions) {
+                alert("No logs to download.");
+                return;
+            }
+
+            const rows = [];
+            const headers = [
+                "SessionID", "Username", "Timestamp", "Age Group", "Gender", "Typing Skill",
+                "Occupation", "Typing Hours", "Mental Fatigue", "Physical Fatigue",
+                "Avg WPM", "Avg Error Rate (%)", "Avg IKI (ms)", "Avg KSPC", "Avg Backspaces",
+                "Sentence Index", "Original Sentence", "Typed Sentence", "Sentence WPM",
+                "Sentence Error Rate (%)", "Sentence Avg IKI (ms)", "Sentence KSPC",
+                "Sentence Backspaces", "Sentence Elapsed Time (s)", "Sentence Timestamp"
+            ];
+            rows.push(headers.map(h => `"${h}"`).join(",")); // Add headers to the CSV
+
+            for (const sessionId in allSessions) {
+                const sessionData = allSessions[sessionId];
+                const avgM = sessionData.averageMetrics || {};
+                const demo = sessionData.demographics || {};
+                const sentenceLogs = sessionData.sentenceLogs || [];
+
+                // Base row data that applies to all sentences in this session
+                const baseRow = [
+                    sessionId,
+                    avgM.username || '',
+                    avgM.timestamp || '',
+                    demo.ageGroup || '',
+                    demo.gender || '',
+                    demo.typingSkill || '',
+                    demo.occupation || '',
+                    demo.typingHours || '',
+                    demo.mentalFatigue || '',
+                    demo.physicalFatigue || '',
+                    avgM.wpm || '',
+                    avgM.errorRate || '',
+                    avgM.avgIKI || '',
+                    avgM.kspc || '',
+                    avgM.backspaces || ''
+                ].map(value => {
+                    // Basic CSV escaping for values in the base row
+                    const strValue = String(value);
+                    return `"${strValue.replace(/"/g, '""')}"`;
+                });
+
+                if (sentenceLogs.length === 0) {
+                    // If there are no sentence logs, still record the demographic and average data
+                    rows.push(baseRow.join(","));
+                } else {
+                    // Add a row for each sentence log
+                    sentenceLogs.forEach(sLog => {
+                        const sentenceRow = [
+                            sLog.sentenceIndex || '',
+                            `"${(sLog.originalSentence || '').replace(/"/g, '""')}"`, // Quote and escape original sentence
+                            `"${(sLog.typedSentence || '').replace(/"/g, '""')}"`, // Quote and escape typed sentence
+                            sLog.wpm || '',
+                            sLog.errorRate || '',
+                            sLog.avgIKI || '',
+                            sLog.kspc || '',
+                            sLog.backspaces || '',
+                            sLog.elapsedTime || '',
+                            sLog.timestamp || ''
+                        ].map(value => {
+                            // Ensure all parts are strings and apply CSV escaping for sentence-specific values
+                            const strValue = String(value);
+                            return `"${strValue.replace(/"/g, '""')}"`;
+                        });
+
+                        rows.push(baseRow.concat(sentenceRow).join(","));
+                    });
+                }
+            }
+
+            const csvContent = "\uFEFF" + rows.join("\n"); // Add BOM for UTF-8
+            const blob = new Blob([csvContent], {
+                type: "text/csv;charset=utf-8;"
+            });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "fatigue_detection_full_logs.csv"; // More descriptive filename
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url); // Clean up the URL object
+        }).catch(error => {
+            console.error("Error downloading CSV:", error);
+            alert("Failed to download logs. Check console for details.");
+        });
+    }
+
+    function clearAllSummaries() {
+        if (confirm("Are you sure you want to clear ALL logs? This action cannot be undone.")) {
+            database.ref("detailedLogs").remove().then(() => {
+                alert("✅ All logs cleared successfully.");
+                resetUI(); // Call a dedicated function to reset the UI
+            }).catch(error => {
+                console.error("Error clearing logs:", error);
+                alert("Failed to clear logs. Check console for details.");
+            });
+        }
+    }
+
+    function resetUI() {
+        username = "";
+        index = 0;
+        logs = [];
+        keystrokes = 0;
+        backspaces = 0;
+        delays = [];
+        lastKeyTime = 0;
+        startTime = 0;
+        testActive = false;
+
+        // Reset all input fields
+        document.getElementById("username").value = "";
+        document.getElementById("ageGroup").value = "";
+        document.getElementById("gender").value = "";
+        document.getElementById("typingSkill").value = "";
+        document.getElementById("occupation").value = "";
+        document.getElementById("typingHours").value = "";
+        document.getElementById("mentalFatigue").value = "0";
+        document.getElementById("physicalFatigue").value = "0";
+        document.getElementById("mentalFatigueValue").innerText = "0";
+        document.getElementById("physicalFatigueValue").innerText = "0";
 
 
-function updateUI() {
-  document.getElementById("typingSentence").innerText = sentences[index];
-  document.getElementById("progressText").innerText = `Sentence ${index + 1} of ${sentences.length}`;
-  document.getElementById("progressBar").style.width = `${(index / sentences.length) * 100}%`;
+        document.getElementById("typingSentence").innerText = "Please enter details to start the test.";
+        typingArea.value = "";
+        typingArea.disabled = true;
+        typingArea.placeholder = "Your typing area..."; // Reset placeholder
 
-  typingArea.disabled = false;
-  typingArea.readOnly = false; // Ensure it's not read-only
-  typingArea.value = "";
-  typingArea.focus();
+        statusLabel.innerText = "";
+        statusLabel.classList.remove('text-success', 'text-danger'); // Remove color classes
+        metricsDisplay.innerHTML = "";
+        metricsDisplay.style.display = "none"; // Hide summary display
 
-  // Reset tracking variables for the new sentence
-  keystrokes = 0;
-  backspaces = 0;
-  delays = [];
-  startTime = 0; // Reset startTime for the next sentence
-  lastKeyTime = 0; // Reset lastKeyTime for the next sentence
+        updateLiveMetrics({ // Reset live metrics display
+            wpm: 0,
+            error: "0%",
+            iki: 0,
+            kspc: 0,
+            backspaces: 0,
+            initial: true // Signal initial reset
+        });
 
-  // Apply strict caret control and selection prevention via CSS
-  typingArea.style.userSelect = "none";
-  // typingArea.style.caretColor = "transparent"; // REMOVED for better iOS compatibility
+        document.getElementById("progressBar").style.width = "0%";
+        document.getElementById("progressBar").setAttribute('aria-valuenow', 0);
+        document.getElementById("progressText").innerText = `Sentence 0 of ${sentences.length}`;
 
-  // Ensure mobile keyboards don’t autocorrect or suggest
-  typingArea.setAttribute("autocorrect", "off");
-  typingArea.setAttribute("autocapitalize", "off");
-  typingArea.setAttribute("spellcheck", "false");
-
-  // Force caret to the end initially, and ensure input area is in view
-  setTimeout(() => {
-    typingArea.selectionStart = typingArea.selectionEnd = typingArea.value.length;
-    typingArea.scrollIntoView({ behavior: "smooth", block: "center" });
-  }, 200);
-}
-
-function loadUserProgress() {
-  username = document.getElementById("username").value.trim();
-  if (!username) return;
-  index = 0;
-  logs = [];
-}
-
-function submitDemographics() {
-  const u = document.getElementById("username").value.trim();
-  const ageGroup = document.getElementById("ageGroup").value;
-  const gender = document.getElementById("gender").value;
-  const typingSkill = document.getElementById("typingSkill").value;
-  const occupation = document.getElementById("occupation").value;
-  const typingHours = document.getElementById("typingHours").value;
-  const mentalFatigue = document.getElementById("mentalFatigue").value;
-  const physicalFatigue = document.getElementById("physicalFatigue").value;
-
-  if (!u || !ageGroup || !gender || !typingSkill || !occupation || !typingHours) {
-    alert("Please fill in all required fields.");
-    return;
-  }
-
-  username = u;
-  const demographics = {
-    ageGroup, gender, typingSkill, occupation,
-    typingHours, mentalFatigue, physicalFatigue,
-    submittedAt: new Date().toLocaleString().replace(",", "")
-  };
-
-  database.ref(`summaryLogs/${username}/demographics`).set(demographics).then(() => {
-    loadUserProgress(); // Resets index and logs for a new user/test
-    typingArea.removeAttribute("disabled"); // Enable typing area
-    document.getElementById("statusLabel").innerText = "✅ Test Started";
-    updateUI(); // Load the first sentence and prepare the UI
-  }).catch(error => {
-    console.error("Error submitting demographics:", error);
-    alert("Failed to start test. Please try again.");
-  });
-}
-
-// Function to calculate error rate between original and typed text
-function calculateErrorRate(original, typed) {
-  let errors = 0;
-  const len = Math.max(original.length, typed.length);
-  for (let i = 0; i < len; i++) {
-    if (original[i] !== typed[i]) {
-      errors++;
-    }
-  }
-  // If original is empty, prevent division by zero
-  return original.length > 0 ? (errors / original.length * 100).toFixed(2) : "0.00";
-}
+        // Ensure start button is enabled
+        document.querySelector('button[onclick="submitDemographics()"]').disabled = false;
+    }
 
 
-function submitSentence() {
-  if (!username || index >= sentences.length) {
-      document.getElementById("statusLabel").innerText = "Test completed or not started.";
-      return;
-  }
-
-  const typed = typingArea.value; // Get the raw typed value
-  const originalSentence = sentences[index];
-
-  if (startTime === 0 || typed.length === 0) { // Check for empty typed content
-    alert("Please type before submitting.");
-    return;
-  }
-
-  const elapsed = (performance.now() - startTime) / 1000;
-  const wpm = ((typed.length / 5) / (elapsed / 60)).toFixed(2); // WPM calculation based on 5 chars per word
-  const errorRate = calculateErrorRate(originalSentence, typed);
-  const avgIKI = (delays.length > 0 ? (delays.reduce((a, b) => a + b, 0) / delays.length) : 0).toFixed(2);
-  const kspc = (typed.length > 0 ? (keystrokes / typed.length) : 0).toFixed(2);
-
-  logs.push({ wpm, errorRate, avgIKI, kspc, backspaces });
-
-  // Show live metrics
-  document.getElementById("liveWpm").innerText = wpm;
-  document.getElementById("liveError").innerText = errorRate + "%";
-  document.getElementById("liveIki").innerText = avgIKI;
-  document.getElementById("liveKspc").innerText = kspc;
-  document.getElementById("liveBackspace").innerText = backspaces;
-
-  // Reset after logging - these are correctly placed here now.
-  startTime = 0;
-  lastKeyTime = 0;
-
-  index++; // Move to the next sentence
-
-  if (index < sentences.length) {
-    updateUI(); // Load the next sentence
-  } else {
-    saveFinalSummary(); // All sentences are complete
-  }
-}
-
-function saveFinalSummary() {
-  let sum = logs.reduce((acc, curr) => {
-    acc.wpm += parseFloat(curr.wpm);
-    acc.errorRate += parseFloat(curr.errorRate);
-    acc.avgIKI += parseFloat(curr.avgIKI);
-    acc.kspc += parseFloat(curr.kspc);
-    acc.backspaces += parseInt(curr.backspaces);
-    return acc;
-  }, { wpm: 0, errorRate: 0, avgIKI: 0, kspc: 0, backspaces: 0 });
-
-  const count = logs.length;
-  const average = {
-    username,
-    wpm: (sum.wpm / count).toFixed(2),
-    errorRate: (sum.errorRate / count).toFixed(2),
-    avgIKI: (sum.avgIKI / count).toFixed(2),
-    kspc: (sum.kspc / count).toFixed(2),
-    backspaces: (sum.backspaces / count).toFixed(2),
-    timestamp: new Date().toLocaleString().replace(",", "")
-  };
-
-  database.ref(`summaryLogs/${username}/metrics`).set(average).then(() => {
-    document.getElementById("statusLabel").innerText = "✅ All sentences complete. Summary saved!";
-    document.getElementById("metricsDisplay").innerHTML = `
-      <b>WPM:</b> ${average.wpm}<br>
-      <b>Error Rate:</b> ${average.errorRate}%<br>
-      <b>Avg IKI:</b> ${average.avgIKI} ms<br>
-      <b>KSPC:</b> ${average.kspc}<br>
-      <b>Backspaces:</b> ${average.backspaces}<br>
-      <b>Timestamp:</b> ${average.timestamp}`;
-    typingArea.disabled = true; // Disable typing area after test completion
-    typingArea.value = ""; // Clear typing area
-  }).catch(error => {
-    console.error("Error saving final summary:", error);
-    document.getElementById("statusLabel").innerText = "Failed to save summary.";
-  });
-}
-
-function downloadSummaryCSV() {
-  database.ref("summaryLogs").once("value").then(snapshot => {
-    const logs = snapshot.val();
-    const rows = [["Username", "WPM", "Error Rate (%)", "Avg IKI (ms)", "KSPC", "Backspaces", "Timestamp", "Age Group", "Gender", "Typing Skill", "Occupation", "Typing Hours", "Mental Fatigue", "Physical Fatigue"]];
-
-    if (!logs) { // Handle case where there are no logs
-        alert("No logs to download.");
-        return;
-    }
-
-    for (let user in logs) {
-      const m = logs[user].metrics || {}; // Use empty object if metrics is null/undefined
-      const d = logs[user].demographics || {}; // Use empty object if demographics is null/undefined
-      rows.push([
-        user,
-        m.wpm || '', m.errorRate || '', m.avgIKI || '', m.kspc || '', m.backspaces || '', m.timestamp || '',
-        d.ageGroup || '', d.gender || '', d.typingSkill || '', d.occupation || '', d.typingHours || '',
-        d.mentalFatigue || '', d.physicalFatigue || ''
-      ]);
-    }
-    const csv = rows.map(r => r.join(",")).join("\n");
-    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "fatigue_detection_summary_logs.csv"; // More descriptive filename
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url); // Clean up the URL object
-  }).catch(error => {
-    console.error("Error downloading CSV:", error);
-    alert("Failed to download logs. Check console for details.");
-  });
-}
-
-function clearAllSummaries() {
-  if (confirm("Are you sure you want to clear ALL logs? This action cannot be undone.")) {
-    database.ref("summaryLogs").remove().then(() => {
-      alert("✅ All logs cleared successfully.");
-      // Optional: Reset UI after clearing logs
-      username = "";
-      index = 0;
-      logs = [];
-      document.getElementById("typingSentence").innerText = "Please enter details to start the test.";
-      document.getElementById("typingArea").value = "";
-      document.getElementById("typingArea").disabled = true;
-      document.getElementById("statusLabel").innerText = "";
-      document.getElementById("metricsDisplay").innerHTML = "";
-      document.getElementById("liveWpm").innerText = "0";
-      document.getElementById("liveError").innerText = "0%";
-      document.getElementById("liveIki").innerText = "0";
-      document.getElementById("liveKspc").innerText = "0";
-      document.getElementById("liveBackspace").innerText = "0";
-      document.getElementById("progressBar").style.width = "0%";
-      document.getElementById("progressText").innerText = "Sentence 0 of 10";
-    }).catch(error => {
-      console.error("Error clearing logs:", error);
-      alert("Failed to clear logs. Check console for details.");
-    });
-  }
-}
+    // Initial UI setup on page load
+    document.addEventListener('DOMContentLoaded', () => {
+        resetUI(); // Call reset UI on load to set initial state cleanly
+    });
 </script>
+
 </body>
 </html>
