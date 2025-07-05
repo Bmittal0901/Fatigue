@@ -209,10 +209,10 @@ typingArea.addEventListener("selectstart", e => e.preventDefault());
 typingArea.style.userSelect = "none";         // Disable text selection
 typingArea.style.caretColor = "transparent";  // Hide blinking cursor
 
-  typingArea.addEventListener("keydown", e => {
+typingArea.addEventListener("keydown", e => {
   const now = performance.now();
 
-  if (!startTime) startTime = now;
+  if (startTime === 0) startTime = now; // ✅ Set only once per sentence
 
   const blockedKeys = ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End", "Delete"];
   if (blockedKeys.includes(e.key)) {
@@ -231,7 +231,6 @@ typingArea.style.caretColor = "transparent";  // Hide blinking cursor
   }
   lastKeyTime = now;
 });
-
 
 function updateUI() {
   document.getElementById("typingSentence").innerText = sentences[index];
@@ -253,8 +252,6 @@ function updateUI() {
   keystrokes = 0;
   backspaces = 0;
   delays = [];
-  startTime = 0;
-  lastKeyTime = 0;
 
   // Prevent selection, touch-hold, or caret reposition
   typingArea.addEventListener("mousedown", e => e.preventDefault());
@@ -263,7 +260,7 @@ function updateUI() {
 
   // Style to lock cursor and text selection
   typingArea.style.userSelect = "none";
-  typingArea.style.caretColor = "transparent";
+  typingArea.style.caretColor = "";
 
   // Also ensure mobile keyboards don’t autocorrect or suggest
   typingArea.setAttribute("autocorrect", "off");
@@ -332,6 +329,10 @@ function submitSentence() {
   document.getElementById("liveIki").innerText = avgIKI;
   document.getElementById("liveKspc").innerText = kspc;
   document.getElementById("liveBackspace").innerText = backspaces;
+
+  // ✅ Reset after logging
+  startTime = 0;
+  lastKeyTime = 0;
 
   index++;
 
