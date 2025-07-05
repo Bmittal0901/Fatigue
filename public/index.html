@@ -27,6 +27,8 @@
     textarea {
       height: 160px;
       border-radius: 0.5rem;
+      /* Allow caret to be visible by default, remove explicit transparent if it causes issues */
+      /* caret-color: transparent; */ /* Consider removing this if it's the primary issue */
     }
     .metrics-box span {
       display: block;
@@ -199,11 +201,17 @@ let startTime = 0;
 
 const typingArea = document.getElementById("typingArea");
 
-// Event listener for keydown on the typing area
+// --- IMPORTANT iOS FIXES START HERE ---
+
+// The primary issue on iOS is preventing default on touch/mouse events,
+// which stops the browser from focusing the textarea and opening the keyboard.
+// Instead of preventing default, we will allow the browser to focus,
+// but immediately correct the caret position and prevent selection visually.
+
+// This listener will only prevent navigation keys
 typingArea.addEventListener("keydown", e => {
   const now = performance.now();
 
-  // Set startTime only on the very first key press for the current sentence
   if (startTime === 0) {
     startTime = now;
   }
@@ -221,18 +229,36 @@ typingArea.addEventListener("keydown", e => {
     backspaces++;
   }
 
-  // Calculate IKI only if it's not the very first key of the sentence
   if (lastKeyTime > 0) {
     delays.push(now - lastKeyTime);
   }
   lastKeyTime = now;
 
-  // IMPORTANT: Ensure caret stays at the end after every key press
-  // This is crucial for preventing users from moving back.
+  // Immediately set caret to the end after any key press
+  // This helps prevent manual movement.
   setTimeout(() => {
-      typingArea.selectionStart = typingArea.selectionEnd = typingArea.value.length;
-  }, 0); // Use setTimeout to ensure this runs after the key's default action
+    typingArea.selectionStart = typingArea.selectionEnd = typingArea.value.length;
+  }, 0);
 });
+
+// Use the 'input' event to catch changes (including paste) and enforce caret position
+typingArea.addEventListener('input', () => {
+    // Ensure caret is always at the end after any input
+    typingArea.selectionStart = typingArea.selectionEnd = typingArea.value.length;
+});
+
+// Optional: Add a 'focus' event listener to ensure caret is at the end when textarea is first focused
+typingArea.addEventListener('focus', () => {
+    typingArea.selectionStart = typingArea.selectionEnd = typingArea.value.length;
+});
+
+// You can still try to disable user-selection for mouse/touch,
+// but be aware iOS may override parts of this for accessibility.
+// We are REMOVING e.preventDefault() from mousedown/touchstart handlers.
+// The CSS `user-select: none;` should cover visual selection for most cases.
+
+// --- IMPORTANT iOS FIXES END HERE ---
+
 
 function updateUI() {
   document.getElementById("typingSentence").innerText = sentences[index];
@@ -251,14 +277,19 @@ function updateUI() {
   startTime = 0; // Reset startTime for the next sentence
   lastKeyTime = 0; // Reset lastKeyTime for the next sentence
 
-  // Apply strict caret control and selection prevention
-  typingArea.style.userSelect = "none";         // Disable text selection
-  typingArea.style.caretColor = "";  // Hide blinking cursor
+  // Apply strict caret control and selection prevention via CSS
+  // iOS might ignore `caretColor: transparent` and `userSelect: none` for textareas
+  // to ensure basic accessibility. If you MUST hide the caret, consider other CSS tricks,
+  // but it's often better to just allow it to show at the end.
+  typingArea.style.userSelect = "none";
+  // typingArea.style.caretColor = "transparent"; // COMMENT OUT or REMOVE THIS for iOS compatibility if it causes issues.
+                                               // Let iOS manage the caret color for reliable typing.
 
-  // Prevent mouse/touch interactions from moving caret or selecting text
-  typingArea.onmousedown = (e) => e.preventDefault();
-  typingArea.ontouchstart = (e) => e.preventDefault();
-  typingArea.onselectstart = (e) => e.preventDefault();
+  // Remove `onmousedown`, `ontouchstart`, `onselectstart` with `preventDefault()`
+  // They are the main reason iOS text input gets blocked.
+  // The `user-select: none;` CSS property is often sufficient to prevent visual selection.
+  // If you still want to prevent the OS default copy/paste menu on touch-hold,
+  // you might need to re-evaluate, but it often leads to input issues.
 
   // Ensure mobile keyboards don’t autocorrect or suggest
   typingArea.setAttribute("autocorrect", "off");
