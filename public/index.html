@@ -67,7 +67,6 @@
 <body>
 <div class="container-fluid">
   <div class="row g-3">
-    <!-- Sidebar -->
     <div class="col-md-3 sidebar">
       <h5 class="mb-3"><i class="fas fa-user"></i> Participant Info</h5>
       <div class="mb-3">
@@ -118,7 +117,6 @@
       <button class="btn btn-primary w-100" onclick="submitDemographics()"><i class="fas fa-play"></i> Start Test</button>
     </div>
 
-    <!-- Main Typing Panel -->
     <div class="col-md-6 main-panel fade-in">
       <h4 class="mb-3">⌨️ Typing Test</h4>
       <p id="typingSentence" class="fs-5 fw-semibold">Please enter details to start the test.</p>
@@ -134,7 +132,6 @@
       <div class="text-muted mt-2" id="metricsDisplay"></div>
     </div>
 
-    <!-- Right Sidebar -->
     <div class="col-md-3 control-panel">
       <h5 class="mb-3"><i class="fas fa-chart-line"></i> Live Analytics</h5>
       <div class="mb-3 metrics-box">
@@ -159,18 +156,18 @@
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 <script>
-  // ✅ Firebase Configuration
+  // Firebase Configuration
   const firebaseConfig = {
     apiKey: "AIzaSyDU56-FribrzudeFeh1-gz7ch25HHoWAGk",
     authDomain: "fatiguedetection-e13a1.firebaseapp.com",
     databaseURL: "https://fatiguedetection-e13a1-default-rtdb.firebaseio.com",
     projectId: "fatiguedetection-e13a1",
-    storageBucket: "fatiguedetection-e13a1.appspot.com",  // ✅ Fixed from .firebasestorage.app to .appspot.com
+    storageBucket: "fatiguedetection-e13a1.appspot.com",
     messagingSenderId: "239129487774",
     appId: "1:239129487774:web:e6ceb32ddbaea27a7a8e8f"
   };
 
-  // ✅ Initialize Firebase
+  // Initialize Firebase
   firebase.initializeApp(firebaseConfig);
   const database = firebase.database();
 </script>
@@ -202,22 +199,20 @@ let startTime = 0;
 
 const typingArea = document.getElementById("typingArea");
 
-// Prevent cursor movement and selection without blocking typing
-typingArea.addEventListener("mousedown", e => e.preventDefault());
-typingArea.addEventListener("touchstart", e => e.preventDefault());
-typingArea.addEventListener("selectstart", e => e.preventDefault());
-typingArea.style.userSelect = "none";         // Disable text selection
-typingArea.style.caretColor = "transparent";  // Hide blinking cursor
-
+// Event listener for keydown on the typing area
 typingArea.addEventListener("keydown", e => {
   const now = performance.now();
 
-  if (startTime === 0) startTime = now; // ✅ Set only once per sentence
+  // Set startTime only on the very first key press for the current sentence
+  if (startTime === 0) {
+    startTime = now;
+  }
 
+  // Block navigation keys, Home, End, and Delete
   const blockedKeys = ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End", "Delete"];
   if (blockedKeys.includes(e.key)) {
     e.preventDefault();
-    return;
+    return; // Stop processing if a blocked key is pressed
   }
 
   if (e.key.length === 1 || e.key === " ") {
@@ -226,10 +221,17 @@ typingArea.addEventListener("keydown", e => {
     backspaces++;
   }
 
+  // Calculate IKI only if it's not the very first key of the sentence
   if (lastKeyTime > 0) {
     delays.push(now - lastKeyTime);
   }
   lastKeyTime = now;
+
+  // IMPORTANT: Ensure caret stays at the end after every key press
+  // This is crucial for preventing users from moving back.
+  setTimeout(() => {
+      typingArea.selectionStart = typingArea.selectionEnd = typingArea.value.length;
+  }, 0); // Use setTimeout to ensure this runs after the key's default action
 });
 
 function updateUI() {
@@ -238,37 +240,36 @@ function updateUI() {
   document.getElementById("progressBar").style.width = `${(index / sentences.length) * 100}%`;
 
   typingArea.disabled = false;
-  typingArea.readOnly = false;
+  typingArea.readOnly = false; // Ensure it's not read-only
   typingArea.value = "";
   typingArea.focus();
 
-  // Make sure caret starts at end and input area is in view (especially on mobile)
+  // Reset tracking variables for the new sentence
+  keystrokes = 0;
+  backspaces = 0;
+  delays = [];
+  startTime = 0; // Reset startTime for the next sentence
+  lastKeyTime = 0; // Reset lastKeyTime for the next sentence
+
+  // Apply strict caret control and selection prevention
+  typingArea.style.userSelect = "none";         // Disable text selection
+  typingArea.style.caretColor = "transparent";  // Hide blinking cursor
+
+  // Prevent mouse/touch interactions from moving caret or selecting text
+  typingArea.onmousedown = (e) => e.preventDefault();
+  typingArea.ontouchstart = (e) => e.preventDefault();
+  typingArea.onselectstart = (e) => e.preventDefault();
+
+  // Ensure mobile keyboards don’t autocorrect or suggest
+  typingArea.setAttribute("autocorrect", "off");
+  typingArea.setAttribute("autocapitalize", "off");
+  typingArea.setAttribute("spellcheck", "false");
+
+  // Force caret to the end initially, and ensure input area is in view
   setTimeout(() => {
     typingArea.selectionStart = typingArea.selectionEnd = typingArea.value.length;
     typingArea.scrollIntoView({ behavior: "smooth", block: "center" });
   }, 200);
-
-  // Reset tracking variables
-  keystrokes = 0;
-  backspaces = 0;
-  delays = [];
-
-  startTime = 0;
-  lastKeyTime = 0;
-  
-  // Prevent selection, touch-hold, or caret reposition
-  typingArea.addEventListener("mousedown", e => e.preventDefault());
-  typingArea.addEventListener("touchstart", e => e.preventDefault());
-  typingArea.addEventListener("selectstart", e => e.preventDefault());
-
-  // Style to lock cursor and text selection
-  typingArea.style.userSelect = "none";
-  typingArea.style.caretColor = "";
-
-  // Also ensure mobile keyboards don’t autocorrect or suggest
-  typingArea.setAttribute("autocorrect", "off");
-  typingArea.setAttribute("autocapitalize", "off");
-  typingArea.setAttribute("spellcheck", "false");
 }
 
 function loadUserProgress() {
@@ -301,26 +302,47 @@ function submitDemographics() {
   };
 
   database.ref(`summaryLogs/${username}/demographics`).set(demographics).then(() => {
-    loadUserProgress();
-    typingArea.removeAttribute("disabled");
+    loadUserProgress(); // Resets index and logs for a new user/test
+    typingArea.removeAttribute("disabled"); // Enable typing area
     document.getElementById("statusLabel").innerText = "✅ Test Started";
-    updateUI();
+    updateUI(); // Load the first sentence and prepare the UI
+  }).catch(error => {
+    console.error("Error submitting demographics:", error);
+    alert("Failed to start test. Please try again.");
   });
 }
 
+// Function to calculate error rate between original and typed text
+function calculateErrorRate(original, typed) {
+  let errors = 0;
+  const len = Math.max(original.length, typed.length);
+  for (let i = 0; i < len; i++) {
+    if (original[i] !== typed[i]) {
+      errors++;
+    }
+  }
+  // If original is empty, prevent division by zero
+  return original.length > 0 ? (errors / original.length * 100).toFixed(2) : "0.00";
+}
+
+
 function submitSentence() {
-  if (!username || index >= sentences.length) return;
+  if (!username || index >= sentences.length) {
+      document.getElementById("statusLabel").innerText = "Test completed or not started.";
+      return;
+  }
 
-  const typed = typingArea.value.trim();
+  const typed = typingArea.value; // Get the raw typed value
+  const originalSentence = sentences[index];
 
-  if (startTime===0 || !typed.length) {
+  if (startTime === 0 || typed.length === 0) { // Check for empty typed content
     alert("Please type before submitting.");
     return;
   }
 
   const elapsed = (performance.now() - startTime) / 1000;
-  const wpm = ((typed.length / 5) / (elapsed / 60)).toFixed(2);
-  const errorRate = calculateErrorRate(sentences[index], typed);
+  const wpm = ((typed.length / 5) / (elapsed / 60)).toFixed(2); // WPM calculation based on 5 chars per word
+  const errorRate = calculateErrorRate(originalSentence, typed);
   const avgIKI = (delays.length > 0 ? (delays.reduce((a, b) => a + b, 0) / delays.length) : 0).toFixed(2);
   const kspc = (typed.length > 0 ? (keystrokes / typed.length) : 0).toFixed(2);
 
@@ -333,16 +355,16 @@ function submitSentence() {
   document.getElementById("liveKspc").innerText = kspc;
   document.getElementById("liveBackspace").innerText = backspaces;
 
-  // ✅ Reset after logging
+  // Reset after logging - these are correctly placed here now.
   startTime = 0;
   lastKeyTime = 0;
 
-  index++;
+  index++; // Move to the next sentence
 
   if (index < sentences.length) {
-    updateUI();
+    updateUI(); // Load the next sentence
   } else {
-    saveFinalSummary();
+    saveFinalSummary(); // All sentences are complete
   }
 }
 
@@ -376,7 +398,11 @@ function saveFinalSummary() {
       <b>KSPC:</b> ${average.kspc}<br>
       <b>Backspaces:</b> ${average.backspaces}<br>
       <b>Timestamp:</b> ${average.timestamp}`;
-    typingArea.disabled = true;
+    typingArea.disabled = true; // Disable typing area after test completion
+    typingArea.value = ""; // Clear typing area
+  }).catch(error => {
+    console.error("Error saving final summary:", error);
+    document.getElementById("statusLabel").innerText = "Failed to save summary.";
   });
 }
 
@@ -384,27 +410,61 @@ function downloadSummaryCSV() {
   database.ref("summaryLogs").once("value").then(snapshot => {
     const logs = snapshot.val();
     const rows = [["Username", "WPM", "Error Rate (%)", "Avg IKI (ms)", "KSPC", "Backspaces", "Timestamp", "Age Group", "Gender", "Typing Skill", "Occupation", "Typing Hours", "Mental Fatigue", "Physical Fatigue"]];
+    
+    if (!logs) { // Handle case where there are no logs
+        alert("No logs to download.");
+        return;
+    }
+
     for (let user in logs) {
-      const m = logs[user].metrics || {};
-      const d = logs[user].demographics || {};
-      rows.push([user, m.wpm, m.errorRate, m.avgIKI, m.kspc, m.backspaces, m.timestamp, d.ageGroup, d.gender, d.typingSkill, d.occupation, d.typingHours, d.mentalFatigue, d.physicalFatigue]);
+      const m = logs[user].metrics || {}; // Use empty object if metrics is null/undefined
+      const d = logs[user].demographics || {}; // Use empty object if demographics is null/undefined
+      rows.push([
+        user,
+        m.wpm || '', m.errorRate || '', m.avgIKI || '', m.kspc || '', m.backspaces || '', m.timestamp || '',
+        d.ageGroup || '', d.gender || '', d.typingSkill || '', d.occupation || '', d.typingHours || '',
+        d.mentalFatigue || '', d.physicalFatigue || ''
+      ]);
     }
     const csv = rows.map(r => r.join(",")).join("\n");
     const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "summary_logs.csv";
+    a.download = "fatigue_detection_summary_logs.csv"; // More descriptive filename
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
+    URL.revokeObjectURL(url); // Clean up the URL object
+  }).catch(error => {
+    console.error("Error downloading CSV:", error);
+    alert("Failed to download logs. Check console for details.");
   });
 }
 
 function clearAllSummaries() {
-  if (confirm("Clear all logs? This cannot be undone.")) {
+  if (confirm("Are you sure you want to clear ALL logs? This action cannot be undone.")) {
     database.ref("summaryLogs").remove().then(() => {
-      alert("✅ Logs cleared.");
+      alert("✅ All logs cleared successfully.");
+      // Optional: Reset UI after clearing logs
+      username = "";
+      index = 0;
+      logs = [];
+      document.getElementById("typingSentence").innerText = "Please enter details to start the test.";
+      document.getElementById("typingArea").value = "";
+      document.getElementById("typingArea").disabled = true;
+      document.getElementById("statusLabel").innerText = "";
+      document.getElementById("metricsDisplay").innerHTML = "";
+      document.getElementById("liveWpm").innerText = "0";
+      document.getElementById("liveError").innerText = "0%";
+      document.getElementById("liveIki").innerText = "0";
+      document.getElementById("liveKspc").innerText = "0";
+      document.getElementById("liveBackspace").innerText = "0";
+      document.getElementById("progressBar").style.width = "0%";
+      document.getElementById("progressText").innerText = "Sentence 0 of 10";
+    }).catch(error => {
+      console.error("Error clearing logs:", error);
+      alert("Failed to clear logs. Check console for details.");
     });
   }
 }
