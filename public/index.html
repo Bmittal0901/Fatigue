@@ -1,3 +1,8 @@
+Okay, here is the complete, self-contained HTML file with all the CSS, Firebase configuration, and the full JavaScript logic, including the correct file path for `filtered_sentences_8_10_words.txt`.
+
+You can save this entire content as an `index.html` file, and place your `filtered_sentences_8_10_words.txt` file in the **same directory**.
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,7 +13,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Space+Grotesk:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        /* CSS Variables for easy theme changes */
+        /* Your existing CSS here */
         :root {
             --primary-color: #36a3ff; /* A vibrant blue */
             --secondary-color: #50E3C2; /* A fresh teal */
@@ -322,12 +327,12 @@
 
         <div class="col-md-6 main-panel fade-in">
             <h4 class="mb-4">⌨️ Typing Test</h4>
-            <p id="typingSentence" class="fs-5 fw-semibold text-muted mb-4">Please enter details to start the test.</p>
+            <p id="typingSentence" class="fs-5 fw-semibold text-muted mb-4">Loading sentences, please wait...</p>
             <textarea id="typingArea" class="form-control" disabled placeholder="Your typing area..."></textarea>
             <div class="progress my-4">
                 <div id="progressBar" class="progress-bar" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
             </div>
-            <p class="text-end fw-semibold text-muted" id="progressText">Sentence 0 of 10</p>
+            <p class="text-end fw-semibold text-muted" id="progressText">Corpus loading...</p>
             <div class="d-grid gap-2 mt-4">
                 <button class="btn btn-success" onclick="submitSentence()"><i class="fas fa-check-circle me-2"></i> Submit Sentence</button>
             </div>
@@ -364,7 +369,7 @@
 <script>
     // Firebase Configuration
     const firebaseConfig = {
-        apiKey: "AIzaSyDU56-FribrzudeFeh1-gz7ch25HHoWAGk",
+        apiKey: "AIzaSyDU56-FribrzudeFeh1-gz7ch25HHoWAGk", // REPLACE WITH YOUR ACTUAL API KEY
         authDomain: "fatiguedetection-e13a1.firebaseapp.com",
         databaseURL: "https://fatiguedetection-e13a1-default-rtdb.firebaseio.com",
         projectId: "fatiguedetection-e13a1",
@@ -379,26 +384,12 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <script>
-    const sentences = [
-        "The quick brown fox jumps over the lazy dog, swiftly evading capture.",
-        "Typing speed, accuracy, and consistency can reveal your level of alertness.",
-        "Maintaining focus and rhythm often indicates low cognitive fatigue; watch for deviations.",
-        "Backspace usage significantly increases when a typist becomes tired or frustrated with errors.",
-        "Please stay focused and meticulously type the sentence shown above, avoiding any omissions.",
-        "Fast typing isn't always accurate typing; consider the trade-off.",
-        "How many times do you find yourself pressing backspace per minute during an intense session?",
-        "Fatigue can profoundly impact typing rhythm, timing, and overall dexterity. Pay attention.",
-        "A sleepy mind types with heavy fingers, leading to miskeys and sluggish responses.",
-        "Reaction time between keystrokes says a lot about one's current mental state, doesn't it?",
-        "The ancient civilization mysteriously vanished, leaving behind only enigmatic hieroglyphs.",
-        "A truly ergonomic keyboard reduces strain; however, prolonged use still demands breaks.",
-        "Can you quantify the subtle changes in your inter-key interval over several concentrated paragraphs?",
-        "The programming assignment required a thorough understanding of recursive algorithms.",
-        "Remember: practice and rest are crucial for optimal typing performance!"
-    ];
+    let allCorpusSentences = []; // This will hold all sentences loaded from the corpus file
+    const NUM_SENTENCES_PER_TEST = 10; // Fixed number of sentences per test
 
     let username = "";
-    let index = 0; // Current sentence index
+    let currentTestSentences = []; // This will hold the 10 sentences for the current test
+    let index = 0; // Current sentence index within currentTestSentences
     let logs = []; // Logs for the current test session (individual sentences)
     let keystrokes = 0; // Total keystrokes for the current sentence
     let backspaces = 0; // Total backspaces for the current sentence
@@ -410,94 +401,131 @@
     const typingArea = document.getElementById("typingArea");
     const statusLabel = document.getElementById("statusLabel");
     const metricsDisplay = document.getElementById("metricsDisplay");
+    const progressTextElement = document.getElementById("progressText"); // Get the element
+
+
+    // --- New Function: Load Corpus ---
+    async function loadCorpus(filePath) {
+        try {
+            const response = await fetch(filePath);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const text = await response.text();
+            // Split by newline, filter out empty lines, and trim whitespace
+            allCorpusSentences = text.split('\n').map(s => s.trim()).filter(s => s.length > 0);
+            console.log(`Loaded ${allCorpusSentences.length} sentences from corpus.`);
+            progressTextElement.innerText = `Sentence 0 of ${NUM_SENTENCES_PER_TEST}`; // Update after loading
+        } catch (error) {
+            console.error("Error loading corpus:", error);
+            statusLabel.classList.add('text-danger');
+            statusLabel.innerText = "❌ Failed to load sentences corpus. Check console (F12).";
+            // Optionally, disable the start button if corpus loading fails critically
+            document.querySelector('button[onclick="submitDemographics()"]').disabled = true;
+        }
+    }
+
+    // Call loadCorpus when the script loads (or when the DOM is ready)
+    document.addEventListener('DOMContentLoaded', () => {
+        // IMPORTANT: Use the correct file name you generated
+        loadCorpus('filtered_sentences_8_10_words.txt');
+    });
+
 
     // Event listener for keydown on the typing area
     typingArea.addEventListener("keydown", e => {
-        if (!testActive) return; // Only process keydowns if test is active
+        if (!testActive) return;
 
         const now = performance.now();
 
-        // Set startTime only on the very first alphanumeric/space key press for the current sentence
+        // Start timer on the first actual character typed, ignoring modifiers/function keys
         if (startTime === 0 && (e.key.length === 1 || e.key === " ")) {
             startTime = now;
         }
 
-        // Block navigation keys, Home, End, and Delete to prevent cursor movement
+        // Prevent common navigation/editing keys from moving cursor
         const blockedKeys = ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End", "Delete"];
         if (blockedKeys.includes(e.key)) {
             e.preventDefault();
-            return; // Stop processing if a blocked key is pressed
+            return;
         }
 
-        // Increment keystrokes for any character, space, or backspace
-        if (e.key.length === 1 || e.key === " ") {
+        if (e.key.length === 1 || e.key === " ") { // Count regular characters and space
             keystrokes++;
         } else if (e.key === "Backspace") {
             backspaces++;
             keystrokes++; // Backspace is also a keystroke
         }
 
-        // Calculate IKI only if it's not the very first valid key of the sentence
         if (lastKeyTime > 0) {
             delays.push(now - lastKeyTime);
         }
         lastKeyTime = now;
 
-        // IMPORTANT: Ensure caret stays at the end after every key press
+        // Keep cursor at the end (for consistency with locked-cursor behavior)
         setTimeout(() => {
             typingArea.selectionStart = typingArea.selectionEnd = typingArea.value.length;
-        }, 0); // Use setTimeout to ensure this runs after the key's default action
+        }, 0);
     });
 
-    // Use the 'input' event to catch changes (including paste) and enforce caret position
+    // Ensure cursor stays at the end during input
     typingArea.addEventListener('input', () => {
-        if (!testActive) return; // Only process if test is active
-        // Ensure caret is always at the end after any input
+        if (!testActive) return;
         typingArea.selectionStart = typingArea.selectionEnd = typingArea.value.length;
-        updateLiveMetrics(); // Update live metrics on every input
+        updateLiveMetrics();
     });
 
-    // Optional: Add a 'focus' event listener to ensure caret is at the end when textarea is first focused
+    // Ensure cursor is at the end when the textarea gains focus
     typingArea.addEventListener('focus', () => {
         typingArea.selectionStart = typingArea.selectionEnd = typingArea.value.length;
     });
 
+
+    // --- Helper function to shuffle an array (Fisher-Yates algorithm) ---
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+
     function updateUI() {
-        document.getElementById("typingSentence").innerText = sentences[index];
-        document.getElementById("progressText").innerText = `Sentence ${index + 1} of ${sentences.length}`;
-        document.getElementById("progressBar").style.width = `${(index / sentences.length) * 100}%`;
-        document.getElementById("progressBar").setAttribute('aria-valuenow', (index / sentences.length) * 100);
+        document.getElementById("typingSentence").innerText = currentTestSentences[index];
+        progressTextElement.innerText = `Sentence ${index + 1} of ${NUM_SENTENCES_PER_TEST}`;
+        document.getElementById("progressBar").style.width = `${((index + 1) / NUM_SENTENCES_PER_TEST) * 100}%`; // +1 because it's current sentence not completed
+        document.getElementById("progressBar").setAttribute('aria-valuenow', ((index + 1) / NUM_SENTENCES_PER_TEST) * 100);
 
         typingArea.disabled = false;
-        typingArea.readOnly = false; // Ensure it's not read-only
-        typingArea.value = "";
-        typingArea.focus();
+        typingArea.readOnly = false; // Ensure it's writable
+        typingArea.value = ""; // Clear previous text
+        typingArea.focus(); // Focus for immediate typing
 
-        // Reset tracking variables for the new sentence
+        // Reset metrics for the new sentence
         keystrokes = 0;
         backspaces = 0;
         delays = [];
-        startTime = 0; // Reset startTime for the next sentence
-        lastKeyTime = 0; // Reset lastKeyTime for the next sentence
+        startTime = 0;
+        lastKeyTime = 0;
 
-        // Reset live metrics display immediately
+        // Reset live metrics display to 0 or default
         updateLiveMetrics({
             wpm: 0,
             error: "0%",
             iki: 0,
             kspc: 0,
             backspaces: 0,
-            initial: true // Flag to indicate initial reset for live metrics
+            initial: true // Flag to signal initial reset
         });
 
-        // Apply strict caret control and selection prevention via CSS
+        // Prevent text selection (optional, for a cleaner UI)
         typingArea.style.userSelect = "none";
-        // Ensure mobile keyboards don’t autocorrect or suggest
+        // Disable autocorrect, autocapitalize, and spellcheck for a raw typing experience
         typingArea.setAttribute("autocorrect", "off");
         typingArea.setAttribute("autocapitalize", "off");
         typingArea.setAttribute("spellcheck", "false");
 
-        // Force caret to the end initially, and ensure input area is in view
+        // Ensure cursor is at the end after UI update
         setTimeout(() => {
             typingArea.selectionStart = typingArea.selectionEnd = typingArea.value.length;
             typingArea.scrollIntoView({
@@ -507,15 +535,52 @@
         }, 200);
     }
 
+    // Function to load and select sentences for the current test
     function loadUserProgress() {
         username = document.getElementById("username").value.trim();
-        if (!username) return; // Should be handled by submitDemographics
+        if (!username) return;
 
-        index = 0; // Always start from the beginning for a new test session
-        logs = []; // Clear logs for a new test session
+        index = 0; // Reset sentence index
+        logs = []; // Clear previous logs
+
+        // Check if there are enough sentences in the corpus
+        if (allCorpusSentences.length < NUM_SENTENCES_PER_TEST) {
+            statusLabel.classList.remove('text-success');
+            statusLabel.classList.add('text-danger');
+            statusLabel.innerText = `🚨 Not enough sentences in corpus. Need ${NUM_SENTENCES_PER_TEST}, but found ${allCorpusSentences.length}. Please add more sentences to filtered_sentences_8_10_words.txt.`;
+            // Re-enable start button if an error occurs here
+            document.querySelector('button[onclick="submitDemographics()"]').disabled = false;
+            testActive = false; // Ensure test does not start
+            typingArea.disabled = true; // Keep typing area disabled
+            return;
+        }
+
+        // Create a copy to shuffle, so the original corpus isn't modified
+        const shuffledSentences = [...allCorpusSentences];
+        shuffleArray(shuffledSentences);
+
+        // Select the first NUM_SENTENCES_PER_TEST sentences
+        currentTestSentences = shuffledSentences.slice(0, NUM_SENTENCES_PER_TEST);
+        console.log("Selected sentences for this test:", currentTestSentences);
+        
+        // Start the test
+        testActive = true;
+        updateUI(); // Display the first sentence
+        statusLabel.classList.remove('text-danger');
+        statusLabel.classList.add('text-success');
+        statusLabel.innerText = "Test started!";
+        metricsDisplay.style.display = 'block'; // Show metrics once test starts
     }
 
     function submitDemographics() {
+        // Ensure corpus is loaded before starting the test
+        if (allCorpusSentences.length === 0) {
+            statusLabel.classList.remove('text-success');
+            statusLabel.classList.add('text-danger');
+            statusLabel.innerText = "🚨 Sentences are still loading or failed to load. Please wait or refresh.";
+            return;
+        }
+
         const u = document.getElementById("username").value.trim();
         const ageGroup = document.getElementById("ageGroup").value;
         const gender = document.getElementById("gender").value;
@@ -533,409 +598,288 @@
         }
 
         username = u;
-        const demographics = {
-            ageGroup,
-            gender,
-            typingSkill,
-            occupation,
-            typingHours,
-            mentalFatigue,
-            physicalFatigue,
-            submittedAt: new Date().toLocaleString()
-        };
+        document.querySelector('button[onclick="submitDemographics()"]').disabled = true; // Disable start button
 
-        // Disable the start button to prevent multiple submissions
-        document.querySelector('button[onclick="submitDemographics()"]').disabled = true;
-
-        // Store demographics in Firebase under a unique session ID
-        // Note: For actual fatigue study, you might want to store demographics once per user
-        // or tie them to each session for changes over time.
-        // For simplicity, we'll store them with each test session.
-
-        // You might want to check if a test is already active for this user,
-        // or if the user has completed a test and wants to start a new one.
-        // For now, starting a new session always.
-        loadUserProgress(); // Resets index and logs for a new user/test
-        typingArea.removeAttribute("disabled"); // Enable typing area
-        typingArea.placeholder = "Your typing area..."; // Reset placeholder
-        statusLabel.classList.remove('text-danger');
-        statusLabel.classList.add('text-success');
-        statusLabel.innerText = "✅ Test Started";
-        metricsDisplay.innerHTML = ""; // Clear previous summary
-        metricsDisplay.style.display = "none"; // Hide summary display
-        testActive = true; // Set test as active
-        updateUI(); // Load the first sentence and prepare the UI
+        loadUserProgress(); // This will select the 10 random sentences and start the test
     }
 
-    // Function to calculate Levenshtein distance for more robust error detection
-    function levenshteinDistance(s1, s2) {
-        const m = s1.length;
-        const n = s2.length;
-        const dp = Array(m + 1).fill(0).map(() => Array(n + 1).fill(0));
 
-        for (let i = 0; i <= m; i++) dp[i][0] = i;
-        for (let j = 0; j <= n; j++) dp[0][j] = j;
+    function calculateWPM(typedText, originalText, timeTakenSeconds) {
+        const originalWords = originalText.split(/\s+/).filter(word => word.length > 0);
+        const typedWords = typedText.split(/\s+/).filter(word => word.length > 0);
 
-        for (let i = 1; i <= m; i++) {
-            for (let j = 1; j <= n; j++) {
-                const cost = (s1[i - 1] === s2[j - 1]) ? 0 : 1;
-                dp[i][j] = Math.min(
-                    dp[i - 1][j] + 1, // deletion
-                    dp[i][j - 1] + 1, // insertion
-                    dp[i - 1][j - 1] + cost // substitution
-                );
+        let correctWords = 0;
+        for (let i = 0; i < Math.min(originalWords.length, typedWords.length); i++) {
+            if (originalWords[i] === typedWords[i]) {
+                correctWords++;
             }
         }
-        return dp[m][n];
+        
+        const charactersTyped = typedText.length;
+        const grossWPM = (charactersTyped / 5) / (timeTakenSeconds / 60);
+
+        let errors = 0;
+        for (let i = 0; i < Math.max(originalText.length, typedText.length); i++) {
+            if (originalText[i] !== typedText[i]) {
+                errors++;
+            }
+        }
+        const errorPercentage = (errors / originalText.length) * 100;
+
+        return {
+            grossWPM: isNaN(grossWPM) ? 0 : Math.round(grossWPM),
+            errors: errors,
+            errorPercentage: isNaN(errorPercentage) ? 0 : errorPercentage.toFixed(2)
+        };
     }
 
-    // Function to calculate metrics and update live display
-    function updateLiveMetrics(override = {}) {
-        if (!testActive && !override.initial) return; // Only update if test is active, or during initial reset
+    function calculateIKI() {
+        if (delays.length === 0) return 0;
+        const sum = delays.reduce((a, b) => a + b, 0);
+        return Math.round(sum / delays.length); // Average IKI in milliseconds
+    }
 
-        const typed = typingArea.value;
-        const originalSentence = sentences[index];
-        const currentTime = performance.now();
-        const currentElapsed = startTime > 0 ? (currentTime - startTime) / 1000 : 0;
+    function calculateKSPC(typedText, originalText) {
+        // KSPC (Keystrokes Per Character) - ideally 1.0 if no errors/backspaces
+        // total_keystrokes / length_of_original_sentence
+        if (originalText.length === 0) return 0;
+        return (keystrokes / originalText.length).toFixed(2);
+    }
 
-        let currentWpm = 0;
-        if (currentElapsed > 0) {
-            currentWpm = ((typed.length / 5) / (currentElapsed / 60)).toFixed(2);
+    function updateLiveMetrics(initialReset = false) {
+        if (initialReset) {
+            document.getElementById("liveWpm").innerText = 0;
+            document.getElementById("liveError").innerText = "0%";
+            document.getElementById("liveIki").innerText = 0;
+            document.getElementById("liveKspc").innerText = 0;
+            document.getElementById("liveBackspace").innerText = 0;
+            return;
         }
 
-        // Use Levenshtein distance for error calculation
-        const distance = levenshteinDistance(originalSentence, typed);
-        let currentErrorRate = (originalSentence.length > 0 ? (distance / originalSentence.length * 100) : 0).toFixed(2);
-        // Cap error rate at 100% for readability if it somehow exceeds (e.g., if typed is very different/long)
-        if (parseFloat(currentErrorRate) > 100) currentErrorRate = "100.00";
+        const typedText = typingArea.value;
+        const originalText = currentTestSentences[index];
+        const currentTime = performance.now();
+        const timeTakenSeconds = (currentTime - startTime) / 1000;
 
-        const currentAvgIKI = (delays.length > 0 ? (delays.reduce((a, b) => a + b, 0) / delays.length) : 0).toFixed(2);
-        // KSPC: total keystrokes (including backspaces) divided by length of currently typed text
-        const currentKspc = typed.length > 0 ? (keystrokes / typed.length).toFixed(2) : 0;
+        if (timeTakenSeconds > 0) {
+            const { grossWPM, errorPercentage } = calculateWPM(typedText, originalText, timeTakenSeconds);
+            const avgIKI = calculateIKI();
+            const kspc = calculateKSPC(typedText, originalText);
 
-        document.getElementById("liveWpm").innerText = override.wpm !== undefined ? override.wpm : currentWpm;
-        document.getElementById("liveError").innerText = override.error !== undefined ? override.error : `${currentErrorRate}%`;
-        document.getElementById("liveIki").innerText = override.iki !== undefined ? override.iki : currentAvgIKI;
-        document.getElementById("liveKspc").innerText = override.kspc !== undefined ? override.kspc : currentKspc;
-        document.getElementById("liveBackspace").innerText = override.backspaces !== undefined ? override.backspaces : backspaces;
+            document.getElementById("liveWpm").innerText = grossWPM;
+            document.getElementById("liveError").innerText = `${errorPercentage}%`;
+            document.getElementById("liveIki").innerText = avgIKI;
+            document.getElementById("liveKspc").innerText = kspc;
+            document.getElementById("liveBackspace").innerText = backspaces;
+        } else {
+            // If no time has passed yet, keep live metrics at 0
+            document.getElementById("liveWpm").innerText = 0;
+            document.getElementById("liveError").innerText = "0%";
+            document.getElementById("liveIki").innerText = 0;
+            document.getElementById("liveKspc").innerText = 0;
+            document.getElementById("liveBackspace").innerText = 0;
+        }
     }
+
 
     function submitSentence() {
-        if (!testActive || index >= sentences.length) {
-            statusLabel.classList.remove('text-success');
+        if (!testActive) {
             statusLabel.classList.add('text-danger');
-            statusLabel.innerText = "🚨 Test completed or not started.";
+            statusLabel.innerText = "Test not started. Please fill in demographics and click 'Start Test'.";
             return;
         }
 
-        const typed = typingArea.value; // Get the raw typed value
-        const originalSentence = sentences[index];
-
-        if (startTime === 0 || typed.length === 0) { // Check for empty typed content or no typing initiated
-            statusLabel.classList.remove('text-success');
+        if (startTime === 0) {
             statusLabel.classList.add('text-danger');
-            statusLabel.innerText = "🚨 Please type before submitting.";
+            statusLabel.innerText = "Please start typing before submitting the sentence.";
             return;
         }
 
-        const elapsed = (performance.now() - startTime) / 1000;
-        const wpm = ((typed.length / 5) / (elapsed / 60)).toFixed(2); // WPM calculation
-        const distance = levenshteinDistance(originalSentence, typed); // Use Levenshtein for final error rate
-        const errorRate = (originalSentence.length > 0 ? (distance / originalSentence.length * 100) : 0).toFixed(2);
+        const originalSentence = currentTestSentences[index];
+        const typedSentence = typingArea.value;
+        const endTime = performance.now();
+        const timeTaken = (endTime - startTime) / 1000; // in seconds
 
-        const avgIKI = (delays.length > 0 ? (delays.reduce((a, b) => a + b, 0) / delays.length) : 0).toFixed(2);
-        const kspc = (typed.length > 0 ? (keystrokes / typed.length) : 0).toFixed(2); // Keystrokes per actual character typed
+        const { grossWPM, errors, errorPercentage } = calculateWPM(typedSentence, originalSentence, timeTaken);
+        const avgIKI = calculateIKI();
+        const kspc = calculateKSPC(typedSentence, originalSentence);
 
-        logs.push({
-            sentenceIndex: index,
-            originalSentence,
-            typedSentence: typed,
-            wpm: parseFloat(wpm),
-            errorRate: parseFloat(errorRate),
-            avgIKI: parseFloat(avgIKI),
-            kspc: parseFloat(kspc),
-            backspaces: parseInt(backspaces),
-            elapsedTime: parseFloat(elapsed.toFixed(2)),
-            timestamp: new Date().toLocaleString()
-        });
-
-        // Update live metrics one last time for the just-submitted sentence
-        updateLiveMetrics({
-            wpm: wpm,
-            error: errorRate + "%",
-            iki: avgIKI,
+        const currentLog = {
+            sentenceIndex: index + 1,
+            originalSentence: originalSentence,
+            typedSentence: typedSentence,
+            timeTakenSeconds: timeTaken.toFixed(2),
+            grossWPM: grossWPM,
+            errors: errors,
+            errorPercentage: errorPercentage,
+            avgIKI_ms: avgIKI,
             kspc: kspc,
-            backspaces: backspaces
-        });
+            backspaces: backspaces,
+            timestamp: new Date().toISOString()
+        };
+        logs.push(currentLog);
+        console.log("Sentence Log:", currentLog);
 
         index++; // Move to the next sentence
 
-        if (index < sentences.length) {
+        if (index < NUM_SENTENCES_PER_TEST) {
+            updateUI(); // Load next sentence
             statusLabel.classList.remove('text-danger');
             statusLabel.classList.add('text-success');
-            statusLabel.innerText = "✅ Sentence submitted. Next!";
-            updateUI(); // Load the next sentence
+            statusLabel.innerText = "Sentence submitted. Next sentence loaded!";
         } else {
-            saveFinalSummary(); // All sentences are complete
+            endTest(); // All sentences completed
         }
     }
 
-    function saveFinalSummary() {
-        // Only calculate averages for collected logs
-        if (logs.length === 0) {
-            statusLabel.classList.remove('text-success');
-            statusLabel.classList.add('text-danger');
-            statusLabel.innerText = "⚠️ No typing data to save.";
-            typingArea.disabled = true;
-            typingArea.value = "";
-            testActive = false;
-            return;
-        }
-
-        let sum = logs.reduce((acc, curr) => {
-            acc.wpm += curr.wpm;
-            acc.errorRate += curr.errorRate;
-            acc.avgIKI += curr.avgIKI;
-            acc.kspc += curr.kspc;
-            acc.backspaces += curr.backspaces;
-            return acc;
-        }, {
-            wpm: 0,
-            errorRate: 0,
-            avgIKI: 0,
-            kspc: 0,
-            backspaces: 0
-        });
-
-        const count = logs.length;
-        const average = {
-            username,
-            wpm: (sum.wpm / count).toFixed(2),
-            errorRate: (sum.errorRate / count).toFixed(2),
-            avgIKI: (sum.avgIKI / count).toFixed(2),
-            kspc: (sum.kspc / count).toFixed(2),
-            backspaces: (sum.backspaces / count).toFixed(2),
-            timestamp: new Date().toLocaleString()
-        };
-
-        // Store individual sentence logs under a session ID, not just averages
-        // This allows for time-series analysis for fatigue detection.
-        const sessionId = `${username}_${Date.now()}`; // Unique session ID
-
-        // Retrieve demographics from the form, as they are not part of `logs`
-        const demographics = {
-            ageGroup: document.getElementById("ageGroup").value,
-            gender: document.getElementById("gender").value,
-            typingSkill: document.getElementById("typingSkill").value,
-            occupation: document.getElementById("occupation").value,
-            typingHours: document.getElementById("typingHours").value,
-            mentalFatigue: document.getElementById("mentalFatigue").value,
-            physicalFatigue: document.getElementById("physicalFatigue").value,
-            submittedAt: new Date().toLocaleString()
-        };
-
-        database.ref(`detailedLogs/${sessionId}`).set({
-            demographics: demographics,
-            averageMetrics: average,
-            sentenceLogs: logs // Store all individual sentence logs
-        }).then(() => {
-            statusLabel.classList.remove('text-danger');
-            statusLabel.classList.add('text-success');
-            statusLabel.innerText = "✅ All sentences complete. Summary and detailed logs saved!";
-
-            metricsDisplay.innerHTML = `
-                <b>WPM:</b> ${average.wpm}<br>
-                <b>Error Rate:</b> ${average.errorRate}%<br>
-                <b>Avg IKI:</b> ${average.avgIKI} ms<br>
-                <b>KSPC:</b> ${average.kspc}<br>
-                <b>Backspaces:</b> ${average.backspaces}<br>
-                <b>Timestamp:</b> ${average.timestamp}`;
-            metricsDisplay.style.display = "block"; // Show summary display
-
-            typingArea.disabled = true; // Disable typing area after test completion
-            typingArea.value = ""; // Clear typing area
-            typingArea.placeholder = "Test completed!"; // Update placeholder
-            testActive = false; // Mark test as inactive
-            document.getElementById("progressBar").style.width = `100%`; // Ensure progress bar is full
-            document.getElementById("progressText").innerText = `Sentence ${sentences.length} of ${sentences.length}`;
-
-            // Re-enable the start button now that the test is fully completed
-            document.querySelector('button[onclick="submitDemographics()"]').disabled = false;
-
-        }).catch(error => {
-            console.error("Error saving final summary:", error);
-            statusLabel.classList.remove('text-success');
-            statusLabel.classList.add('text-danger');
-            statusLabel.innerText = "❌ Failed to save summary.";
-            // Re-enable the start button on error
-            document.querySelector('button[onclick="submitDemographics()"]').disabled = false;
-        });
-    }
-
-    function downloadSummaryCSV() {
-        // Fetch from 'detailedLogs' to get full session data
-        database.ref("detailedLogs").once("value").then(snapshot => {
-            const allSessions = snapshot.val();
-            if (!allSessions) {
-                alert("No logs to download.");
-                return;
-            }
-
-            const rows = [];
-            const headers = [
-                "SessionID", "Username", "Timestamp", "Age Group", "Gender", "Typing Skill",
-                "Occupation", "Typing Hours", "Mental Fatigue", "Physical Fatigue",
-                "Avg WPM", "Avg Error Rate (%)", "Avg IKI (ms)", "Avg KSPC", "Avg Backspaces",
-                "Sentence Index", "Original Sentence", "Typed Sentence", "Sentence WPM",
-                "Sentence Error Rate (%)", "Sentence Avg IKI (ms)", "Sentence KSPC",
-                "Sentence Backspaces", "Sentence Elapsed Time (s)", "Sentence Timestamp"
-            ];
-            rows.push(headers.map(h => `"${h}"`).join(",")); // Add headers to the CSV
-
-            for (const sessionId in allSessions) {
-                const sessionData = allSessions[sessionId];
-                const avgM = sessionData.averageMetrics || {};
-                const demo = sessionData.demographics || {};
-                const sentenceLogs = sessionData.sentenceLogs || [];
-
-                // Base row data that applies to all sentences in this session
-                const baseRow = [
-                    sessionId,
-                    avgM.username || '',
-                    avgM.timestamp || '',
-                    demo.ageGroup || '',
-                    demo.gender || '',
-                    demo.typingSkill || '',
-                    demo.occupation || '',
-                    demo.typingHours || '',
-                    demo.mentalFatigue || '',
-                    demo.physicalFatigue || '',
-                    avgM.wpm || '',
-                    avgM.errorRate || '',
-                    avgM.avgIKI || '',
-                    avgM.kspc || '',
-                    avgM.backspaces || ''
-                ].map(value => {
-                    // Basic CSV escaping for values in the base row
-                    const strValue = String(value);
-                    return `"${strValue.replace(/"/g, '""')}"`;
-                });
-
-                if (sentenceLogs.length === 0) {
-                    // If there are no sentence logs, still record the demographic and average data
-                    rows.push(baseRow.join(","));
-                } else {
-                    // Add a row for each sentence log
-                    sentenceLogs.forEach(sLog => {
-                        const sentenceRow = [
-                            sLog.sentenceIndex || '',
-                            `"${(sLog.originalSentence || '').replace(/"/g, '""')}"`, // Quote and escape original sentence
-                            `"${(sLog.typedSentence || '').replace(/"/g, '""')}"`, // Quote and escape typed sentence
-                            sLog.wpm || '',
-                            sLog.errorRate || '',
-                            sLog.avgIKI || '',
-                            sLog.kspc || '',
-                            sLog.backspaces || '',
-                            sLog.elapsedTime || '',
-                            sLog.timestamp || ''
-                        ].map(value => {
-                            // Ensure all parts are strings and apply CSV escaping for sentence-specific values
-                            const strValue = String(value);
-                            return `"${strValue.replace(/"/g, '""')}"`;
-                        });
-
-                        rows.push(baseRow.concat(sentenceRow).join(","));
-                    });
-                }
-            }
-
-            const csvContent = "\uFEFF" + rows.join("\n"); // Add BOM for UTF-8
-            const blob = new Blob([csvContent], {
-                type: "text/csv;charset=utf-8;"
-            });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = "fatigue_detection_full_logs.csv"; // More descriptive filename
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url); // Clean up the URL object
-        }).catch(error => {
-            console.error("Error downloading CSV:", error);
-            alert("Failed to download logs. Check console for details.");
-        });
-    }
-
-    function clearAllSummaries() {
-        if (confirm("Are you sure you want to clear ALL logs? This action cannot be undone.")) {
-            database.ref("detailedLogs").remove().then(() => {
-                alert("✅ All logs cleared successfully.");
-                resetUI(); // Call a dedicated function to reset the UI
-            }).catch(error => {
-                console.error("Error clearing logs:", error);
-                alert("Failed to clear logs. Check console for details.");
-            });
-        }
-    }
-
-    function resetUI() {
-        username = "";
-        index = 0;
-        logs = [];
-        keystrokes = 0;
-        backspaces = 0;
-        delays = [];
-        lastKeyTime = 0;
-        startTime = 0;
+    function endTest() {
         testActive = false;
-
-        // Reset all input fields
-        document.getElementById("username").value = "";
-        document.getElementById("ageGroup").value = "";
-        document.getElementById("gender").value = "";
-        document.getElementById("typingSkill").value = "";
-        document.getElementById("occupation").value = "";
-        document.getElementById("typingHours").value = "";
-        document.getElementById("mentalFatigue").value = "0";
-        document.getElementById("physicalFatigue").value = "0";
-        document.getElementById("mentalFatigueValue").innerText = "0";
-        document.getElementById("physicalFatigueValue").innerText = "0";
-
-
-        document.getElementById("typingSentence").innerText = "Please enter details to start the test.";
-        typingArea.value = "";
         typingArea.disabled = true;
-        typingArea.placeholder = "Your typing area..."; // Reset placeholder
+        typingArea.value = "";
+        document.getElementById("typingSentence").innerText = "Test Complete!";
+        statusLabel.classList.remove('text-danger');
+        statusLabel.classList.add('text-success');
+        statusLabel.innerText = "🎉 Test finished! Generating summary...";
+        document.getElementById("progressBar").style.width = `100%`;
+        document.getElementById("progressBar").setAttribute('aria-valuenow', 100);
+        progressTextElement.innerText = `Test Complete!`;
 
-        statusLabel.innerText = "";
-        statusLabel.classList.remove('text-success', 'text-danger'); // Remove color classes
-        metricsDisplay.innerHTML = "";
-        metricsDisplay.style.display = "none"; // Hide summary display
+        // Combine demographics with full test logs
+        const finalData = {
+            participantInfo: {
+                username: username,
+                ageGroup: document.getElementById("ageGroup").value,
+                gender: document.getElementById("gender").value,
+                typingSkill: document.getElementById("typingSkill").value,
+                occupation: document.getElementById("occupation").value,
+                typingHours: document.getElementById("typingHours").value,
+                mentalFatigue: document.getElementById("mentalFatigue").value,
+                physicalFatigue: document.getElementById("physicalFatigue").value,
+            },
+            testLogs: logs,
+            testStartTime: logs[0] ? logs[0].timestamp : new Date().toISOString(), // First sentence's timestamp
+            testEndTime: logs[logs.length - 1] ? logs[logs.length - 1].timestamp : new Date().toISOString(), // Last sentence's timestamp
+            totalSentences: NUM_SENTENCES_PER_TEST,
+            // You might add overall averages here later
+        };
 
-        updateLiveMetrics({ // Reset live metrics display
-            wpm: 0,
-            error: "0%",
-            iki: 0,
-            kspc: 0,
-            backspaces: 0,
-            initial: true // Signal initial reset
+        // Save to Firebase
+        saveDataToFirebase(finalData);
+
+        // Display overall summary
+        displayOverallSummary(finalData);
+
+        // Show confetti for completion!
+        confetti({
+            particleCount: 100,
+            spread: 70,
+            origin: { y: 0.6 }
         });
-
-        document.getElementById("progressBar").style.width = "0%";
-        document.getElementById("progressBar").setAttribute('aria-valuenow', 0);
-        document.getElementById("progressText").innerText = `Sentence 0 of ${sentences.length}`;
-
-        // Ensure start button is enabled
+        
+        // Re-enable start button
         document.querySelector('button[onclick="submitDemographics()"]').disabled = false;
     }
 
+    function saveDataToFirebase(data) {
+        try {
+            const userId = username.replace(/[^a-zA-Z0-9]/g, '_') + '_' + Date.now(); // Simple ID for user session
+            database.ref('fatigueTests/' + userId).set(data)
+                .then(() => {
+                    console.log("Data saved to Firebase successfully!");
+                    statusLabel.innerText = "✅ Test finished & data saved!";
+                })
+                .catch((error) => {
+                    console.error("Error saving data to Firebase:", error);
+                    statusLabel.classList.add('text-danger');
+                    statusLabel.innerText = "⚠️ Test finished, but data SAVE FAILED! Check console.";
+                });
+        } catch (e) {
+            console.error("Firebase save function error:", e);
+            statusLabel.classList.add('text-danger');
+            statusLabel.innerText = "⚠️ Test finished, but Firebase setup error!";
+        }
+    }
 
-    // Initial UI setup on page load
-    document.addEventListener('DOMContentLoaded', () => {
-        resetUI(); // Call reset UI on load to set initial state cleanly
-    });
+    function displayOverallSummary(finalData) {
+        let totalWPM = 0;
+        let totalErrorPercentage = 0;
+        let totalIKI = 0;
+        let totalKSPC = 0;
+        let totalBackspaces = 0;
+        let validSentences = 0;
+
+        finalData.testLogs.forEach(log => {
+            totalWPM += log.grossWPM;
+            totalErrorPercentage += parseFloat(log.errorPercentage);
+            totalIKI += log.avgIKI_ms;
+            totalKSPC += parseFloat(log.kspc);
+            totalBackspaces += log.backspaces;
+            validSentences++; // Count only logs that were successfully recorded
+        });
+
+        const avgWPM = (totalWPM / validSentences).toFixed(0);
+        const avgErrorPercentage = (totalErrorPercentage / validSentences).toFixed(2);
+        const avgIKI = (totalIKI / validSentences).toFixed(0);
+        const avgKSPC = (totalKSPC / validSentences).toFixed(2);
+        const totalOverallBackspaces = totalBackspaces;
+
+        let summaryHtml = `
+            <h5>Overall Summary</h5>
+            <p><b>Average WPM:</b> ${avgWPM}</p>
+            <p><b>Average Error %:</b> ${avgErrorPercentage}%</p>
+            <p><b>Average IKI (ms):</b> ${avgIKI}</p>
+            <p><b>Average KSPC:</b> ${avgKSPC}</p>
+            <p><b>Total Backspaces:</b> ${totalOverallBackspaces}</p>
+        `;
+        metricsDisplay.innerHTML = summaryHtml;
+        metricsDisplay.style.display = 'block'; // Ensure it's visible
+    }
+
+    // Function to download all stored summaries as CSV
+    function downloadSummaryCSV() {
+        // This function would need to retrieve ALL logs from Firebase first.
+        // For demonstration, let's assume `logs` array holds all current session data.
+        // To download ALL data, you'd need a Firebase query here.
+        alert("This function would download all data from Firebase. For a live demo, it's limited to current session logs. Implement Firebase data retrieval for full functionality.");
+
+        if (logs.length === 0) {
+            alert("No logs to download for the current session.");
+            return;
+        }
+
+        const headers = Object.keys(logs[0]).join(',');
+        const csvRows = [
+            headers,
+            ...logs.map(row => Object.values(row).map(value => {
+                // Handle commas within values by enclosing in double quotes
+                if (typeof value === 'string' && value.includes(',')) {
+                    return `"${value}"`;
+                }
+                return value;
+            }).join(','))
+        ];
+
+        const csvString = csvRows.join('\n');
+        const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `typing_test_logs_${username}_${new Date().toISOString().slice(0,10)}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    function clearAllSummaries() {
+        if (confirm("Are you sure you want to clear ALL locally stored logs? This will not clear Firebase data without a specific function for it.")) {
+            logs = [];
+            console.log("Local logs cleared.");
+            statusLabel.classList.remove('text-danger');
+            statusLabel.classList.add('text-success');
+            statusLabel.innerText = "Local logs cleared!";
+            metricsDisplay.style.display = 'none'; // Hide metrics
+        }
+    }
 </script>
-
 </body>
 </html>
+```
