@@ -253,6 +253,9 @@ function updateUI() {
   backspaces = 0;
   delays = [];
 
+  startTime = 0;
+  lastKeyTime = 0;
+  
   // Prevent selection, touch-hold, or caret reposition
   typingArea.addEventListener("mousedown", e => e.preventDefault());
   typingArea.addEventListener("touchstart", e => e.preventDefault());
