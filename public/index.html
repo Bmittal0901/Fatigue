@@ -8,36 +8,122 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Space+Grotesk:wght@400;600&display=swap" rel="stylesheet">
   <style>
+    /* CSS Variables for easy theme changes */
+    :root {
+      --primary-color: #36a3ff; /* A vibrant blue */
+      --secondary-color: #50E3C2; /* A fresh teal */
+      --background-light: #F8F9FA; /* Off-white for body background */
+      --panel-bg: #ffffff; /* Solid white for panels */
+      --text-dark: #343a40; /* Darker text for better contrast */
+      --border-color-light: #e9ecef; /* Light border for subtle separation */
+      --shadow-subtle: 0 4px 15px rgba(0,0,0,0.08);
+      --border-radius-base: 0.8rem; /* Slightly larger radius for softness */
+      --border-radius-sm: 0.5rem;
+    }
+
     body {
-      background: linear-gradient(to right, #eef2f3, #ffffff);
+      background: linear-gradient(to bottom right, var(--background-light), #ffffff);
       font-family: 'Space Grotesk', 'Inter', sans-serif;
+      color: var(--text-dark);
+      min-height: 100vh; /* Ensure body takes full height */
+      display: flex; /* Use flex to center content if needed */
+      align-items: center; /* Vertically center main container */
+      padding: 1.5rem 0; /* Add some vertical padding */
     }
+
+    .container-fluid {
+      max-width: 1400px; /* Max width for the main content area */
+      margin: auto; /* Center the container */
+    }
+
     .sidebar, .main-panel, .control-panel {
-      background-color: #ffffffdd;
-      backdrop-filter: blur(12px);
-      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
-      padding: 1.5rem;
-      height: 100vh;
+      background-color: var(--panel-bg);
+      box-shadow: var(--shadow-subtle);
+      padding: 2rem; /* Increased padding for more breathing room */
+      /* height: 100vh; */ /* Removed fixed height, let content define it */
+      min-height: 700px; /* Minimum height for consistency */
       overflow-y: auto;
-      border-radius: 0.75rem;
+      border-radius: var(--border-radius-base);
+      border: 1px solid var(--border-color-light); /* Subtle border */
+      display: flex; /* Flex container for better layout within panels */
+      flex-direction: column;
     }
+
+    /* Adjust specific panel heights for better balance */
+    .main-panel {
+      min-height: 700px; /* Ensure main typing area is tall enough */
+    }
+    .sidebar {
+      min-height: 700px;
+    }
+    .control-panel {
+      min-height: 700px;
+    }
+
     h4, h5 {
       font-weight: 600;
+      color: var(--primary-color);
+      margin-bottom: 1.5rem; /* More space below headings */
     }
+
     textarea {
-      height: 160px;
-      border-radius: 0.5rem;
-      /* Allow caret to be visible by default, remove explicit transparent if it causes issues */
-      /* caret-color: transparent; */ /* Consider removing this if it's the primary issue */
+      height: 180px; /* Slightly taller textarea */
+      border-radius: var(--border-radius-sm);
+      border: 1px solid var(--border-color-light);
+      padding: 1rem;
+      font-size: 1.1rem; /* Slightly larger font in textarea */
+      transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+      resize: vertical; /* Allow vertical resizing, but limit min height */
+      min-height: 100px;
     }
+
+    textarea:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 0.25rem rgba(var(--primary-color), .25); /* Custom focus ring */
+      outline: none; /* Remove default outline */
+    }
+
+    .metrics-box {
+      background-color: var(--background-light); /* Light background for metrics */
+      border-radius: var(--border-radius-sm);
+      padding: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .metrics-box label {
+      font-weight: 500; /* Slightly bolder labels */
+      color: var(--text-dark);
+      margin-bottom: 0.2rem; /* Space between label and value */
+      display: block; /* Ensure labels are block elements */
+    }
+
     .metrics-box span {
       display: block;
       font-weight: bold;
-      font-size: 1.2rem;
+      font-size: 1.5rem; /* Larger font for metric values */
+      color: var(--primary-color);
+      margin-bottom: 1rem; /* Space after each value */
+    }
+
+    .form-label {
+      font-weight: 500;
+      color: var(--text-dark);
+      margin-bottom: 0.5rem; /* Space below labels */
+    }
+    .form-control, .form-select {
+        border-radius: var(--border-radius-sm);
+        border: 1px solid var(--border-color-light);
+        padding: 0.6rem 0.75rem; /* Slightly more padding */
+        font-size: 0.95rem;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.25rem rgba(var(--primary-color), .25);
+        outline: none;
     }
     .form-label.required::after {
       content: " *";
-      color: red;
+      color: #dc3545; /* Bootstrap red */
     }
     .fade-in {
       animation: fadeIn 0.6s ease-in-out;
@@ -47,22 +133,119 @@
       to { opacity: 1; transform: translateY(0); }
     }
     button {
-      border-radius: 0.5rem;
+      border-radius: var(--border-radius-sm);
+      padding: 0.75rem 1.25rem; /* More prominent buttons */
+      font-size: 1rem;
+      transition: all 0.2s ease-in-out;
     }
+    button:hover {
+        transform: translateY(-2px); /* Lift effect on hover */
+        box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+    }
+
+    .btn-primary {
+      background-color: var(--primary-color);
+      border-color: var(--primary-color);
+    }
+    .btn-primary:hover {
+      background-color: #2a8ae6; /* Slightly darker primary on hover */
+      border-color: #2a8ae6;
+    }
+
+    .btn-success {
+      background-color: var(--secondary-color);
+      border-color: var(--secondary-color);
+      color: var(--text-dark); /* Ensure text is readable on light teal */
+    }
+    .btn-success:hover {
+      background-color: #40cfa9; /* Slightly darker secondary on hover */
+      border-color: #40cfa9;
+    }
+
+    .btn-outline-secondary {
+      border-color: var(--border-color-light);
+      color: var(--text-dark);
+    }
+    .btn-outline-secondary:hover {
+      background-color: var(--border-color-light);
+      border-color: var(--border-color-light);
+      color: var(--text-dark);
+    }
+    .btn-outline-danger {
+      border-color: #dc3545;
+      color: #dc3545;
+    }
+    .btn-outline-danger:hover {
+      background-color: #dc3545;
+      color: #ffffff;
+    }
+
     #statusLabel {
-      font-weight: 600;
-      font-size: 1.1rem;
+      font-weight: 700; /* Bolder status label */
+      font-size: 1.3rem; /* Larger font */
+      color: var(--primary-color); /* Primary color for success */
+      margin-top: 1.5rem; /* More space above */
     }
     .progress {
-      height: 10px;
-      border-radius: 5px;
+      height: 12px; /* Thicker progress bar */
+      border-radius: 6px;
+      background-color: var(--border-color-light); /* Lighter background for empty part */
     }
     .progress-bar {
-      background: #1f8ef1;
+      background: var(--primary-color);
+      transition: width 0.4s ease-in-out;
+    }
+    #metricsDisplay {
+      margin-top: 1.5rem; /* More space above */
+      background-color: var(--background-light);
+      border-radius: var(--border-radius-sm);
+      padding: 1.25rem;
+      border: 1px solid var(--border-color-light);
     }
     #metricsDisplay b {
       display: inline-block;
-      width: 120px;
+      width: 130px; /* Slightly wider for alignment */
+      font-weight: 600;
+      color: var(--primary-color); /* Labels in primary color */
+    }
+
+    /* Styling for when typing area is disabled */
+    #typingArea[disabled] {
+        background-color: #f1f4f6; /* A clear disabled background */
+        cursor: not-allowed;
+        opacity: 0.8;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 991px) {
+        .sidebar, .main-panel, .control-panel {
+            min-height: auto; /* Allow height to adjust on smaller screens */
+            margin-bottom: 1.5rem; /* Add space between stacked panels */
+        }
+        body {
+            padding: 1rem 0; /* Less padding on smaller screens */
+            display: block; /* Revert to block layout for stacking */
+        }
+    }
+    @media (max-width: 767px) {
+        .sidebar, .main-panel, .control-panel {
+            padding: 1rem; /* Smaller padding on very small screens */
+        }
+        h4, h5 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
+        textarea {
+            height: 120px;
+            font-size: 1rem;
+        }
+        .metrics-box span {
+            font-size: 1.2rem;
+        }
+        button {
+            padding: 0.6rem 1rem;
+            font-size: 0.9rem;
+        }
     }
   </style>
 </head>
@@ -70,7 +253,7 @@
 <div class="container-fluid">
   <div class="row g-3">
     <div class="col-md-3 sidebar">
-      <h5 class="mb-3"><i class="fas fa-user"></i> Participant Info</h5>
+      <h5 class="mb-4"><i class="fas fa-user-circle me-2"></i> Participant Info</h5>
       <div class="mb-3">
         <label class="form-label required">Name</label>
         <input type="text" id="username" class="form-control" required>
@@ -105,38 +288,33 @@
         <label class="form-label required">Typing Hours</label>
         <select id="typingHours" class="form-select" required>
           <option value="">Select</option>
-          <option><1</option><option>1–2</option><option>2–4</option><option>4–6</option><option>6+</option>
+          <option>&lt;1</option><option>1–2</option><option>2–4</option><option>4–6</option><option>6+</option>
         </select>
       </div>
       <div class="mb-3">
         <label class="form-label">Mental Fatigue (0–5): <span id="mentalFatigueValue">0</span></label>
         <input type="range" id="mentalFatigue" class="form-range" min="0" max="5" value="0" oninput="document.getElementById('mentalFatigueValue').innerText = this.value">
       </div>
-      <div class="mb-3">
-        <label class="form-label">Physical Fatigue (0–5): <span id="physicalFatigueValue">0</span></label>
+      <div class="mb-4"> <label class="form-label">Physical Fatigue (0–5): <span id="physicalFatigueValue">0</span></label>
         <input type="range" id="physicalFatigue" class="form-range" min="0" max="5" value="0" oninput="document.getElementById('physicalFatigueValue').innerText = this.value">
       </div>
-      <button class="btn btn-primary w-100" onclick="submitDemographics()"><i class="fas fa-play"></i> Start Test</button>
+      <button class="btn btn-primary w-100 mt-auto" onclick="submitDemographics()"><i class="fas fa-play me-2"></i> Start Test</button>
     </div>
 
     <div class="col-md-6 main-panel fade-in">
-      <h4 class="mb-3">⌨️ Typing Test</h4>
-      <p id="typingSentence" class="fs-5 fw-semibold">Please enter details to start the test.</p>
+      <h4 class="mb-4">⌨️ Typing Test</h4>
+      <p id="typingSentence" class="fs-5 fw-semibold text-muted mb-4">Please enter details to start the test.</p>
       <textarea id="typingArea" class="form-control" disabled placeholder="Your typing area..."></textarea>
-      <div class="progress my-3">
-        <div id="progressBar" class="progress-bar" role="progressbar" style="width: 0%"></div>
+      <div class="progress my-4"> <div id="progressBar" class="progress-bar" role="progressbar" style="width: 0%"></div>
       </div>
-      <p class="text-end fw-semibold" id="progressText">Sentence 0 of 10</p>
-      <div class="d-grid gap-2">
-        <button class="btn btn-success" onclick="submitSentence()"><i class="fas fa-check"></i> Submit Sentence</button>
+      <p class="text-end fw-semibold text-muted" id="progressText">Sentence 0 of 10</p>
+      <div class="d-grid gap-2 mt-4"> <button class="btn btn-success" onclick="submitSentence()"><i class="fas fa-check-circle me-2"></i> Submit Sentence</button>
       </div>
-      <div class="text-success mt-3" id="statusLabel"></div>
-      <div class="text-muted mt-2" id="metricsDisplay"></div>
-    </div>
+      <div class="text-success text-center mt-3" id="statusLabel"></div> <div class="text-muted mt-4" id="metricsDisplay"></div> </div>
 
     <div class="col-md-3 control-panel">
-      <h5 class="mb-3"><i class="fas fa-chart-line"></i> Live Analytics</h5>
-      <div class="mb-3 metrics-box">
+      <h5 class="mb-4"><i class="fas fa-chart-line me-2"></i> Live Analytics</h5>
+      <div class="metrics-box">
         <label>Live WPM</label>
         <span id="liveWpm">0</span>
         <label>Error %</label>
@@ -148,9 +326,8 @@
         <label>Backspaces</label>
         <span id="liveBackspace">0</span>
       </div>
-      <hr>
-      <button class="btn btn-outline-secondary w-100 mb-2" onclick="downloadSummaryCSV()"><i class="fas fa-download"></i> Download CSV</button>
-      <button class="btn btn-outline-danger w-100" onclick="clearAllSummaries()"><i class="fas fa-trash"></i> Clear Logs</button>
+      <hr class="my-4"> <button class="btn btn-outline-secondary w-100 mb-3" onclick="downloadSummaryCSV()"><i class="fas fa-download me-2"></i> Download CSV</button>
+      <button class="btn btn-outline-danger w-100" onclick="clearAllSummaries()"><i class="fas fa-trash-alt me-2"></i> Clear Logs</button>
     </div>
   </div>
 </div>
@@ -201,17 +378,11 @@ let startTime = 0;
 
 const typingArea = document.getElementById("typingArea");
 
-// --- IMPORTANT iOS FIXES START HERE ---
-
-// The primary issue on iOS is preventing default on touch/mouse events,
-// which stops the browser from focusing the textarea and opening the keyboard.
-// Instead of preventing default, we will allow the browser to focus,
-// but immediately correct the caret position and prevent selection visually.
-
-// This listener will only prevent navigation keys
+// Event listener for keydown on the typing area
 typingArea.addEventListener("keydown", e => {
   const now = performance.now();
 
+  // Set startTime only on the very first key press for the current sentence
   if (startTime === 0) {
     startTime = now;
   }
@@ -229,16 +400,17 @@ typingArea.addEventListener("keydown", e => {
     backspaces++;
   }
 
+  // Calculate IKI only if it's not the very first key of the sentence
   if (lastKeyTime > 0) {
     delays.push(now - lastKeyTime);
   }
   lastKeyTime = now;
 
-  // Immediately set caret to the end after any key press
-  // This helps prevent manual movement.
+  // IMPORTANT: Ensure caret stays at the end after every key press
+  // This is crucial for preventing users from moving back.
   setTimeout(() => {
-    typingArea.selectionStart = typingArea.selectionEnd = typingArea.value.length;
-  }, 0);
+      typingArea.selectionStart = typingArea.selectionEnd = typingArea.value.length;
+  }, 0); // Use setTimeout to ensure this runs after the key's default action
 });
 
 // Use the 'input' event to catch changes (including paste) and enforce caret position
@@ -251,13 +423,6 @@ typingArea.addEventListener('input', () => {
 typingArea.addEventListener('focus', () => {
     typingArea.selectionStart = typingArea.selectionEnd = typingArea.value.length;
 });
-
-// You can still try to disable user-selection for mouse/touch,
-// but be aware iOS may override parts of this for accessibility.
-// We are REMOVING e.preventDefault() from mousedown/touchstart handlers.
-// The CSS `user-select: none;` should cover visual selection for most cases.
-
-// --- IMPORTANT iOS FIXES END HERE ---
 
 
 function updateUI() {
@@ -278,18 +443,8 @@ function updateUI() {
   lastKeyTime = 0; // Reset lastKeyTime for the next sentence
 
   // Apply strict caret control and selection prevention via CSS
-  // iOS might ignore `caretColor: transparent` and `userSelect: none` for textareas
-  // to ensure basic accessibility. If you MUST hide the caret, consider other CSS tricks,
-  // but it's often better to just allow it to show at the end.
   typingArea.style.userSelect = "none";
-  // typingArea.style.caretColor = "transparent"; // COMMENT OUT or REMOVE THIS for iOS compatibility if it causes issues.
-                                               // Let iOS manage the caret color for reliable typing.
-
-  // Remove `onmousedown`, `ontouchstart`, `onselectstart` with `preventDefault()`
-  // They are the main reason iOS text input gets blocked.
-  // The `user-select: none;` CSS property is often sufficient to prevent visual selection.
-  // If you still want to prevent the OS default copy/paste menu on touch-hold,
-  // you might need to re-evaluate, but it often leads to input issues.
+  // typingArea.style.caretColor = "transparent"; // REMOVED for better iOS compatibility
 
   // Ensure mobile keyboards don’t autocorrect or suggest
   typingArea.setAttribute("autocorrect", "off");
@@ -441,7 +596,7 @@ function downloadSummaryCSV() {
   database.ref("summaryLogs").once("value").then(snapshot => {
     const logs = snapshot.val();
     const rows = [["Username", "WPM", "Error Rate (%)", "Avg IKI (ms)", "KSPC", "Backspaces", "Timestamp", "Age Group", "Gender", "Typing Skill", "Occupation", "Typing Hours", "Mental Fatigue", "Physical Fatigue"]];
-    
+
     if (!logs) { // Handle case where there are no logs
         alert("No logs to download.");
         return;
