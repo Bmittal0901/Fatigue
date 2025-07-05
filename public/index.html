@@ -598,35 +598,50 @@
         loadUserProgress(); // This will select the 10 random sentences and start the test
     }
 
+const keyboardLayout = {
+    'q': [0, 0], 'w': [1, 0], 'e': [2, 0], 'r': [3, 0], 't': [4, 0], 'y': [5, 0], 'u': [6, 0], 'i': [7, 0], 'o': [8, 0], 'p': [9, 0],
+    'a': [0.5, 1], 's': [1.5, 1], 'd': [2.5, 1], 'f': [3.5, 1], 'g': [4.5, 1], 'h': [5.5, 1], 'j': [6.5, 1], 'k': [7.5, 1], 'l': [8.5, 1],
+    'z': [1, 2], 'x': [2, 2], 'c': [3, 2], 'v': [4, 2], 'b': [5, 2], 'n': [6, 2], 'm': [7, 2],
+    ' ': [5, 3] // space bar
+};
 
-    function calculateWPM(typedText, originalText, timeTakenSeconds) {
-        const originalWords = originalText.split(/\s+/).filter(word => word.length > 0);
-        const typedWords = typedText.split(/\s+/).filter(word => word.length > 0);
+function getKeyCoords(char) {
+    char = char.toLowerCase();
+    return keyboardLayout[char] || [10, 10]; // fallback for unknown characters
+}
 
-        let correctWords = 0;
-        for (let i = 0; i < Math.min(originalWords.length, typedWords.length); i++) {
-            if (originalWords[i] === typedWords[i]) {
-                correctWords++;
-            }
-        }
-        
-        const charactersTyped = typedText.length;
-        const grossWPM = (charactersTyped / 5) / (timeTakenSeconds / 60);
+function keyboardDistance(char1, char2) {
+    const [x1, y1] = getKeyCoords(char1);
+    const [x2, y2] = getKeyCoords(char2);
+    return Math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2);
+}
 
-        let errors = 0;
-        for (let i = 0; i < Math.max(originalText.length, typedText.length); i++) {
-            if (originalText[i] !== typedText[i]) {
-                errors++;
-            }
-        }
-        const errorPercentage = (errors / originalText.length) * 100;
+function calculateWPM(typedText, originalText, timeTakenSeconds) {
+    const originalWords = originalText.split(/\s+/).filter(word => word.length > 0);
+    const typedWords = typedText.split(/\s+/).filter(word => word.length > 0);
 
-        return {
-            grossWPM: isNaN(grossWPM) ? 0 : Math.round(grossWPM),
-            errors: errors,
-            errorPercentage: isNaN(errorPercentage) ? 0 : errorPercentage.toFixed(2)
-        };
+    const charactersTyped = typedText.length;
+    const grossWPM = (charactersTyped / 5) / (timeTakenSeconds / 60);
+
+    // Euclidean keyboard distance
+    const maxLen = Math.max(typedText.length, originalText.length);
+    let totalDistance = 0;
+
+    for (let i = 0; i < maxLen; i++) {
+        const targetChar = originalText[i] || ' ';
+        const typedChar = typedText[i] || ' ';
+        totalDistance += keyboardDistance(targetChar, typedChar);
     }
+
+    const avgKeyboardDistance = totalDistance / maxLen;
+    const errorPercentage = Math.min((avgKeyboardDistance / 5) * 100, 100).toFixed(2);
+
+    return {
+        grossWPM: isNaN(grossWPM) ? 0 : Math.round(grossWPM),
+        errors: avgKeyboardDistance.toFixed(2),
+        errorPercentage: errorPercentage
+    };
+}
 
     function calculateIKI() {
         if (delays.length === 0) return 0;
