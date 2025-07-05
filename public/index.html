@@ -400,25 +400,30 @@
 
 
     // --- New Function: Load Corpus ---
-    async function loadCorpus(filePath) {
-        try {
-            const response = await fetch(filePath);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            const text = await response.text();
-            // Split by newline, filter out empty lines, and trim whitespace
-            allCorpusSentences = text.split('\n').map(s => s.trim()).filter(s => s.length > 0);
-            console.log(`Loaded ${allCorpusSentences.length} sentences from corpus.`);
-            progressTextElement.innerText = `Sentence 0 of ${NUM_SENTENCES_PER_TEST}`; // Update after loading
-        } catch (error) {
-            console.error("Error loading corpus:", error);
-            statusLabel.classList.add('text-danger');
-            statusLabel.innerText = "❌ Failed to load sentences corpus. Check console (F12).";
-            // Optionally, disable the start button if corpus loading fails critically
-            document.querySelector('button[onclick="submitDemographics()"]').disabled = true;
+async function loadCorpus(filePath) {
+    try {
+        const response = await fetch(filePath);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
+        const text = await response.text();
+        // Split by newline, filter out empty lines, and trim whitespace
+        allCorpusSentences = text.split('\n').map(s => s.trim()).filter(s => s.length > 0);
+        console.log(`Loaded ${allCorpusSentences.length} sentences from corpus.`);
+
+        // ✅ Better message after successful load
+        document.getElementById("typingSentence").innerText = "👋 Please fill in your details to begin the typing test.";
+        progressTextElement.innerText = `Sentence 0 of ${NUM_SENTENCES_PER_TEST}`;
+        
+    } catch (error) {
+        console.error("Error loading corpus:", error);
+        statusLabel.classList.add('text-danger');
+        statusLabel.innerText = "❌ Failed to load sentences corpus. Check console (F12).";
+
+        // Optionally, disable the start button if corpus loading fails critically
+        document.querySelector('button[onclick="submitDemographics()"]').disabled = true;
     }
+}
 
     // Call loadCorpus when the script loads (or when the DOM is ready)
     document.addEventListener('DOMContentLoaded', () => {
