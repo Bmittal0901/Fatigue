@@ -865,7 +865,7 @@ function downloadSummaryCSV() {
             
             // Define headers for the aggregated CSV data - REMOVED 'Test End Time (ISO)'
             const headers = [
-                'Test Start Time (ISO)', 'Test Duration (s)', 'Total Sentences',
+                'Test Start Time', 'Test Duration (s)', 'Total Sentences',
                 'Username', 'Age Group', 'Gender', 'Typing Skill', 'Occupation',
                 'Typing Hours (Daily)', 'Mental Fatigue (0-5)', 'Physical Fatigue (0-5)',
                 'Average Gross WPM', 'Average Error Percentage (%)', 'Average Avg IKI (ms)',
@@ -915,7 +915,7 @@ function downloadSummaryCSV() {
 
                 // Construct a single aggregated row for this user session - REMOVED 'Test End Time (ISO)'
                 const aggregatedRow = {
-                    'Test Start Time (ISO)': sessionData.testStartTime || '',
+                    'Test Start Time ': sessionData.testStartTime || '',
                     'Test Duration (s)': testDurationSeconds, // Keep duration
                     'Total Sentences': sessionData.totalSentences || 0,
                     'Username': participantInfo.username || '',
