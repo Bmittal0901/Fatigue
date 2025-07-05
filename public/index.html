@@ -313,7 +313,7 @@ function submitSentence() {
 
   const typed = typingArea.value.trim();
 
-  if (startTime==0 || !typed.length) {
+  if (startTime===0 || !typed.length) {
     alert("Please type before submitting.");
     return;
   }
