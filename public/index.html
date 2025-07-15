@@ -380,7 +380,7 @@
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <script>
     let allCorpusSentences = []; // This will hold all sentences loaded from the corpus file
-    const NUM_SENTENCES_PER_TEST = 10; // Fixed number of sentences per test
+    const NUM_SENTENCES_PER_TEST = 15; // Fixed number of sentences per test
 
     let username = "";
     let currentTestSentences = []; // This will hold the 10 sentences for the current test
@@ -428,7 +428,7 @@ async function loadCorpus(filePath) {
     // Call loadCorpus when the script loads (or when the DOM is ready)
     document.addEventListener('DOMContentLoaded', () => {
         // IMPORTANT: Use the correct file name you generated
-        loadCorpus('sentences_with_8_10_long_words.txt');
+        loadCorpus('corpus.txt');
     });
 
 
