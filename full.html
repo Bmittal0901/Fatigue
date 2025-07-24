@@ -1,0 +1,2068 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Brain Games Central: Complete Cognitive Battery</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='-.1em' font-size='100'%3E🧠%3C/text%3E%3C/svg%3E" />
+
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Inter:wght@300;400;500;700&family=Quicksand:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+    <style>
+        /* CSS Variables for a more maintainable and impressive palette */
+        :root {
+            --primary-blue: #4a90e2; /* Deep playful blue */
+            --secondary-cyan: #7ed6df; /* Lighter complementary cyan */
+            --accent-purple: #8e7bff; /* Vibrant accent purple */
+            --accent-orange: #ffb703; /* Cheerful orange */
+            --bg-dark-blue: #1d3557; /* Dark background blue */
+            --bg-light-blue: #a8dadc; /* Light background blue */
+            --card-bg: #ffffff; /* White card background */
+            --text-dark: #333333; /* Dark grey for most text */
+            --text-light: #f0f0f0; /* Light text for dark backgrounds */
+            --shadow-light: rgba(0, 0, 0, 0.1);
+            --shadow-medium: rgba(0, 0, 0, 0.15);
+            --shadow-heavy: rgba(0, 0, 0, 0.25);
+            --border-radius-card: 20px;
+            --border-radius-button: 25px;
+
+            /* Define RGB for use in background */
+            --primary-blue-rgb: 74, 144, 226;
+            --secondary-cyan-rgb: 126, 214, 223;
+            --accent-purple-rgb: 142, 123, 255;
+            --accent-orange-rgb: 255, 183, 3;
+        }
+
+        /* General Body Styles */
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--bg-light-blue), var(--primary-blue), var(--bg-dark-blue));
+            color: var(--text-dark);
+            overflow-x: hidden;
+            transition: background 0.8s ease-in-out;
+            position: relative;
+            perspective: 1000px;
+        }
+
+        /* Animated background grid */
+        .animated-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: 30px 30px;
+            background-image: linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255,255,255,0.05) 1px, transparent 1px);
+            animation: panGrid 60s linear infinite;
+            opacity: 0.8;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        @keyframes panGrid {
+            from { background-position: 0 0; }
+            to { background-position: 300px 300px; }
+        }
+
+        /* Playful background shapes */
+        .playful-bg-shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.2;
+            filter: blur(40px);
+            animation: floatAndFade 18s infinite ease-in-out alternate;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .shape-1 { background: var(--accent-orange); width: 150px; height: 150px; top: 10%; left: -5%; animation-delay: 0s; }
+        .shape-2 { background: var(--accent-purple); width: 110px; height: 110px; top: 40%; right: -7%; animation-delay: 3s; }
+        .shape-3 { background: var(--secondary-cyan); width: 170px; height: 170px; bottom: 5%; left: 12%; animation-delay: 6s; }
+        .shape-4 { background: var(--primary-blue); width: 90px; height: 90px; top: 20%; right: 20%; animation-delay: 9s; }
+        .shape-5 { background: var(--accent-orange); width: 140px; height: 140px; bottom: 30%; left: -8%; animation-delay: 12s; }
+
+        @keyframes floatAndFade {
+            0% { transform: translate(0, 0) scale(1); opacity: 0.2; }
+            50% { transform: translate(25px, -25px) scale(1.05); opacity: 0.3; }
+            100% { transform: translate(0, 0) scale(1); opacity: 0.2; }
+        }
+
+        /* Header Styling */
+        header {
+            width: 100%;
+            text-align: center;
+            margin-top: 15px;
+            position: relative;
+            z-index: 2;
+        }
+
+        header h1 {
+            font-family: 'Fredoka One', cursive;
+            color: var(--text-light);
+            font-size: 3em;
+            text-shadow: 3px 3px 6px var(--shadow-heavy);
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        header p {
+            font-family: 'Quicksand', sans-serif;
+            color: var(--text-light);
+            font-size: 1em;
+            opacity: 0.9;
+            margin-bottom: 15px;
+            animation: fadeInUp 0.8s ease-out 0.1s backwards;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Game Section Styling (The "Card" effect) */
+        .game-section {
+            background: var(--card-bg);
+            border-radius: var(--border-radius-card);
+            padding: 25px;
+            box-shadow: 0 15px 40px var(--shadow-heavy);
+            width: 90%;
+            max-width: 750px;
+            margin: 20px auto;
+            position: relative;
+            z-index: 2;
+            overflow: hidden;
+            border: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transform: translateZ(0);
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+
+        .game-section:hover {
+            transform: translateY(-3px) translateZ(8px);
+            box-shadow: 0 20px 50px var(--shadow-medium);
+        }
+
+        h2, h3 {
+            font-family: 'Fredoka One', cursive;
+            color: var(--primary-blue);
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 1.8em;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+        }
+
+        p {
+            font-family: 'Inter', sans-serif;
+            color: var(--text-dark);
+            line-height: 1.5;
+            margin-bottom: 10px;
+            text-align: center;
+            font-size: 0.95em;
+        }
+
+        /* Button Styling - Unified & Impressive */
+        .start-btn, .color-btn, .next-btn, .replay-btn, #two-back-test-section button, .nasa-tlx-form button, .btn {
+            display: inline-block;
+            padding: 12px 25px;
+            margin: 8px 6px;
+            font-size: 1.15rem;
+            font-weight: 500;
+            border: none;
+            border-radius: var(--border-radius-button);
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 5px 15px var(--shadow-light);
+            color: var(--text-light);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(to right, var(--btn-color-start), var(--btn-color-end));
+            text-decoration: none; /* For anchor tags if used as buttons */
+        }
+
+        .start-btn {
+            --btn-color-start: #d122b5;
+            --btn-color-end: #8338ec;
+            animation: pulse 1.5s infinite ease-in-out;
+            font-size: 1.25rem;
+            padding: 15px 30px;
+        }
+
+        /* Shine effect on hover */
+        .start-btn::before, .color-btn::before, .next-btn::before, .replay-btn::before, #two-back-test-section button::before, .nasa-tlx-form button::before, .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: skewX(-30deg);
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .start-btn:hover::before, .color-btn:hover::before, .next-btn:hover::before, .replay-btn:hover::before, #two-back-test-section button:hover::before, .nasa-tlx-form button:hover::before, .btn:hover::before {
+            left: 100%;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 5px 15px var(--shadow-light); }
+            50% { transform: scale(1.02); box-shadow: 0 8px 20px var(--shadow-medium); }
+            100% { transform: scale(1); box-shadow: 0 5px 15px var(--shadow-light); }
+        }
+
+        .start-btn:hover, .color-btn:hover, .next-btn:hover, .replay-btn:hover, #two-back-test-section button:hover, .nasa-tlx-form button:hover, .btn:hover {
+            --btn-color-start: #8338ec; /* Example for start-btn */
+            --btn-color-end: #d122b5; /* Example for start-btn */
+            transform: translateY(-3px) scale(1.01);
+            box-shadow: 0 10px 25px var(--shadow-medium);
+            animation: none;
+        }
+
+        .next-btn {
+            --btn-color-start: var(--primary-blue);
+            --btn-color-end: var(--accent-purple);
+        }
+
+        .replay-btn {
+            --btn-color-start: var(--primary-blue);
+            --btn-color-end: var(--secondary-cyan);
+            margin-top: 15px;
+        }
+        
+        /* Specific button colors for main typing test */
+        .btn-primary {
+            --btn-color-start: var(--primary-blue);
+            --btn-color-end: #347dc8;
+        }
+        .btn-success {
+            --btn-color-start: #28a745;
+            --btn-color-end: #218838;
+        }
+        .btn-info {
+            --btn-color-start: #17a2b8;
+            --btn-color-end: #138496;
+        }
+        .btn-warning {
+            --btn-color-start: #ffc107;
+            --btn-color-end: #e0a800;
+            color: var(--text-dark); /* Dark text for light background */
+            text-shadow: none;
+        }
+        .btn-danger {
+            --btn-color-start: #dc3545;
+            --btn-color-end: #c82333;
+        }
+
+
+        /* --- Welcome Screen --- */
+        #welcome-screen {
+            display: flex; /* Default to show */
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 300px;
+        }
+        #welcome-screen h2 { color: var(--accent-purple); }
+
+        /* --- New Typing Test Section (Demographics + Typing Area) --- */
+        #demographics-typing-container {
+            /* This is the new main container for typing test. It will adopt game-section styles. */
+            /* Displayed flex when demographics or typing test is active */
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start; /* Align content to top */
+            padding: 30px;
+        }
+
+        /* Demographics Form Styling */
+        #demographicsForm {
+            width: 100%;
+            max-width: 500px;
+            margin-top: 20px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-dark);
+            font-size: 1.05em;
+        }
+
+        .form-control {
+            width: calc(100% - 20px);
+            padding: 12px 10px;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            font-size: 1em;
+            color: #495057;
+            background-color: #f8f9fa;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.25);
+            outline: none;
+        }
+
+        .form-control.is-invalid {
+            border-color: #dc3545;
+            padding-right: calc(1.5em + 0.75rem);
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M4 8l4-4M4 4l4 4'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        }
+
+        .invalid-feedback {
+            color: #dc3545;
+            font-size: 0.875em;
+            margin-top: 0.25rem;
+            display: none; /* Controlled by JS for custom validation */
+        }
+
+        .form-control.is-invalid + .invalid-feedback {
+            display: block;
+        }
+
+        #startTestButton {
+            width: 100%;
+            margin-top: 25px;
+            font-size: 1.2rem;
+            padding: 15px;
+        }
+
+        /* Main Typing Panel */
+        .main-panel {
+            width: 100%;
+            display: none; /* Hidden by default, shown after demographics */
+            animation: fadeIn 0.8s ease-out;
+            padding-top: 20px; /* Add some space from demographics */
+        }
+
+        #typingSentence {
+            font-size: 1.4em;
+            font-weight: 500;
+            color: var(--primary-blue);
+            margin-bottom: 20px;
+            background-color: #f0f7ff;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #a8dadc;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+            line-height: 1.4;
+        }
+
+        #typingArea {
+            width: calc(100% - 40px);
+            padding: 15px 18px;
+            margin: 15px 0;
+            font-size: 1.2em;
+            border: 2px solid var(--primary-blue);
+            border-radius: 8px;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            resize: none;
+            outline: none;
+            font-family: 'Inter', sans-serif;
+            box-sizing: border-box;
+        }
+
+        #typingArea:focus {
+            border-color: var(--accent-purple);
+            box-shadow: 0 0 0 3px rgba(142, 123, 255, 0.3);
+        }
+
+        #statusLabel {
+            font-size: 1em;
+            margin-top: 10px;
+            font-weight: 500;
+            color: #6c757d;
+        }
+        #statusLabel.text-success { color: #28a745; }
+        #statusLabel.text-danger { color: #dc3545; }
+
+        #submitSentenceButton {
+            margin-top: 20px;
+            --btn-color-start: var(--primary-blue);
+            --btn-color-end: var(--accent-purple);
+        }
+
+        /* Performance Analytics / Metrics Display */
+        #metricsDisplay {
+            margin-top: 30px;
+            background-color: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 25px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            display: none; /* Hidden until test complete */
+            animation: fadeIn 0.8s ease-out;
+            text-align: left;
+        }
+
+        #metricsDisplay h3 {
+            color: #34495e;
+            margin-bottom: 15px;
+            font-size: 1.6em;
+            text-align: center;
+        }
+
+        #finalMetricsContent p {
+            font-size: 1.05em;
+            color: #555;
+            margin-bottom: 8px;
+            text-align: left;
+            padding-left: 10px;
+            border-left: 4px solid var(--secondary-cyan);
+            border-radius: 3px;
+        }
+
+        #finalMetricsContent b {
+            color: var(--primary-blue);
+            font-weight: 700;
+        }
+
+        /* Admin Buttons */
+        .admin-buttons {
+            display: flex;
+            justify-content: center;
+            margin-top: 25px;
+            gap: 10px;
+        }
+        .admin-buttons .btn {
+            font-size: 0.9em;
+            padding: 10px 18px;
+        }
+
+
+        /* --- Stroop Test Styles --- */
+        #stroop-test-section {
+            background-color: var(--card-bg);
+            display: none; /* Hidden by default */
+        }
+
+        #stroop-test-section h2 {
+            color: #d122b5;
+        }
+
+        .example {
+            background-color: #f0f7ff;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px auto;
+            border: 1px dashed #a8dadc;
+            font-size: 1em;
+        }
+
+        .example div {
+            font-size: 28px !important;
+            margin: 5px 0 !important;
+        }
+
+        #wordDisplay {
+            font-family: 'Fredoka One', cursive;
+            font-size: 65px;
+            font-weight: bold;
+            margin: 30px 0 20px;
+            height: 75px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.15s ease-out, opacity 0.15s ease-out;
+            animation: wordPopIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+        }
+
+        @keyframes wordPopIn {
+            0% { transform: scale(0.7); opacity: 0; }
+            70% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1); }
+        }
+
+        #buttonsStroop {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .color-btn.red { --btn-color-start: #e74c3c; --btn-color-end: #c0392b; }
+        .color-btn.blue { --btn-color-start: #3498db; --btn-color-end: #2980b9; }
+        .color-btn.green { --btn-color-start: #2ecc71; --btn-color-end: #27ae60; }
+        .color-btn.yellow { --btn-color-start: #f1c40f; --btn-color-end: #f39c12; color: var(--text-dark); text-shadow: none; }
+
+        .color-btn:hover {
+            transform: translateY(-3px) scale(1.01);
+            box-shadow: 0 10px 25px var(--shadow-medium);
+        }
+
+        #feedback {
+            font-family: 'Fredoka One', cursive;
+            font-size: 2.5em;
+            font-weight: bold;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.7);
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out, transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        #feedback.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+
+        #feedback.correct { color: #2ecc71; text-shadow: 0 0 10px rgba(0,255,0,0.7); }
+        #feedback.incorrect { color: #e74c3c; text-shadow: 0 0 10px rgba(255,0,0,0.7); }
+
+        #resultDisplay {
+            margin-top: 20px;
+            font-size: 1.1rem;
+            color: var(--text-dark);
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .keybind-info {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9em;
+            color: #777;
+            margin-top: 20px;
+            background-color: #f8f8f8;
+            padding: 8px 15px;
+            border-radius: 15px;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.08);
+            font-weight: 500;
+        }
+
+        /* --- 2-Back Memory Test Styles --- */
+        #two-back-test-section {
+            background: var(--card-bg);
+            box-shadow: 0 15px 40px var(--shadow-heavy);
+            border-radius: var(--border-radius-card);
+            display: none; /* Hidden by default */
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #two-back-test-section h1 {
+            font-family: 'Fredoka One', cursive;
+            font-size: 2.2rem;
+            margin-bottom: 15px;
+            color: var(--accent-purple);
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.08);
+        }
+
+        #two-back-test-section p {
+            font-family: 'Quicksand', sans-serif;
+            max-width: 90%;
+            margin: 0 auto 10px auto;
+            font-size: 0.95em;
+        }
+
+        #two-back-test-section button {
+            --btn-color-start: var(--accent-purple);
+            --btn-color-end: var(--primary-blue);
+            margin-top: 20px;
+        }
+
+        #stimulus {
+            font-family: 'Fredoka One', cursive;
+            font-size: 8rem;
+            margin: 2.5rem 0;
+            font-weight: bold;
+            color: var(--primary-blue);
+            animation: stimulusPop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.2);
+        }
+
+        @keyframes stimulusPop {
+            0% { transform: scale(0.5); opacity: 0; }
+            70% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); }
+        }
+
+        #testFeedbackTwoBack {
+            font-family: 'Fredoka One', cursive;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            min-height: 2rem;
+            text-align: center;
+            width: 100%;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.15);
+        }
+
+        #testFeedbackTwoBack.correct {
+            color: #2ecc71;
+        }
+
+        #testFeedbackTwoBack.incorrect {
+            color: #e74c3c;
+        }
+
+        /* Subtle background "blobs" within the 2-back section */
+        .bg-balls {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .bg-balls .ball {
+            background: rgba(var(--primary-blue-rgb), 0.1);
+            filter: blur(35px);
+            animation: float 20s infinite ease-in-out alternate;
+            position: absolute;
+            border-radius: 50%;
+        }
+
+        .ball:nth-child(1) { background: rgba(var(--secondary-cyan-rgb), 0.15); width: 150px; height: 150px; top: 8%; left: 6%; animation-delay: 0s; }
+        .ball:nth-child(2) { background: rgba(var(--accent-purple-rgb), 0.15); width: 100px; height: 100px; top: 50%; right: 10%; animation-delay: 4s; }
+        .ball:nth-child(3) { background: rgba(var(--accent-orange-rgb), 0.15); width: 180px; height: 180px; bottom: 8%; left: -3%; animation-delay: 8s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0) scale(1); }
+            50% { transform: translateY(-30px) translateX(15px) scale(1.03); }
+        }
+
+        #resultsScreenTwoBack {
+            display: none;
+            margin-top: 1.5rem;
+            text-align: center;
+            width: 100%;
+        }
+
+        /* --- NASA TLX Form Styles (integrated from previous response) --- */
+        #nasa-tlx-form-section {
+            background-color: var(--card-bg);
+            display: none; /* Hidden by default */
+        }
+
+        .nasa-tlx-form h2 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 2.2em;
+        }
+
+        .nasa-tlx-form .instructions {
+            background-color: #e8f0fe;
+            border-left: 5px solid #4a90e2;
+            padding: 15px 20px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            font-size: 0.95em;
+            color: #2c3e50;
+        }
+
+        .nasa-tlx-form .nasa-tlx-factor-block {
+            margin-bottom: 25px;
+            background-color: #fdfdfd;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            position: relative;
+        }
+
+        .nasa-tlx-form .nasa-tlx-factor-block label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            color: #4a4a4a;
+        }
+
+        .nasa-tlx-form .scale-container {
+            position: relative;
+            height: 30px;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .nasa-tlx-form input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 10px;
+            background: linear-gradient(to right, #4CAF50, #FFC107, #F44336);
+            border-radius: 5px;
+            outline: none;
+            margin: 0;
+            padding: 0;
+            cursor: pointer;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .nasa-tlx-form input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: #4a90e2;
+            border: 3px solid #ffffff;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            transition: background 0.3s ease, border-color 0.3s ease;
+        }
+
+        .nasa-tlx-form input[type="range"]::-moz-range-thumb {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: #4a90e2;
+            border: 3px solid #ffffff;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            transition: background 0.3s ease, border-color 0.3s ease;
+        }
+
+        .nasa-tlx-form input[type="range"]:hover::-webkit-slider-thumb { background: #357ABD; }
+        .nasa-tlx-form input[type="range"]:hover::-moz-range-thumb { background: #357ABD; }
+
+        .nasa-tlx-form .scale-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .nasa-tlx-form .scale-labels span:first-child { text-align: left; }
+        .nasa-tlx-form .scale-labels span:last-child { text-align: right; }
+
+        .nasa-tlx-form .rating-value {
+            position: absolute;
+            top: -25px;
+            transform: translateX(-50%);
+            background-color: #4a90e2;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .nasa-tlx-form input[type="range"].show-value + .rating-value { opacity: 1; }
+
+        .nasa-tlx-form button[type="submit"] {
+            --btn-color-start: #28a745;
+            --btn-color-end: #218838;
+            margin-top: 30px;
+        }
+
+        /* --- Thank You Screen --- */
+        #thank-you-screen {
+            min-height: 250px;
+            padding: 40px;
+            display: none; /* Hidden by default */
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        #thank-you-screen h2 {
+            color: var(--accent-purple);
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+        #thank-you-screen p {
+            font-size: 1.1em;
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="animated-grid"></div>
+
+    <div class="playful-bg-shape shape-1"></div>
+    <div class="playful-bg-shape shape-2"></div>
+    <div class="playful-bg-shape shape-3"></div>
+    <div class="playful-bg-shape shape-4"></div>
+    <div class="playful-bg-shape shape-5"></div>
+
+    <header>
+        <h1>Brain Games Central!</h1>
+        <p>Challenge your mind with these engaging cognitive tests.</p>
+    </header>
+
+    <div class="game-section" id="welcome-screen">
+        <h2>Welcome to Your Cognitive Challenge!</h2>
+        <p>This experience will guide you through a series of cognitive tests, starting with a Typing Test, followed by the Stroop Test and 2-Back Challenge, and concluding with a brief questionnaire about your workload.</p>
+        <button class="start-btn" onclick="showSection('demographics-typing-container', 'welcome-screen')">Start Your Journey!</button>
+    </div>
+
+    <div class="game-section" id="demographics-typing-container" style="display: none;">
+        <div id="demographics-form-container">
+            <h2>Participant Information</h2>
+            <p>Please fill out your details to start the Typing Test.</p>
+            <form id="demographicsForm">
+                <div class="form-group">
+                    <label for="ParticipantId">Participant ID:</label>
+                    <input type="text" class="form-control" id="ParticipantId" required placeholder="Enter your ID">
+                    <div class="invalid-feedback">Participant ID is required.</div>
+                </div>
+                <div class="form-group">
+                    <label for="ageGroup">Age Group:</label>
+                    <select class="form-control" id="ageGroup" required>
+                        <option value="">Select Age Group</option>
+                        <option value="18-24">18-24</option>
+                        <option value="25-34">25-34</option>
+                        <option value="35-44">35-44</option>
+                        <option value="45-54">45-54</option>
+                        <option value="55+">55+</option>
+                    </select>
+                    <div class="invalid-feedback">Age Group is required.</div>
+                </div>
+                <div class="form-group">
+                    <label for="gender">Gender:</label>
+                    <select class="form-control" id="gender" required>
+                        <option value="">Select Gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <div class="invalid-feedback">Gender is required.</div>
+                </div>
+                <div class="form-group">
+                    <label for="typingSkill">Self-Assessed Typing Skill:</label>
+                    <select class="form-control" id="typingSkill" required>
+                        <option value="">Select Skill Level</option>
+                        <option value="Beginner">Beginner</option>
+                        <option value="Intermediate">Intermediate</option>
+                        <option value="Advanced">Advanced</option>
+                        <option value="Expert">Expert</option>
+                    </select>
+                    <div class="invalid-feedback">Typing Skill is required.</div>
+                </div>
+                <div class="form-group">
+                    <label for="occupation">Occupation:</label>
+                    <input type="text" class="form-control" id="occupation" required placeholder="e.g., Student, Engineer">
+                    <div class="invalid-feedback">Occupation is required.</div>
+                </div>
+                <div class="form-group">
+                    <label for="typingHours">Approx. Daily Typing Hours:</label>
+                    <select class="form-control" id="typingHours" required>
+                        <option value="">Select Hours</option>
+                        <option value="0-1 hours">0-1 hours</option>
+                        <option value="1-3 hours">1-3 hours</option>
+                        <option value="3-5 hours">3-5 hours</option>
+                        <option value="5+ hours">5+ hours</option>
+                    </select>
+                    <div class="invalid-feedback">Typing Hours is required.</div>
+                </div>
+                <button type="button" id="startTestButton" class="btn btn-primary start-btn">Start Typing Test</button>
+            </form>
+        </div>
+
+        <div class="main-panel" style="display: none;">
+            <h2>Typing Test ⌨️</h2>
+            <p id="typingSentence" class="alert alert-info">Loading sentences...</p>
+            <textarea id="typingArea" class="form-control" rows="5" placeholder="Type the sentence here..." disabled></textarea>
+            <p id="statusLabel" class="mt-3"></p>
+            <button id="submitSentenceButton" class="btn btn-success mt-4">Submit Sentence</button>
+
+            <div id="metricsDisplay" class="mt-4">
+                <h3>Performance Analytics</h3>
+                <div id="finalMetricsContent">
+                    <p class='text-muted'>No data available yet.</p>
+                </div>
+                <div class="admin-buttons">
+                    <button id="downloadLogButton" class="btn btn-info" style="display: none;">Download Summary CSV</button>
+                    <button id="clearLogButton" class="btn btn-danger" style="display: none;">Clear All Data</button>
+                </div>
+                <button class="next-btn mt-4" id="continueToStroopButton" style="display: none;" onclick="showNextContinuousTest()">Continue to Stroop Test</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="game-section" id="stroop-test-section" style="display: none;">
+        <div id="introScreenStroop">
+            <h2>Stroop Test 🧠</h2>
+            <p>Your goal: Identify the *ink color* of each word, not the word itself. This test will run for **30 seconds**. Focus on both speed and accuracy.</p>
+            <p>Use the buttons below or the keyboard shortcuts: <span style="font-weight: bold;">R</span> for Red, <span style="font-weight: bold;">B</span> for Blue, <span style="font-weight: bold;">G</span> for Green, <span style="font-weight: bold;">Y</span> for Yellow.</p>
+
+            <div class="example">
+                <p style="font-weight: 500;"><strong>Example:</strong></p>
+                <div style="font-family: 'Fredoka One', cursive; font-size: 36px; font-weight: bold; color: red; margin: 10px 0;">BLUE</div>
+                <p style="margin-top: 15px;">You should select <strong>RED</strong>.</p>
+            </div>
+
+            <button class="start-btn" onclick="startStroopTest()">Start Test!</button>
+        </div>
+
+        <div id="testScreenStroop" style="display: none;">
+            <div id="wordDisplay"></div>
+            <div id="feedback"></div>
+
+            <div id="buttonsStroop">
+                <button class="color-btn red" onclick="submitStroopAnswer('red')">Red (R)</button>
+                <button class="color-btn blue" onclick="submitStroopAnswer('blue')">Blue (B)</button>
+                <button class="color-btn green" onclick="submitStroopAnswer('green')">Green (G)</button>
+                <button class="color-btn yellow" onclick="submitStroopAnswer('yellow')">Yellow (Y)</button>
+            </div>
+
+            <div class="keybind-info">
+                Keyboard Shortcuts: R, B, G, Y
+            </div>
+        </div>
+
+        <div id="resultScreenStroop" style="display: none;">
+            <h3>Stroop Test Complete!</h3>
+            <p>Time's up! Here are your results:</p>
+            <p id="resultDisplay">You correctly identified <span id="finalCorrectCountStroop">0</span> words!</p>
+            <button class="next-btn" onclick="showSection('two-back-test-section', 'stroop-test-section')">Continue to 2-Back Challenge</button>
+        </div>
+    </div>
+
+    <div class="game-section" id="two-back-test-section" style="display: none;">
+        <div class="bg-balls">
+            <div class="ball"></div>
+            <div class="ball"></div>
+            <div class="ball"></div>
+        </div>
+
+        <div id="introScreenTwoBack">
+            <h1>2-Back Challenge</h1>
+            <p>Sharpen your working memory! A letter will appear on screen for a short time.</p>
+            <p>Your mission: Press the <span style="color: #4e54c8; font-weight: bold;">M key</span> on your keyboard if the current letter matches the letter that appeared *2 steps back* in the sequence.</p>
+            <p>Stay focused; this challenge requires your full attention!</p>
+            <button id="startButtonTwoBack" class="start-btn">Start Challenge</button>
+        </div>
+
+        <div id="testFeedbackTwoBack"></div>
+        <div id="stimulus" style="display: none;">-</div>
+
+        <div id="resultsScreenTwoBack">
+            <h2>Challenge Complete!</h2>
+            <p id="resultDisplayTwoBack">You correctly identified <span id="finalCorrectCountTwoBack">0</span> matches!</p>
+            <button class="next-btn" onclick="showSection('nasa-tlx-form-section', 'two-back-test-section')">Continue to Assessment</button>
+        </div>
+    </div>
+
+    <div class="game-section" id="nasa-tlx-form-section" style="display: none;">
+        <div class="nasa-tlx-form">
+            <h2>Workload Assessment</h2>
+            <div class="instructions">
+                <p>Thank you for participating in the cognitive tasks! Please evaluate your experience. Consider all three tasks (Typing, Stroop Test, and 2-Back Challenge) together as one overall experience.</p>
+                <p>For each of the six scales below, place a mark on the line that corresponds to your experience. Read the descriptions carefully and rate each factor honestly.</p>
+            </div>
+
+            <form id="nasaTlxForm">
+                <div class="nasa-tlx-factor-block">
+                    <label for="mentalDemand">
+                        1. Mental Demand:<br>
+                        How much mental and perceptual activity was required (e.g., thinking, deciding, calculating, remembering, looking, searching, etc.)?
+                    </label>
+                    <div class="scale-container">
+                        <input type="range" id="mentalDemand" name="mentalDemand" min="0" max="20" value="10" oninput="updateTlxRangeValue(this)">
+                        <span class="rating-value">10</span>
+                    </div>
+                    <div class="scale-labels">
+                        <span>Low</span>
+                        <span>High</span>
+                    </div>
+                </div>
+
+                <div class="nasa-tlx-factor-block">
+                    <label for="physicalDemand">
+                        2. Physical Demand:<br>
+                        How much physical activity was required (e.g., pushing, pulling, turning, controlling, activating, etc.)?
+                    </label>
+                    <div class="scale-container">
+                        <input type="range" id="physicalDemand" name="physicalDemand" min="0" max="20" value="10" oninput="updateTlxRangeValue(this)">
+                        <span class="rating-value">10</span>
+                    </div>
+                    <div class="scale-labels">
+                        <span>Low</span>
+                        <span>High</span>
+                    </div>
+                </div>
+
+                <div class="nasa-tlx-factor-block">
+                    <label for="temporalDemand">
+                        3. Temporal Demand:<br>
+                        How much time pressure did you feel due to the rate or pace at which the tasks or task elements occurred?
+                    </label>
+                    <div class="scale-container">
+                        <input type="range" id="temporalDemand" name="temporalDemand" min="0" max="20" value="10" oninput="updateTlxRangeValue(this)">
+                        <span class="rating-value">10</span>
+                    </div>
+                    <div class="scale-labels">
+                        <span>Low</span>
+                        <span>High</span>
+                    </div>
+                </div>
+
+                <div class="nasa-tlx-factor-block">
+                    <label for="performance">
+                        4. Performance:<br>
+                        How successful were you in accomplishing the goals of the task? How satisfied were you with your performance?
+                    </label>
+                    <div class="scale-container">
+                        <input type="range" id="performance" name="performance" min="0" max="20" value="10" oninput="updateTlxRangeValue(this)">
+                        <span class="rating-value">10</span>
+                    </div>
+                    <div class="scale-labels">
+                        <span>Perfect</span>
+                        <span>Failure</span>
+                    </div>
+                    <p style="font-size:0.85em; color:#777; text-align:right; margin-top:5px;">(Note: For 'Performance', 'Low' represents 'Perfect' and 'High' represents 'Failure')</p>
+                </div>
+
+                <div class="nasa-tlx-factor-block">
+                    <label for="effort">
+                        5. Effort:<br>
+                        How hard did you have to work (mentally and physically) to accomplish your level of performance?
+                    </label>
+                    <div class="scale-container">
+                        <input type="range" id="effort" name="effort" min="0" max="20" value="10" oninput="updateTlxRangeValue(this)">
+                        <span class="rating-value">10</span>
+                    </div>
+                    <div class="scale-labels">
+                        <span>Low</span>
+                        <span>High</span>
+                    </div>
+                </div>
+
+                <div class="nasa-tlx-factor-block">
+                    <label for="frustration">
+                        6. Frustration:<br>
+                        How insecure, discouraged, irritated, stressed, or annoyed versus secure, gratified, content, relaxed, or complacent did you feel during the tasks?
+                    </label>
+                    <div class="scale-container">
+                        <input type="range" id="frustration" name="frustration" min="0" max="20" value="10" oninput="updateTlxRangeValue(this)">
+                        <span class="rating-value">10</span>
+                    </div>
+                    <div class="scale-labels">
+                        <span>Low</span>
+                        <span>High</span>
+                    </div>
+                </div>
+                <button type="submit">Submit Assessment</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="game-section" id="thank-you-screen" style="display: none;">
+        <h2>All Tests Complete! 🎉</h2>
+        <p>Thank you for completing all the cognitive challenges and the workload assessment.</p>
+        <p>Your responses have been recorded.</p>
+        <button class="next-btn" onclick="location.reload()">Start New Session</button>
+    </div>
+
+    <audio id="correctSound" src="https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.3.mp3"></audio>
+    <audio id="incorrectSound" src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-tone-2871.mp3"></audio>
+    <audio id="testEndSound" src="https://assets.mixkit.co/sfx/preview/mixkit-arcade-retro-game-over-219.3.mp3"></audio>
+
+    <script>
+        // --- Global Section Management ---
+        // showSection function is now more general, hiding a current section and showing a new one.
+        function showSection(sectionIdToShow, sectionIdToHide) {
+            if (sectionIdToHide) {
+                document.getElementById(sectionIdToHide).style.display = 'none';
+            }
+            // Use 'flex' for game-section display property
+            document.getElementById(sectionIdToShow).style.display = 'flex'; 
+            window.scrollTo(0, 0); // Scroll to top of the page
+        }
+
+        // Custom function to bridge typing test completion to Stroop
+        function showNextContinuousTest() {
+            showSection('stroop-test-section', 'demographics-typing-container');
+        }
+
+        // --- Typing Test Logic (Your provided code, with slight modifications for flow) ---
+
+        // Firebase Configuration (keep as is)
+        const firebaseConfig = {
+            apiKey: "YOUR_FIREBASE_API_KEY", // REPLACE WITH YOUR ACTUAL API KEY
+            authDomain: "fatiguedetection-e13a1.firebaseapp.com",
+            databaseURL: "https://fatiguedetection-e13a1-default-rtdb.firebaseio.com",
+            projectId: "fatiguedetection-e13a1",
+            storageBucket: "fatiguedetection-e13a1.appspot.com",
+            messagingSenderId: "239129487774",
+            appId: "1:239129487774:web:e6ceb32ddbaea27a7a8e8f"
+        };
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        let participantId = '';
+        let sessionId = '';
+
+        // DOM Elements
+        const submitSentenceButton = document.getElementById('submitSentenceButton');
+        const typingSentenceElement = document.getElementById('typingSentence');
+        const typingArea = document.getElementById('typingArea');
+        const statusLabel = document.getElementById('statusLabel');
+        const metricsDisplay = document.getElementById('metricsDisplay'); // This is now the "Performance Analytics" card
+        const finalMetricsContent = document.getElementById('finalMetricsContent');
+        const continueToStroopButton = document.getElementById('continueToStroopButton'); // New button for flow
+
+        // Admin buttons
+        const downloadLogButton = document.getElementById('downloadLogButton');
+        const clearLogButton = document.getElementById('clearLogButton');
+
+        // Global Variables
+        let allCorpusSentences = [];
+        const NUM_SENTENCES_PER_TEST = 5;
+        let currentTestSentences = [];
+        let currentSentenceIndex = 0;
+        let logs = [];
+
+        let currentKeyTimestamps = [];
+        let backspaceCounter = 0;
+        let sentenceStartTime = 0;
+
+        // Admin Configuration
+        const ADMIN_IDS = {
+            '2005': 'adminpass123', // Example: { 'AdminID': 'password' }
+            '1001': 'securepass'
+        };
+
+        // Prevent cursor movement via arrow keys, Home/End
+        typingArea.addEventListener('keydown', (e) => {
+            const navKeys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'];
+            if (navKeys.includes(e.key)) {
+                e.preventDefault();
+            }
+            if ((e.ctrlKey || e.metaKey) && ['a', 'c', 'v', 'x', 'z'].includes(e.key.toLowerCase())) {
+                e.preventDefault();
+            }
+        });
+
+        // Always lock cursor at end even after click/touch
+        const forceCursorToEnd = () => {
+            setTimeout(() => {
+                typingArea.selectionStart = typingArea.selectionEnd = typingArea.value.length;
+            }, 0);
+        };
+        typingArea.addEventListener('click', forceCursorToEnd);
+        typingArea.addEventListener('touchstart', forceCursorToEnd);
+        typingArea.addEventListener('contextmenu', (e) => e.preventDefault());
+        typingArea.addEventListener('paste', (e) => e.preventDefault());
+
+        /* ---------- Helpers ---------------------------------- */
+        const formatTimestamp = ts =>
+            new Date(ts).toLocaleString('en-GB', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false,
+                timeZone: 'Asia/Kolkata'
+            }).replace(',', '');
+
+        function cleanTypingHours(hours) {
+            if (!hours) return '0-1 hours';
+            const normalized = hours.replace(/[–—−‑‒–]/g, '-');
+            const validOptions = ['0-1 hours', '1-3 hours', '3-5 hours', '5+ hours'];
+            return validOptions.includes(normalized) ? normalized : '0-1 hours';
+        }
+
+        // Function to fetch corpus.txt
+        async function loadCorpus() {
+            try {
+                const response = await fetch('corpus.txt');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const text = await response.text();
+                allCorpusSentences = text.split('\n').map(s => s.trim()).filter(s => s.length > 0);
+
+                typingSentenceElement.innerText = "Click 'Start Typing Test' to begin.";
+                typingArea.disabled = true;
+                submitSentenceButton.style.display = 'none';
+
+                console.log(`Corpus loaded with ${allCorpusSentences.length} sentences.`);
+            } catch (error) {
+                console.error("Error loading corpus:", error);
+                typingSentenceElement.innerText = "Failed to load sentences. Check console for details.";
+                alert("Failed to load sentences. Please ensure 'corpus.txt' is in the correct directory and try again.");
+            }
+        }
+
+        // Function to display the next sentence or end the test
+        function displayNextSentence() {
+            if (currentSentenceIndex < NUM_SENTENCES_PER_TEST) {
+                typingSentenceElement.innerText = currentTestSentences[currentSentenceIndex];
+                typingArea.value = '';
+                typingArea.disabled = false;
+                typingArea.focus();
+
+                submitSentenceButton.style.display = 'block';
+
+                currentKeyTimestamps = [];
+                backspaceCounter = 0;
+                sentenceStartTime = new Date().getTime();
+
+                // Update status with current trial number
+                statusLabel.innerText = `Current Trial: ${currentSentenceIndex + 1} / ${NUM_SENTENCES_PER_TEST}`;
+                statusLabel.classList.remove('text-success', 'text-danger'); // Clean any previous status colors
+            } else {
+                // End of test
+                typingSentenceElement.innerText = "Typing Test Complete! Your summary is below.";
+                typingArea.disabled = true;
+                submitSentenceButton.style.display = 'none';
+
+                statusLabel.innerText = "Test completed! Review Performance Analytics.";
+                statusLabel.classList.remove('text-danger');
+                statusLabel.classList.add('text-success');
+
+                showFinalMetrics();
+                
+                // Show button to continue to the next test
+                continueToStroopButton.style.display = 'block';
+
+                if (typeof confetti !== 'undefined') {
+                    confetti({
+                        particleCount: 100,
+                        spread: 70,
+                        origin: { y: 0.6 }
+                    });
+                }
+                // Re-enable demographics fields for a new test
+                document.getElementById('demographicsForm').querySelectorAll('input, select, button').forEach(el => el.disabled = false);
+                document.getElementById('startTestButton').disabled = false;
+            }
+        }
+
+        // Function to handle the "Start Test" button click (Demographics submission)
+        async function submitDemographics() {
+            participantId = document.getElementById('ParticipantId').value.trim();
+            const ageGroup = document.getElementById('ageGroup').value;
+            const gender = document.getElementById('gender').value;
+            const typingSkill = document.getElementById('typingSkill').value;
+            const occupation = document.getElementById('occupation').value.trim();
+            const typingHours = document.getElementById('typingHours').value;
+
+            // --- Admin ID and Password Check ---
+            if (ADMIN_IDS.hasOwnProperty(participantId)) {
+                const password = prompt("Admin ID detected. Please enter password:");
+                if (password === ADMIN_IDS[participantId]) {
+                    alert("Admin access granted!");
+                    downloadLogButton.style.display = 'block';
+                    clearLogButton.style.display = 'block';
+                    statusLabel.innerText = "Admin controls unlocked! You can download/clear data.";
+                    statusLabel.classList.add('text-success');
+                    document.getElementById('ParticipantId').value = ''; // Clear ID field after admin login
+                    document.getElementById('startTestButton').disabled = false; // Keep button enabled for next action
+                    return; // Exit function, don't start test
+                } else {
+                    alert("Incorrect password. Admin access denied.");
+                    statusLabel.innerText = "Incorrect Admin ID or password.";
+                    statusLabel.classList.add('text-danger');
+                    return;
+                }
+            }
+            // --- End Admin ID and Password Check ---
+
+            // Check all required fields in the form
+            const form = document.getElementById('demographicsForm');
+            const requiredFields = form.querySelectorAll('[required]');
+            let allFieldsFilled = true;
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    allFieldsFilled = false;
+                    field.classList.add('is-invalid'); // Add Bootstrap validation style
+                } else {
+                    field.classList.remove('is-invalid');
+                }
+            });
+
+            if (!allFieldsFilled) {
+                alert("Please fill in all required participant information.");
+                return;
+            }
+
+
+            if (allCorpusSentences.length === 0) {
+                alert("Corpus not loaded. Please try again or check console for errors.");
+                return;
+            }
+
+            sessionId = `session_${Date.now()}`;
+            const demographicsData = {
+                timestamp: Date.now(),
+                participantId,
+                ageGroup,
+                gender,
+                typingSkill,
+                occupation,
+                typingHours: cleanTypingHours(typingHours),
+            };
+
+            database.ref(`userSessions/${participantId}/${sessionId}/demographics`).set(demographicsData)
+                .then(() => {
+                    console.log("Demographics saved successfully!");
+                    // Disable demographics fields once test starts
+                    document.getElementById('demographicsForm').querySelectorAll('input, select, button').forEach(el => el.disabled = true);
+                    document.getElementById('startTestButton').disabled = true; // explicitly disable start button
+                    document.getElementById('demographics-form-container').style.display = 'none'; // Hide demographics form
+                    document.querySelector('.main-panel').style.display = 'block'; // Show the main test panel
+
+
+                    const shuffledCorpus = [...allCorpusSentences].sort(() => 0.5 - Math.random());
+                    currentTestSentences = shuffledCorpus.slice(0, NUM_SENTENCES_PER_TEST);
+                    currentSentenceIndex = 0;
+                    logs = [];
+
+                    typingArea.value = '';
+                    typingArea.disabled = true; // Will be enabled by displayNextSentence
+                    submitSentenceButton.style.display = 'none'; // Will be shown by displayNextSentence
+
+                    displayNextSentence();
+                    statusLabel.classList.remove('text-success', 'text-danger');
+
+                    metricsDisplay.style.display = 'none'; // Hide summary metrics until end of test
+                    finalMetricsContent.innerHTML = "<p class='text-muted'>No data available yet.</p>"; // Reset summary display
+                    continueToStroopButton.style.display = 'none'; // Hide continue button initially
+                })
+                .catch(error => {
+                    console.error("Error saving demographics:", error);
+                    alert("Failed to save demographics. Please try again.");
+                    // Re-enable form fields if there's an error saving to Firebase
+                    document.getElementById('demographicsForm').querySelectorAll('input, select, button').forEach(el => el.disabled = false);
+                    document.getElementById('startTestButton').disabled = false;
+                });
+        }
+
+
+        // Function to handle the "Submit Sentence" button click
+        function submitSentence() {
+            if (currentSentenceIndex >= NUM_SENTENCES_PER_TEST) {
+                showFinalMetrics();
+                typingSentenceElement.innerText = "Test Complete!";
+                typingArea.disabled = true;
+                submitSentenceButton.style.display = 'none';
+                statusLabel.innerText = "Test completed! Review Performance Analytics.";
+                statusLabel.classList.remove('text-danger');
+                statusLabel.classList.add('text-success');
+                continueToStroopButton.style.display = 'block'; // Ensure button is shown even if user submits after last sentence
+
+                return;
+            }
+
+            const typedText = typingArea.value.trim();
+            const originalSentence = currentTestSentences[currentSentenceIndex].trim();
+
+            if (typedText === "") {
+                statusLabel.innerText = "Please type something before submitting!";
+                statusLabel.classList.add('text-danger');
+                return;
+            }
+
+            const { wpm, errorDistance, errorPercentage, iki, kspc, backspaceCount } =
+                calculateMetrics(originalSentence, typedText, currentKeyTimestamps, backspaceCounter, sentenceStartTime);
+
+            const sentenceLog = {
+                timestamp: new Date().toISOString(),
+                displayTimestamp: formatTimestamp(new Date()),
+                participantId: participantId,
+                sessionId: sessionId,
+                ageGroup: document.getElementById('ageGroup').value,
+                gender: document.getElementById('gender').value,
+                typingSkill: document.getElementById('typingSkill').value,
+                occupation: document.getElementById('occupation').value,
+                typingHours: cleanTypingHours(document.getElementById('typingHours').value),
+                sentenceNumber: currentSentenceIndex + 1,
+                originalSentence: originalSentence,
+                typedText: typedText,
+                wpm: wpm,
+                errorDistance: parseFloat(errorDistance),
+                errorPercentage: parseFloat(errorPercentage),
+                iki: iki,
+                kspc: parseFloat(kspc),
+                backspaceCount: backspaceCount,
+                durationMs: new Date().getTime() - sentenceStartTime
+            };
+
+            logs.push(sentenceLog);
+
+            database.ref(`userSessions/${participantId}/${sessionId}/sentenceLogs`).push(sentenceLog)
+                .then(() => {
+                    console.log(`Sentence ${currentSentenceIndex + 1} data saved.`);
+                })
+                .catch(error => {
+                    console.error("Error saving sentence log:", error);
+                });
+
+            currentSentenceIndex++;
+
+            statusLabel.innerText = `Sentence submitted! ${currentSentenceIndex} of ${NUM_SENTENCES_PER_TEST} completed.`;
+            statusLabel.classList.remove('text-danger');
+            statusLabel.classList.add('text-success');
+
+            if (currentSentenceIndex < NUM_SENTENCES_PER_TEST) {
+                displayNextSentence();
+            } else {
+                showFinalMetrics();
+                typingSentenceElement.innerText = "Typing Test Complete! Your summary is below.";
+                typingArea.disabled = true;
+                submitSentenceButton.style.display = 'none';
+                statusLabel.innerText = "Test completed! Well done!";
+                statusLabel.classList.remove('text-danger');
+                statusLabel.classList.add('text-success');
+
+                if (typeof confetti !== 'undefined') {
+                    confetti({
+                        particleCount: 100,
+                        spread: 70,
+                        origin: { y: 0.6 }
+                    });
+                }
+                // Don't re-enable demographics here, instead show continue button
+                continueToStroopButton.style.display = 'block';
+            }
+        }
+
+
+        // Event listener for typingArea to track key timestamps and backspaces
+        typingArea.addEventListener('keydown', (e) => {
+            if (!typingArea.disabled) {
+                if (currentKeyTimestamps.length === 0 && typingArea.value.length === 0) {
+                    sentenceStartTime = new Date().getTime();
+                }
+                currentKeyTimestamps.push(new Date().getTime());
+
+                if (e.key === 'Backspace') {
+                    backspaceCounter++;
+                }
+            }
+        });
+
+
+        // Helper function to calculate all metrics (no change needed here)
+        function calculateMetrics(original, typed, keyTimestamps, backspaces, startMs) {
+            let wpm = 0;
+            let errorDistance = 0;
+            let errorPercentage = 0;
+            let iki = 0;
+            let kspc = 0;
+
+            const currentTime = new Date().getTime();
+            const durationInSeconds = (startMs > 0) ? (currentTime - startMs) / 1000 : 0;
+
+            const keyboardLayout = {
+                q: [0, 0], w: [1, 0], e: [2, 0], r: [3, 0], t: [4, 0], y: [5, 0], u: [6, 0], i: [7, 0], o: [8, 0], p: [9, 0],
+                a: [0.5, 1], s: [1.5, 1], d: [2.5, 1], f: [3.5, 1], g: [4.5, 1], h: [5.5, 1], j: [6.5, 1], k: [7.5, 1], l: [8.5, 1],
+                z: [1, 2], x: [2, 2], c: [3, 2], v: [4, 2], b: [5, 2], n: [6, 2], m: [7, 2],
+                ' ': [4.5, 3]
+            };
+
+            function getKeyDistance(c1, c2) {
+                const p1 = keyboardLayout[c1.toLowerCase()];
+                const p2 = keyboardLayout[c2.toLowerCase()];
+                if (!p1 || !p2) return 2.5;
+                return Math.sqrt((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2);
+            }
+
+            const minLength = Math.min(original.length, typed.length);
+            for (let i = 0; i < minLength; i++) {
+                if (original[i] !== typed[i]) {
+                    errorDistance += getKeyDistance(original[i], typed[i]);
+                }
+            }
+
+            const charLengthDifference = Math.abs(original.length - typed.length);
+            if (original.length > 0) {
+                errorDistance += charLengthDifference * (2.5);
+            } else if (typed.length > 0) {
+                errorDistance += typed.length * 2.5;
+            }
+
+            const MAX_PENALTY_PER_CHAR = 2.5;
+            const totalPossiblePenalty = original.length * MAX_PENALTY_PER_CHAR;
+
+            if (totalPossiblePenalty > 0) {
+                errorPercentage = (errorDistance / totalPossiblePenalty) * 100;
+                errorPercentage = Math.min(errorPercentage, 100);
+            } else {
+                errorPercentage = 0;
+                if (typed.length > 0) {
+                    errorPercentage = 100;
+                }
+            }
+
+            const typedWords = typed.split(/\s+/).filter(word => word.length > 0);
+            const durationInMinutes = durationInSeconds / 60;
+            wpm = durationInMinutes > 0.017 ? Math.round(typedWords.length / durationInMinutes) : 0;
+
+            if (keyTimestamps.length > 1) {
+                let totalIki = 0;
+                for (let i = 1; i < keyTimestamps.length; i++) {
+                    totalIki += (keyTimestamps[i] - keyTimestamps[i - 1]);
+                }
+                iki = Math.round(totalIki / (keyTimestamps.length - 1));
+            } else {
+                iki = 0;
+            }
+
+            let correctCharsTyped = 0;
+            for(let i = 0; i < Math.min(original.length, typed.length); i++) {
+                if (original[i] === typed[i]) {
+                    correctCharsTyped++;
+                }
+            }
+            const totalKeystrokes = keyTimestamps.length;
+
+            if (correctCharsTyped > 0) {
+                kspc = totalKeystrokes / correctCharsTyped;
+            } else if (totalKeystrokes > 0) {
+                kspc = totalKeystrokes;
+            } else {
+                kspc = 0;
+            }
+
+            return {
+                wpm: wpm,
+                errorDistance: errorDistance.toFixed(2),
+                errorPercentage: errorPercentage.toFixed(2),
+                iki: iki,
+                kspc: kspc.toFixed(2),
+                backspaceCount: backspaces
+            };
+        }
+
+
+        // Function to display final aggregate metrics
+        function showFinalMetrics() {
+            console.log("Test finished! Here are the aggregated logs:", logs);
+            metricsDisplay.style.display = 'block'; // Show the performance analytics card
+            finalMetricsContent.innerHTML = ""; // Clear previous content
+
+            if (logs.length > 0) {
+                let totalWpm = 0;
+                let totalIki = 0;
+                let totalKspc = 0;
+                let totalBackspaces = 0;
+                let totalErrorPercentage = 0;
+
+                logs.forEach(log => {
+                    totalWpm += log.wpm;
+                    totalIki += log.iki;
+                    totalKspc += parseFloat(log.kspc);
+                    totalBackspaces += log.backspaceCount;
+                    totalErrorPercentage += parseFloat(log.errorPercentage);
+                });
+
+                const avgWpm = (totalWpm / logs.length).toFixed(2);
+                const avgIki = (totalIki / logs.length).toFixed(2);
+                const avgKspc = (totalKspc / logs.length).toFixed(2);
+                const avgErrorPercentage = (totalErrorPercentage / logs.length).toFixed(2);
+
+                // Populate the content, mirroring the analytics section from the screenshot
+                finalMetricsContent.innerHTML += `<p class="mb-1">Overall WPM: <b>${avgWpm}</b></p>`;
+                finalMetricsContent.innerHTML += `<p class="mb-1">Avg. IKI (ms): <b>${avgIki}</b></p>`;
+                finalMetricsContent.innerHTML += `<p class="mb-1">Avg. KSPC: <b>${avgKspc}</b></p>`;
+                finalMetricsContent.innerHTML += `<p class="mb-1">Avg. Error %: <b>${avgErrorPercentage}%</b></p>`;
+                finalMetricsContent.innerHTML += `<p class="mb-0">Total Backspaces: <b>${totalBackspaces}</b></p>`;
+
+                const summaryData = {
+                    timestamp: Date.now(),
+                    participantId: participantId,
+                    ageGroup: document.getElementById('ageGroup').value,
+                    gender: document.getElementById('gender').value,
+                    typingSkill: document.getElementById('typingSkill').value,
+                    occupation: document.getElementById('occupation').value.trim(),
+                    typingHours: document.getElementById('typingHours').value,
+                    avgWpm: parseFloat(avgWpm),
+                    avgIki: parseFloat(avgIki),
+                    avgKspc: parseFloat(avgKspc),
+                    avgErrorPercentage: parseFloat(avgErrorPercentage),
+                    totalBackspaces: totalBackspaces,
+                    totalSentencesCompleted: logs.length
+                };
+                console.log("Saving summary to Firebase:", summaryData);
+                database.ref(`userSessions/${participantId}/${sessionId}/summary`).set(summaryData)
+                    .then(() => console.log("Summary data saved to Firebase successfully!"))
+                    .catch(error => console.error("Error saving summary data:", error));
+
+            } else {
+                finalMetricsContent.innerHTML += "<p class='text-muted'>No typing data available.</p>";
+            }
+        }
+
+        // Function to download aggregated data as CSV (no change needed here)
+        function downloadSummaryCSV() {
+            const ref = database.ref('userSessions');
+
+            ref.once('value')
+                .then(snapshot => {
+                    const data = snapshot.val();
+                    const rows = [];
+
+                    // CSV header
+                    rows.push([
+                        'Participant ID', 'Session ID', 'Timestamp', 'Age Group', 'Gender', 'Typing Skill',
+                        'Occupation', 'Typing Hours','Avg WPM', 'Avg IKI', 'Avg KSPC', 'Avg Error %', 'Total Backspaces', 'Total Sentences'
+                    ].join(','));
+
+                    if (data) {
+                        const wrap = str => `"${String(str || '').replace(/"/g, '""').replace(/\n/g, '\\n')}"`;
+
+                        Object.keys(data).forEach(pId => {
+                            const participantSessions = data[pId];
+                            Object.keys(participantSessions).forEach(sId => {
+                                const sessionData = participantSessions[sId];
+                                const summary = sessionData.summary;
+
+                                if (summary) {
+                                    rows.push([
+                                        wrap(pId),
+                                        wrap(sId),
+                                        formatTimestamp(summary.timestamp || Date.now()),
+                                        wrap(summary.ageGroup),
+                                        wrap(summary.gender),
+                                        wrap(summary.typingSkill),
+                                        wrap(summary.occupation),
+                                        wrap(summary.typingHours),
+                                        summary.avgWpm || 0,
+                                        summary.avgIki || 0,
+                                        summary.avgKspc || 0,
+                                        summary.avgErrorPercentage || 0,
+                                        summary.totalBackspaces || 0,
+                                        summary.totalSentencesCompleted || 0
+                                    ].join(','));
+                                }
+                            });
+                        });
+                    } else {
+                        alert("No summary logs found.");
+                        return;
+                    }
+
+                    const blob = new Blob([rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'all_typing_test_summary_logs.csv';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                })
+                .catch(error => {
+                    console.error("Error downloading CSV:", error);
+                    alert("Could not download CSV. See console for details.");
+                });
+        }
+
+        // Function to clear all data from Firebase (no change needed here)
+        function clearAllSummaries() {
+            if (confirm("Are you sure you want to delete ALL typing test data (demographics, sentence logs, and summaries) for ALL participants? This cannot be undone.")) {
+                const dbRef = database.ref('userSessions');
+
+                dbRef.remove()
+                    .then(() => {
+                        console.log("All Firebase user sessions data cleared.");
+                        statusLabel.classList.remove('text-danger');
+                        statusLabel.classList.add('text-success');
+                        statusLabel.innerText = "All Firebase logs cleared!";
+                        downloadLogButton.style.display = 'none';
+                        clearLogButton.style.display = 'none';
+                    })
+                    .catch((error) => {
+                        console.error("Error clearing Firebase logs:", error);
+                        statusLabel.classList.remove('text-success');
+                        statusLabel.classList.add('text-danger');
+                        statusLabel.innerText = "Failed to clear Firebase logs.";
+                    });
+            }
+        }
+
+
+        // Initialize when DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCorpus();
+
+            // Hide admin buttons initially
+            downloadLogButton.style.display = 'none';
+            clearLogButton.style.display = 'none';
+
+            // Connect "Start Typing Test" button to the submitDemographics function
+            document.getElementById('startTestButton').addEventListener('click', submitDemographics);
+            submitSentenceButton.addEventListener('click', submitSentence);
+
+            downloadLogButton.addEventListener('click', downloadSummaryCSV);
+            clearLogButton.addEventListener('click', clearAllSummaries);
+
+            // Initial state: hide the main panel and metrics until test starts
+            document.querySelector('.main-panel').style.display = 'none';
+            metricsDisplay.style.display = 'none';
+            continueToStroopButton.style.display = 'none'; // Ensure this is hidden initially
+        });
+
+
+        // --- Stroop Test Logic ---
+        const COLORS_STROOP = ['red', 'blue', 'green', 'yellow'];
+        const WORDS_STROOP = ['RED', 'BLUE', 'GREEN', 'YELLOW'];
+        const TEST_DURATION_SECONDS_STROOP = 30; // 30 seconds
+
+        let correctAnswersStroop = 0;
+        let startTimeStroop = 0;
+        let testActiveStroop = false;
+        let timerTimeoutStroop;
+
+        const introScreenStroop = document.getElementById("introScreenStroop");
+        const testScreenStroop = document.getElementById("testScreenStroop");
+        const resultScreenStroop = document.getElementById("resultScreenStroop");
+        const wordDisplay = document.getElementById("wordDisplay");
+        const feedback = document.getElementById("feedback");
+        const finalCorrectCountStroop = document.getElementById("finalCorrectCountStroop");
+
+        function getRandomElement(arr) {
+            return arr[Math.floor(Math.random() * arr.length)];
+        }
+
+        function startStroopTest() {
+            introScreenStroop.style.display = 'none';
+            resultScreenStroop.style.display = 'none';
+            testScreenStroop.style.display = 'block';
+
+            correctAnswersStroop = 0;
+            testActiveStroop = true;
+            feedback.className = '';
+
+            showNextWordStroop();
+
+            clearTimeout(timerTimeoutStroop);
+            timerTimeoutStroop = setTimeout(() => {
+                endStroopTest();
+            }, TEST_DURATION_SECONDS_STROOP * 1000);
+        }
+
+        function showNextWordStroop() {
+            if (!testActiveStroop) return;
+
+            const word = getRandomElement(WORDS_STROOP);
+            const color = getRandomElement(COLORS_STROOP);
+            wordDisplay.innerText = word;
+            wordDisplay.style.color = color;
+            startTimeStroop = performance.now();
+            wordDisplay.classList.remove('wordPopIn');
+            void wordDisplay.offsetWidth;
+            wordDisplay.classList.add('wordPopIn');
+        }
+
+        function submitStroopAnswer(selectedColor) {
+            if (!testActiveStroop) return;
+
+            const inkColor = wordDisplay.style.color;
+            const isCorrect = (selectedColor === inkColor);
+
+            if (isCorrect) {
+                correctAnswersStroop++;
+                correctSound.currentTime = 0;
+                correctSound.play();
+                feedback.innerText = 'Correct!';
+                feedback.className = 'show correct';
+            } else {
+                incorrectSound.currentTime = 0;
+                incorrectSound.play();
+                feedback.innerText = `Incorrect!`;
+                feedback.className = 'show incorrect';
+            }
+
+            testActiveStroop = false;
+
+            setTimeout(() => {
+                feedback.className = '';
+                if (timerTimeoutStroop) { // Check if test timer is still active
+                    testActiveStroop = true;
+                    showNextWordStroop();
+                }
+            }, 500);
+        }
+
+        function endStroopTest() {
+            testActiveStroop = false;
+            clearTimeout(timerTimeoutStroop);
+            testEndSound.currentTime = 0;
+            testEndSound.play();
+
+            testScreenStroop.style.display = 'none';
+            resultScreenStroop.style.display = 'block';
+
+            finalCorrectCountStroop.innerText = correctAnswersStroop;
+
+            // Save Stroop results to Firebase
+            database.ref(`userSessions/${participantId}/${sessionId}/stroopResults`).set({
+                timestamp: Date.now(),
+                correctAnswers: correctAnswersStroop,
+                testDurationSeconds: TEST_DURATION_SECONDS_STROOP
+            }).then(() => {
+                console.log("Stroop results saved to Firebase.");
+            }).catch(error => {
+                console.error("Error saving Stroop results:", error);
+            });
+        }
+
+        // Keyboard shortcuts for Stroop
+        document.addEventListener('keydown', (e) => {
+            if (testScreenStroop.style.display === 'block' && testActiveStroop) {
+                const keyMap = {
+                    'r': 'red',
+                    'b': 'blue',
+                    'g': 'green',
+                    'y': 'yellow'
+                };
+
+                const color = keyMap[e.key.toLowerCase()];
+                if (color) {
+                    submitStroopAnswer(color);
+                }
+            }
+        });
+
+
+        // --- 2-Back Memory Test Logic ---
+               const stimulusDisplayTwoBack = document.getElementById("stimulus");
+        const startButtonTwoBack = document.getElementById("startButtonTwoBack");
+        const replayButtonTwoBack = document.getElementById("replayButtonTwoBack");
+        const introScreenTwoBack = document.getElementById("introScreenTwoBack");
+        const resultsScreenTwoBack = document.getElementById("resultsScreenTwoBack");
+        const testFeedbackTwoBack = document.getElementById("testFeedbackTwoBack");
+        const finalCorrectCountTwoBack = document.getElementById("finalCorrectCountTwoBack");
+
+        const CHARACTERS_TWOBACK = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        const TOTAL_TRIALS_TWOBACK = 5; // Number of letters to show
+        const STIMULUS_DURATION_TWOBACK = 1000; // How long each letter is visible
+        const INTERVAL_BETWEEN_TRIALS_TWOBACK = 600; // Total time for one trial (stimulus + blank)
+
+        let testSequenceTwoBack = [];
+        let currentIndexTwoBack = 0;
+        let correctMatchesTwoBack = 0;
+        let testActiveTwoBack = false; // Controls if 'm' key is registered for the current stimulus
+        let stimulusVisible = false; // To track if the stimulus is currently on screen
+        let trialTimeoutIdTwoBack;
+        let blankTimeoutIdTwoBack;
+
+        function generateSequenceTwoBack() {
+            testSequenceTwoBack = [];
+            for (let i = 0; i < TOTAL_TRIALS_TWOBACK; i++) {
+                // ~35% chance of being a match to 2-back
+                if (i >= 2 && Math.random() < 0.35) {
+                    testSequenceTwoBack.push(testSequenceTwoBack[i - 2]);
+                } else {
+                    let char;
+                    do { // Ensure it's not accidentally a 2-back match if not intended
+                        char = CHARACTERS_TWOBACK[Math.floor(Math.random() * CHARACTERS_TWOBACK.length)];
+                    } while (i >= 2 && char === testSequenceTwoBack[i - 2]);
+                    testSequenceTwoBack.push(char);
+                }
+            }
+        }
+
+        function showStimulusTwoBack() {
+            stimulusDisplayTwoBack.style.display = "block";
+            stimulusDisplayTwoBack.innerText = testSequenceTwoBack[currentIndexTwoBack];
+            stimulusDisplayTwoBack.classList.remove("stimulusPop"); // Reset animation
+            void stimulusDisplayTwoBack.offsetWidth; // Trigger reflow
+            stimulusDisplayTwoBack.classList.add("stimulusPop"); // Re-add animation
+            stimulusVisible = true;
+            testActiveTwoBack = true; // Key input is active when stimulus is visible
+        }
+
+        function hideStimulusAndPrepareNext() {
+            stimulusDisplayTwoBack.style.display = "none";
+            stimulusVisible = false;
+            testActiveTwoBack = false; // Key input becomes inactive during blank period
+            testFeedbackTwoBack.innerText = "";
+            testFeedbackTwoBack.className = "";
+
+            currentIndexTwoBack++;
+
+            if (currentIndexTwoBack < TOTAL_TRIALS_TWOBACK) {
+                trialTimeoutIdTwoBack = setTimeout(showStimulusAndSetTimer, INTERVAL_BETWEEN_TRIALS_TWOBACK - STIMULUS_DURATION_TWOBACK);
+            } else {
+                endTestTwoBack();
+            }
+        }
+
+        function showStimulusAndSetTimer() {
+            showStimulusTwoBack();
+            // After STIMULUS_DURATION, hide the stimulus
+            blankTimeoutIdTwoBack = setTimeout(hideStimulusAndPrepareNext, STIMULUS_DURATION_TWOBACK);
+        }
+
+        function startTwoBackTest() {
+            introScreenTwoBack.style.display = "none";
+            resultsScreenTwoBack.style.display = "none";
+            testFeedbackTwoBack.innerText = "";
+            stimulusDisplayTwoBack.innerText = "-"; // Reset displayed char
+
+            generateSequenceTwoBack();
+            currentIndexTwoBack = 0;
+            correctMatchesTwoBack = 0;
+
+            // Clear any lingering timeouts
+            clearTimeout(trialTimeoutIdTwoBack);
+            clearTimeout(blankTimeoutIdTwoBack);
+
+            // Start the first trial after a short delay
+            setTimeout(showStimulusAndSetTimer, 500); // Give a brief moment before first stimulus
+        }
+
+        function endTestTwoBack() {
+            clearTimeout(trialTimeoutIdTwoBack);
+            clearTimeout(blankTimeoutIdTwoBack);
+            testActiveTwoBack = false;
+            stimulusVisible = false;
+            stimulusDisplayTwoBack.style.display = "none";
+            testFeedbackTwoBack.innerText = "";
+            resultsScreenTwoBack.style.display = "block";
+            finalCorrectCountTwoBack.innerText = correctMatchesTwoBack;
+            testEndSound.currentTime = 0;
+            testEndSound.play();
+        }
+
+        // Event listener for 'm' key press in 2-Back test
+        document.addEventListener("keydown", (e) => {
+            // Only process if 2-Back test is on screen, is active, and stimulus is visible
+            if (document.getElementById("two-back-test-section").style.display === 'flex' && testActiveTwoBack && stimulusVisible && e.key.toLowerCase() === "m") {
+                // To prevent multiple presses for the same stimulus, deactivate input immediately
+                testActiveTwoBack = false;
+
+                const currentLetter = testSequenceTwoBack[currentIndexTwoBack];
+                const letterTwoBack = testSequenceTwoBack[currentIndexTwoBack - 2];
+
+                const isMatchExpected = (currentIndexTwoBack >= 2 && currentLetter === letterTwoBack);
+
+                if (isMatchExpected) {
+                    testFeedbackTwoBack.innerText = "Match!";
+                    testFeedbackTwoBack.className = "correct";
+                    correctSound.currentTime = 0;
+                    correctSound.play();
+                        correctMatchesTwoBack++;
+                } else {
+                    testFeedbackTwoBack.innerText = "No Match!";
+                    testFeedbackTwoBack.className = "incorrect";
+                    incorrectSound.currentTime = 0;
+                    incorrectSound.play();
+                }
+            }
+        });
+
+        // Event listener for 'm' key press in 2-Back test
+        document.addEventListener("keydown", (e) => {
+            if (document.getElementById("two-back-test-section").style.display === 'flex' &&
+                document.getElementById("two-back-test-section").dataset.trialActive === 'true' &&
+                e.key.toLowerCase() === "m") {
+
+                userPressedMThisTrial = true;
+                testFeedbackTwoBack.innerText = "Registered Press!";
+                testFeedbackTwoBack.className = "";
+                // No sound here, sound is played in evaluateTrialResult
+                document.getElementById("two-back-test-section").dataset.trialActive = 'false'; // Only one press per trial
+            }
+        });
+
+        startButtonTwoBack.addEventListener("click", startTwoBackTest);
+
+
+        // --- NASA TLX Form Logic (MODIFIED FOR FIREBASE SAVE) ---
+        function updateTlxRangeValue(input) {
+            const valueSpan = input.nextElementSibling;
+            valueSpan.innerText = input.value;
+            const percentage = (input.value - input.min) / (input.max - input.min);
+            const thumbWidth = 25;
+            const offset = (thumbWidth / 2) - (thumbWidth * percentage);
+            valueSpan.style.left = `calc(${percentage * 100}% + ${offset}px)`;
+
+            input.classList.add('show-value');
+            if (input.timeout) {
+                clearTimeout(input.timeout);
+            }
+            input.timeout = setTimeout(() => {
+                input.classList.remove('show-value');
+            }, 1000);
+        }
+
+        document.querySelectorAll('#nasaTlxForm input[type="range"]').forEach(input => {
+            updateTlxRangeValue(input);
+            input.addEventListener('mousedown', () => input.classList.add('show-value'));
+            input.addEventListener('mouseup', () => {
+                if (input.timeout) {
+                    clearTimeout(input.timeout);
+                }
+                input.timeout = setTimeout(() => {
+                    input.classList.remove('show-value');
+                }, 500);
+            });
+        });
+
+        document.getElementById('nasaTlxForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const formData = new FormData(this);
+            const tlxResults = {};
+            for (let [key, value] of formData.entries()) {
+                tlxResults[key] = parseInt(value, 10);
+            }
+
+            console.log("Submitting NASA TLX Results to Firebase:", tlxResults);
+
+            // Save NASA TLX results directly to Firebase
+            database.ref(`userSessions/${participantId}/${sessionId}/nasaTlxResults`).set({
+                timestamp: Date.now(),
+                ...tlxResults
+            })
+            .then(() => {
+                alert("Thank you for your feedback! Data submitted successfully to Firebase.");
+                console.log('NASA TLX data saved to Firebase.');
+                showSection('thank-you-screen', 'nasa-tlx-form-section');
+            })
+            .catch((error) => {
+                console.error('Error submitting NASA TLX data to Firebase:', error);
+                alert("There was an error submitting your feedback. Data might not have been saved. Please check Firebase connection and rules.\n\nError: " + error.message);
+            });
+        });
+
+    </script>
+</body>
+</html>
