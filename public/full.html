@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; font-src 'self' https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;">
     <title>Brain Games Central: Complete Cognitive Battery</title>
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='-.1em' font-size='100'%3E🧠%3C/text%3E%3C/svg%3E" />
 
@@ -1095,9 +1094,6 @@
         <button class="next-btn" onclick="location.reload()">Start New Session</button>
     </div>
 
-    <audio id="correctSound" src="https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.3.mp3"></audio>
-    <audio id="incorrectSound" src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-tone-2871.mp3"></audio>
-    <audio id="testEndSound" src="https://assets.mixkit.co/sfx/preview/mixkit-arcade-retro-game-over-219.3.mp3"></audio>
 
     <script>
         // --- Global Section Management ---
@@ -1142,14 +1138,16 @@
         const metricsDisplay = document.getElementById('metricsDisplay'); // This is now the "Performance Analytics" card
         const finalMetricsContent = document.getElementById('finalMetricsContent');
         const continueToStroopButton = document.getElementById('continueToStroopButton'); // New button for flow
+        // const timerDisplay = document.getElementById('timerDisplay'); // REMOVED: No longer needed for display
 
         // Admin buttons
-        const downloadLogButton = document.getElementById('downloadLogButton');
-        const clearLogButton = document.getElementById('clearLogButton');
+        // const downloadLogButton = document.getElementById('downloadLogButton');
+        // const clearLogButton = document.getElementById('clearLogButton');
 
         // Global Variables
         let allCorpusSentences = [];
-        const NUM_SENTENCES_PER_TEST = 5;
+        const TEST_DURATION_MINUTES = 0.5;
+        const TEST_DURATION_MS = TEST_DURATION_MINUTES * 60 * 1000;
         let currentTestSentences = [];
         let currentSentenceIndex = 0;
         let logs = [];
@@ -1157,12 +1155,15 @@
         let currentKeyTimestamps = [];
         let backspaceCounter = 0;
         let sentenceStartTime = 0;
+        let testStartTime = 0; // To track the start time of the entire test
+        let testIsActive = false; // Flag to control the test lifecycle
+        // let timerIntervalId; // REMOVED: No longer needed for updating a display
 
         // Admin Configuration
-        const ADMIN_IDS = {
-            '2005': 'adminpass123', // Example: { 'AdminID': 'password' }
-            '1001': 'securepass'
-        };
+        // const ADMIN_IDS = {
+        //     '2005': 'adminpass123', // Example: { 'AdminID': 'password' }
+        //     '1001': 'securepass'
+        // };
 
         // Prevent cursor movement via arrow keys, Home/End
         typingArea.addEventListener('keydown', (e) => {
@@ -1227,9 +1228,11 @@
             }
         }
 
+        // REMOVED: updateTimerDisplay function - no longer needed
+
         // Function to display the next sentence or end the test
         function displayNextSentence() {
-            if (currentSentenceIndex < NUM_SENTENCES_PER_TEST) {
+            if (testIsActive) { // Only display if test is active
                 typingSentenceElement.innerText = currentTestSentences[currentSentenceIndex];
                 typingArea.value = '';
                 typingArea.disabled = false;
@@ -1241,36 +1244,44 @@
                 backspaceCounter = 0;
                 sentenceStartTime = new Date().getTime();
 
-                // Update status with current trial number
-                statusLabel.innerText = `Current Trial: ${currentSentenceIndex + 1} / ${NUM_SENTENCES_PER_TEST}`;
+                // Update status with current trial number (optional, or remove if not relevant for timed test)
+                statusLabel.innerText = `Current Trial: ${currentSentenceIndex + 1}`;
                 statusLabel.classList.remove('text-success', 'text-danger'); // Clean any previous status colors
-            } else {
-                // End of test
-                typingSentenceElement.innerText = "Typing Test Complete! Your summary is below.";
-                typingArea.disabled = true;
-                submitSentenceButton.style.display = 'none';
-
-                statusLabel.innerText = "Test completed! Review Performance Analytics.";
-                statusLabel.classList.remove('text-danger');
-                statusLabel.classList.add('text-success');
-
-                showFinalMetrics();
-                
-                // Show button to continue to the next test
-                continueToStroopButton.style.display = 'block';
-
-                if (typeof confetti !== 'undefined') {
-                    confetti({
-                        particleCount: 100,
-                        spread: 70,
-                        origin: { y: 0.6 }
-                    });
-                }
-                // Re-enable demographics fields for a new test
-                document.getElementById('demographicsForm').querySelectorAll('input, select, button').forEach(el => el.disabled = false);
-                document.getElementById('startTestButton').disabled = false;
             }
         }
+
+        // Function to end the typing test
+        function endTypingTest() {
+            if (!testIsActive) return; // Prevent multiple calls
+
+            testIsActive = false;
+            // clearInterval(timerIntervalId); // REMOVED: No interval to clear
+
+            typingSentenceElement.innerText = "Typing Test Complete! Your summary is below.";
+            typingArea.disabled = true;
+            submitSentenceButton.style.display = 'none';
+
+            statusLabel.innerText = "Test completed! Review Performance Analytics.";
+            statusLabel.classList.remove('text-danger');
+            statusLabel.classList.add('text-success');
+
+            showFinalMetrics();
+
+            // Show button to continue to the next test
+            continueToStroopButton.style.display = 'block';
+
+            if (typeof confetti !== 'undefined') {
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+            }
+            // Re-enable demographics fields for a new test
+            document.getElementById('demographicsForm').querySelectorAll('input, select, button').forEach(el => el.disabled = false);
+            document.getElementById('startTestButton').disabled = false;
+        }
+
 
         // Function to handle the "Start Test" button click (Demographics submission)
         async function submitDemographics() {
@@ -1282,24 +1293,24 @@
             const typingHours = document.getElementById('typingHours').value;
 
             // --- Admin ID and Password Check ---
-            if (ADMIN_IDS.hasOwnProperty(participantId)) {
-                const password = prompt("Admin ID detected. Please enter password:");
-                if (password === ADMIN_IDS[participantId]) {
-                    alert("Admin access granted!");
-                    downloadLogButton.style.display = 'block';
-                    clearLogButton.style.display = 'block';
-                    statusLabel.innerText = "Admin controls unlocked! You can download/clear data.";
-                    statusLabel.classList.add('text-success');
-                    document.getElementById('ParticipantId').value = ''; // Clear ID field after admin login
-                    document.getElementById('startTestButton').disabled = false; // Keep button enabled for next action
-                    return; // Exit function, don't start test
-                } else {
-                    alert("Incorrect password. Admin access denied.");
-                    statusLabel.innerText = "Incorrect Admin ID or password.";
-                    statusLabel.classList.add('text-danger');
-                    return;
-                }
-            }
+            // if (ADMIN_IDS.hasOwnProperty(participantId)) {
+            //     const password = prompt("Admin ID detected. Please enter password:");
+            //     if (password === ADMIN_IDS[participantId]) {
+            //         alert("Admin access granted!");
+            //         downloadLogButton.style.display = 'block';
+            //         clearLogButton.style.display = 'block';
+            //         statusLabel.innerText = "Admin controls unlocked! You can download/clear data.";
+            //         statusLabel.classList.add('text-success');
+            //         document.getElementById('ParticipantId').value = ''; // Clear ID field after admin login
+            //         document.getElementById('startTestButton').disabled = false; // Keep button enabled for next action
+            //         return; // Exit function, don't start test
+            //     } else {
+            //         alert("Incorrect password. Admin access denied.");
+            //         statusLabel.innerText = "Incorrect Admin ID or password.";
+            //         statusLabel.classList.add('text-danger');
+            //         return;
+            //     }
+            // }
             // --- End Admin ID and Password Check ---
 
             // Check all required fields in the form
@@ -1326,7 +1337,6 @@
                 return;
             }
 
-            sessionId = `session_${Date.now()}`;
             const demographicsData = {
                 timestamp: Date.now(),
                 participantId,
@@ -1337,7 +1347,8 @@
                 typingHours: cleanTypingHours(typingHours),
             };
 
-            database.ref(`userSessions/${participantId}/${sessionId}/demographics`).set(demographicsData)
+            // Using push under participantId to avoid overwriting and store multiple demographic entries if needed
+            database.ref(`userSessions/${participantId}/demographics`).push(demographicsData)
                 .then(() => {
                     console.log("Demographics saved successfully!");
                     // Disable demographics fields once test starts
@@ -1347,8 +1358,10 @@
                     document.querySelector('.main-panel').style.display = 'block'; // Show the main test panel
 
 
+                    // For a timed test, we can pre-select many sentences or simply iterate
+                    // Let's shuffle the entire corpus and just keep presenting from it
                     const shuffledCorpus = [...allCorpusSentences].sort(() => 0.5 - Math.random());
-                    currentTestSentences = shuffledCorpus.slice(0, NUM_SENTENCES_PER_TEST);
+                    currentTestSentences = shuffledCorpus; // Use the entire shuffled corpus
                     currentSentenceIndex = 0;
                     logs = [];
 
@@ -1356,12 +1369,19 @@
                     typingArea.disabled = true; // Will be enabled by displayNextSentence
                     submitSentenceButton.style.display = 'none'; // Will be shown by displayNextSentence
 
-                    displayNextSentence();
                     statusLabel.classList.remove('text-success', 'text-danger');
 
                     metricsDisplay.style.display = 'none'; // Hide summary metrics until end of test
                     finalMetricsContent.innerHTML = "<p class='text-muted'>No data available yet.</p>"; // Reset summary display
                     continueToStroopButton.style.display = 'none'; // Hide continue button initially
+
+                    // Start the test timer (internal, no display)
+                    testStartTime = Date.now();
+                    testIsActive = true;
+                    // timerIntervalId = setInterval(updateTimerDisplay, 1000); // REMOVED: No display update needed
+                    // updateTimerDisplay(); // REMOVED: No display update needed
+
+                    displayNextSentence(); // Start the first sentence
                 })
                 .catch(error => {
                     console.error("Error saving demographics:", error);
@@ -1375,16 +1395,10 @@
 
         // Function to handle the "Submit Sentence" button click
         function submitSentence() {
-            if (currentSentenceIndex >= NUM_SENTENCES_PER_TEST) {
-                showFinalMetrics();
-                typingSentenceElement.innerText = "Test Complete!";
-                typingArea.disabled = true;
-                submitSentenceButton.style.display = 'none';
-                statusLabel.innerText = "Test completed! Review Performance Analytics.";
-                statusLabel.classList.remove('text-danger');
-                statusLabel.classList.add('text-success');
-                continueToStroopButton.style.display = 'block'; // Ensure button is shown even if user submits after last sentence
-
+            // Check if test has already become inactive due to time running out.
+            // This handles cases where user types quickly and then hits submit just as time expires.
+            if (!testIsActive) {
+                endTypingTest(); // This will show final metrics and hide elements
                 return;
             }
 
@@ -1404,7 +1418,6 @@
                 timestamp: new Date().toISOString(),
                 displayTimestamp: formatTimestamp(new Date()),
                 participantId: participantId,
-                sessionId: sessionId,
                 ageGroup: document.getElementById('ageGroup').value,
                 gender: document.getElementById('gender').value,
                 typingSkill: document.getElementById('typingSkill').value,
@@ -1424,47 +1437,39 @@
 
             logs.push(sentenceLog);
 
-            database.ref(`userSessions/${participantId}/${sessionId}/sentenceLogs`).push(sentenceLog)
-                .then(() => {
-                    console.log(`Sentence ${currentSentenceIndex + 1} data saved.`);
-                })
-                .catch(error => {
-                    console.error("Error saving sentence log:", error);
-                });
+            // Save each sentence log to Firebase under the participant's session.
+            // Using push to ensure each sentence log gets a unique ID.
+            // database.ref(`userSessions/${participantId}/typingTestLogs`).push(sentenceLog)
+            //     .then(() => {
+            //         console.log(`Sentence ${currentSentenceIndex + 1} data saved.`);
+            //     })
+            //     .catch(error => {
+            //         console.error("Error saving sentence log:", error);
+            //     });
 
             currentSentenceIndex++;
 
-            statusLabel.innerText = `Sentence submitted! ${currentSentenceIndex} of ${NUM_SENTENCES_PER_TEST} completed.`;
+            statusLabel.innerText = `Sentence submitted! Keep typing.`;
             statusLabel.classList.remove('text-danger');
             statusLabel.classList.add('text-success');
 
-            if (currentSentenceIndex < NUM_SENTENCES_PER_TEST) {
-                displayNextSentence();
+            // Check if time has run out before displaying the next sentence
+            if (Date.now() - testStartTime >= TEST_DURATION_MS) {
+                endTypingTest();
             } else {
-                showFinalMetrics();
-                typingSentenceElement.innerText = "Typing Test Complete! Your summary is below.";
-                typingArea.disabled = true;
-                submitSentenceButton.style.display = 'none';
-                statusLabel.innerText = "Test completed! Well done!";
-                statusLabel.classList.remove('text-danger');
-                statusLabel.classList.add('text-success');
-
-                if (typeof confetti !== 'undefined') {
-                    confetti({
-                        particleCount: 100,
-                        spread: 70,
-                        origin: { y: 0.6 }
-                    });
+                // If we run out of sentences from the current shuffled batch, reshuffle for continuous typing
+                if (currentSentenceIndex >= currentTestSentences.length) {
+                    currentTestSentences = [...allCorpusSentences].sort(() => 0.5 - Math.random());
+                    currentSentenceIndex = 0;
                 }
-                // Don't re-enable demographics here, instead show continue button
-                continueToStroopButton.style.display = 'block';
+                displayNextSentence();
             }
         }
 
 
         // Event listener for typingArea to track key timestamps and backspaces
         typingArea.addEventListener('keydown', (e) => {
-            if (!typingArea.disabled) {
+            if (!typingArea.disabled && testIsActive) { // Only record if test is active
                 if (currentKeyTimestamps.length === 0 && typingArea.value.length === 0) {
                     sentenceStartTime = new Date().getTime();
                 }
@@ -1477,99 +1482,111 @@
         });
 
 
-        // Helper function to calculate all metrics (no change needed here)
+        // Helper function to calculate all metrics
         function calculateMetrics(original, typed, keyTimestamps, backspaces, startMs) {
-            let wpm = 0;
-            let errorDistance = 0;
-            let errorPercentage = 0;
-            let iki = 0;
-            let kspc = 0;
+    let wpm = 0;
+    let errorDistance = 0;
+    let errorPercentage = 0;
+    let iki = 0;
+    let kspc = 0;
 
-            const currentTime = new Date().getTime();
-            const durationInSeconds = (startMs > 0) ? (currentTime - startMs) / 1000 : 0;
+    const currentTime = new Date().getTime();
+    // Ensure duration is only calculated if startMs is valid and positive
+    const durationInSeconds = (startMs > 0 && currentTime > startMs) ? (currentTime - startMs) / 1000 : 0;
 
-            const keyboardLayout = {
-                q: [0, 0], w: [1, 0], e: [2, 0], r: [3, 0], t: [4, 0], y: [5, 0], u: [6, 0], i: [7, 0], o: [8, 0], p: [9, 0],
-                a: [0.5, 1], s: [1.5, 1], d: [2.5, 1], f: [3.5, 1], g: [4.5, 1], h: [5.5, 1], j: [6.5, 1], k: [7.5, 1], l: [8.5, 1],
-                z: [1, 2], x: [2, 2], c: [3, 2], v: [4, 2], b: [5, 2], n: [6, 2], m: [7, 2],
-                ' ': [4.5, 3]
-            };
+    const keyboardLayout = {
+        q: [0, 0], w: [1, 0], e: [2, 0], r: [3, 0], t: [4, 0], y: [5, 0], u: [6, 0], i: [7, 0], o: [8, 0], p: [9, 0],
+        a: [1, 1], s: [2, 1], d: [3, 1], f: [4, 1], g: [5, 1], h: [6, 1], j: [7, 1], k: [8, 1], l: [9, 1],
+        z: [2, 2], x: [3, 2], c: [4, 2], v: [5, 2], b: [6, 2], n: [7, 2], m: [8, 2],
+        ' ': [3, 3]
+    };
 
-            function getKeyDistance(c1, c2) {
-                const p1 = keyboardLayout[c1.toLowerCase()];
-                const p2 = keyboardLayout[c2.toLowerCase()];
-                if (!p1 || !p2) return 2.5;
-                return Math.sqrt((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2);
-            }
+    const THEORETICAL_MAX_KEY_DISTANCE = Math.sqrt((9 - 0) ** 2 + (3 - 0) ** 2); // sqrt(81 + 9) = sqrt(90) approx 9.4868
 
-            const minLength = Math.min(original.length, typed.length);
-            for (let i = 0; i < minLength; i++) {
-                if (original[i] !== typed[i]) {
-                    errorDistance += getKeyDistance(original[i], typed[i]);
-                }
-            }
+    function getKeyDistance(c1, c2) {
+        const p1 = keyboardLayout[c1.toLowerCase()];
+        const p2 = keyboardLayout[c2.toLowerCase()];
+        // If either key is not in the layout, return the theoretical max distance as a penalty.
+        // This means an unknown character is treated as a "worst-case" positional error.
+        if (!p1 || !p2) return THEORETICAL_MAX_KEY_DISTANCE;
+        return Math.sqrt((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2);
+    }
 
-            const charLengthDifference = Math.abs(original.length - typed.length);
-            if (original.length > 0) {
-                errorDistance += charLengthDifference * (2.5);
-            } else if (typed.length > 0) {
-                errorDistance += typed.length * 2.5;
-            }
-
-            const MAX_PENALTY_PER_CHAR = 2.5;
-            const totalPossiblePenalty = original.length * MAX_PENALTY_PER_CHAR;
-
-            if (totalPossiblePenalty > 0) {
-                errorPercentage = (errorDistance / totalPossiblePenalty) * 100;
-                errorPercentage = Math.min(errorPercentage, 100);
-            } else {
-                errorPercentage = 0;
-                if (typed.length > 0) {
-                    errorPercentage = 100;
-                }
-            }
-
-            const typedWords = typed.split(/\s+/).filter(word => word.length > 0);
-            const durationInMinutes = durationInSeconds / 60;
-            wpm = durationInMinutes > 0.017 ? Math.round(typedWords.length / durationInMinutes) : 0;
-
-            if (keyTimestamps.length > 1) {
-                let totalIki = 0;
-                for (let i = 1; i < keyTimestamps.length; i++) {
-                    totalIki += (keyTimestamps[i] - keyTimestamps[i - 1]);
-                }
-                iki = Math.round(totalIki / (keyTimestamps.length - 1));
-            } else {
-                iki = 0;
-            }
-
-            let correctCharsTyped = 0;
-            for(let i = 0; i < Math.min(original.length, typed.length); i++) {
-                if (original[i] === typed[i]) {
-                    correctCharsTyped++;
-                }
-            }
-            const totalKeystrokes = keyTimestamps.length;
-
-            if (correctCharsTyped > 0) {
-                kspc = totalKeystrokes / correctCharsTyped;
-            } else if (totalKeystrokes > 0) {
-                kspc = totalKeystrokes;
-            } else {
-                kspc = 0;
-            }
-
-            return {
-                wpm: wpm,
-                errorDistance: errorDistance.toFixed(2),
-                errorPercentage: errorPercentage.toFixed(2),
-                iki: iki,
-                kspc: kspc.toFixed(2),
-                backspaceCount: backspaces
-            };
+    const minLength = Math.min(original.length, typed.length);
+    for (let i = 0; i < minLength; i++) {
+        if (original[i] !== typed[i]) {
+            errorDistance += getKeyDistance(original[i], typed[i]);
         }
+    }
 
+    // Penalize for added/missing characters with the max possible distance
+    const charLengthDifference = Math.abs(original.length - typed.length);
+    if (original.length > 0) {
+        errorDistance += charLengthDifference * THEORETICAL_MAX_KEY_DISTANCE;
+    } else if (typed.length > 0) {
+        // If original is empty but typed has content, penalize for all typed characters
+        errorDistance += typed.length * THEORETICAL_MAX_KEY_DISTANCE;
+    }
 
+    // MAX_PENALTY_PER_CHAR is now consistent with the theoretical max key distance
+    const MAX_PENALTY_PER_CHAR = THEORETICAL_MAX_KEY_DISTANCE;
+    const totalPossiblePenalty = original.length * MAX_PENALTY_PER_CHAR;
+
+    if (totalPossiblePenalty > 0) {
+        errorPercentage = (errorDistance / totalPossiblePenalty) * 100;
+        // The Math.min(errorPercentage, 100) is still good practice to prevent
+        // percentages > 100 if, for example, the definition of errorDistance
+        // might include other penalties not perfectly bounded by totalPossiblePenalty.
+        errorPercentage = Math.min(errorPercentage, 100);
+    } else {
+        errorPercentage = 0;
+        // If no original text, but user typed something, it's 100% error
+        if (typed.length > 0) {
+            errorPercentage = 100;
+        }
+    }
+
+    const typedWords = typed.split(/\s+/).filter(word => word.length > 0);
+    const durationInMinutes = durationInSeconds / 60;
+    // Minimum duration of 1 second (0.0166 minutes) to avoid division by near zero
+    wpm = durationInMinutes > (1/60) ? Math.round(typedWords.length / durationInMinutes) : 0;
+
+    if (keyTimestamps.length > 1) {
+        let totalIki = 0;
+        for (let i = 1; i < keyTimestamps.length; i++) {
+            totalIki += (keyTimestamps[i] - keyTimestamps[i - 1]);
+        }
+        iki = Math.round(totalIki / (keyTimestamps.length - 1));
+    } else {
+        iki = 0;
+    }
+
+    let correctCharsTyped = 0;
+    for(let i = 0; i < Math.min(original.length, typed.length); i++) {
+        if (original[i] === typed[i]) {
+            correctCharsTyped++;
+        }
+    }
+    const totalKeystrokes = keyTimestamps.length; // Includes backspaces and any re-typed keys
+
+    if (correctCharsTyped > 0) {
+        kspc = totalKeystrokes / correctCharsTyped;
+    } else if (totalKeystrokes > 0) {
+        // If no correct chars, but keystrokes were made, KSPC is total keystrokes (highly inefficient)
+        kspc = totalKeystrokes;
+    } else {
+        kspc = 0; // No correct chars, no keystrokes
+    }
+
+    return {
+        wpm: wpm,
+        errorDistance: errorDistance.toFixed(2),
+        errorPercentage: errorPercentage.toFixed(2),
+        iki: iki,
+        kspc: kspc.toFixed(2),
+        backspaceCount: backspaces
+    };
+}
         // Function to display final aggregate metrics
         function showFinalMetrics() {
             console.log("Test finished! Here are the aggregated logs:", logs);
@@ -1602,24 +1619,23 @@
                 finalMetricsContent.innerHTML += `<p class="mb-1">Avg. KSPC: <b>${avgKspc}</b></p>`;
                 finalMetricsContent.innerHTML += `<p class="mb-1">Avg. Error %: <b>${avgErrorPercentage}%</b></p>`;
                 finalMetricsContent.innerHTML += `<p class="mb-0">Total Backspaces: <b>${totalBackspaces}</b></p>`;
+                finalMetricsContent.innerHTML += `<p class="mb-0">Total Sentences Completed: <b>${logs.length}</b></p>`;
 
                 const summaryData = {
                     timestamp: Date.now(),
-                    participantId: participantId,
-                    ageGroup: document.getElementById('ageGroup').value,
-                    gender: document.getElementById('gender').value,
-                    typingSkill: document.getElementById('typingSkill').value,
-                    occupation: document.getElementById('occupation').value.trim(),
-                    typingHours: document.getElementById('typingHours').value,
+                    //participantId: participantId,
                     avgWpm: parseFloat(avgWpm),
                     avgIki: parseFloat(avgIki),
                     avgKspc: parseFloat(avgKspc),
                     avgErrorPercentage: parseFloat(avgErrorPercentage),
                     totalBackspaces: totalBackspaces,
-                    totalSentencesCompleted: logs.length
+                    totalSentencesCompleted: logs.length,
+                    //testDurationMinutes: TEST_DURATION_MINUTES, // Add test duration to summary
+                    //actualDurationMs: Date.now() - testStartTime // Actual time elapsed
                 };
                 console.log("Saving summary to Firebase:", summaryData);
-                database.ref(`userSessions/${participantId}/${sessionId}/summary`).set(summaryData)
+                // Saving summary under participantId using push to ensure unique entry per test
+                database.ref(`userSessions/${participantId}/typingTestSummary`).push(summaryData)
                     .then(() => console.log("Summary data saved to Firebase successfully!"))
                     .catch(error => console.error("Error saving summary data:", error));
 
@@ -1639,8 +1655,8 @@
 
                     // CSV header
                     rows.push([
-                        'Participant ID', 'Session ID', 'Timestamp', 'Age Group', 'Gender', 'Typing Skill',
-                        'Occupation', 'Typing Hours','Avg WPM', 'Avg IKI', 'Avg KSPC', 'Avg Error %', 'Total Backspaces', 'Total Sentences'
+                        'Participant ID', 'Timestamp',
+                        'Avg WPM', 'Avg IKI', 'Avg KSPC', 'Avg Error %', 'Total Backspaces', 'Total Sentences', 'Test Duration (min)', 'Actual Duration (ms)'
                     ].join(','));
 
                     if (data) {
@@ -1648,29 +1664,25 @@
 
                         Object.keys(data).forEach(pId => {
                             const participantSessions = data[pId];
-                            Object.keys(participantSessions).forEach(sId => {
-                                const sessionData = participantSessions[sId];
-                                const summary = sessionData.summary;
+                            const summaries = participantSessions.typingTestSummaries; // Access typingTestSummaries
+                            if (summaries) {
+                                Object.keys(summaries).forEach(sId => {
+                                    const summary = summaries[sId];
 
-                                if (summary) {
                                     rows.push([
                                         wrap(pId),
-                                        wrap(sId),
                                         formatTimestamp(summary.timestamp || Date.now()),
-                                        wrap(summary.ageGroup),
-                                        wrap(summary.gender),
-                                        wrap(summary.typingSkill),
-                                        wrap(summary.occupation),
-                                        wrap(summary.typingHours),
                                         summary.avgWpm || 0,
                                         summary.avgIki || 0,
                                         summary.avgKspc || 0,
                                         summary.avgErrorPercentage || 0,
                                         summary.totalBackspaces || 0,
-                                        summary.totalSentencesCompleted || 0
+                                        summary.totalSentencesCompleted || 0,
+                                        summary.testDurationMinutes || 0,
+                                        summary.actualDurationMs || 0
                                     ].join(','));
-                                }
-                            });
+                                });
+                            }
                         });
                     } else {
                         alert("No summary logs found.");
@@ -1693,10 +1705,10 @@
                 });
         }
 
-        // Function to clear all data from Firebase (no change needed here)
+        // Function to clear all data from Firebase (modified to clear specific typing test paths)
         function clearAllSummaries() {
             if (confirm("Are you sure you want to delete ALL typing test data (demographics, sentence logs, and summaries) for ALL participants? This cannot be undone.")) {
-                const dbRef = database.ref('userSessions');
+                const dbRef = database.ref('userSessions'); // This will delete everything under userSessions
 
                 dbRef.remove()
                     .then(() => {
@@ -1736,6 +1748,7 @@
             document.querySelector('.main-panel').style.display = 'none';
             metricsDisplay.style.display = 'none';
             continueToStroopButton.style.display = 'none'; // Ensure this is hidden initially
+            // timerDisplay.style.display = 'none'; // REMOVED: No timer element to hide
         });
 
 
@@ -1798,13 +1811,9 @@
 
             if (isCorrect) {
                 correctAnswersStroop++;
-                correctSound.currentTime = 0;
-                correctSound.play();
                 feedback.innerText = 'Correct!';
                 feedback.className = 'show correct';
             } else {
-                incorrectSound.currentTime = 0;
-                incorrectSound.play();
                 feedback.innerText = `Incorrect!`;
                 feedback.className = 'show incorrect';
             }
@@ -1823,8 +1832,6 @@
         function endStroopTest() {
             testActiveStroop = false;
             clearTimeout(timerTimeoutStroop);
-            testEndSound.currentTime = 0;
-            testEndSound.play();
 
             testScreenStroop.style.display = 'none';
             resultScreenStroop.style.display = 'block';
@@ -1832,7 +1839,7 @@
             finalCorrectCountStroop.innerText = correctAnswersStroop;
 
             // Save Stroop results to Firebase
-            database.ref(`userSessions/${participantId}/${sessionId}/stroopResults`).set({
+            database.ref(`userSessions/${participantId}/stroopResults`).push({
                 timestamp: Date.now(),
                 correctAnswers: correctAnswersStroop,
                 testDurationSeconds: TEST_DURATION_SECONDS_STROOP
@@ -1862,7 +1869,7 @@
 
 
         // --- 2-Back Memory Test Logic ---
-               const stimulusDisplayTwoBack = document.getElementById("stimulus");
+         const stimulusDisplayTwoBack = document.getElementById("stimulus");
         const startButtonTwoBack = document.getElementById("startButtonTwoBack");
         const replayButtonTwoBack = document.getElementById("replayButtonTwoBack");
         const introScreenTwoBack = document.getElementById("introScreenTwoBack");
@@ -1950,17 +1957,32 @@
         }
 
         function endTestTwoBack() {
-            clearTimeout(trialTimeoutIdTwoBack);
-            clearTimeout(blankTimeoutIdTwoBack);
-            testActiveTwoBack = false;
-            stimulusVisible = false;
-            stimulusDisplayTwoBack.style.display = "none";
-            testFeedbackTwoBack.innerText = "";
-            resultsScreenTwoBack.style.display = "block";
-            finalCorrectCountTwoBack.innerText = correctMatchesTwoBack;
-            testEndSound.currentTime = 0;
-            testEndSound.play();
-        }
+    clearTimeout(trialTimeoutIdTwoBack);
+    clearTimeout(blankTimeoutIdTwoBack);
+    testActiveTwoBack = false;
+    stimulusVisible = false;
+    stimulusDisplayTwoBack.style.display = "none";
+    testFeedbackTwoBack.innerText = "";
+    resultsScreenTwoBack.style.display = "block";
+    finalCorrectCountTwoBack.innerText = correctMatchesTwoBack;
+
+    // Save to Firebase under 'user sessions/2back_tests' using .push()
+    // This will create a new unique entry for each test completion.
+    if (typeof database !== 'undefined') { // Check if Firebase is initialized
+        database.ref(`userSessions/${participantId}/nbackresults`).push({
+        date: new Date().toISOString(), // Use ISO string for consistent date format
+        correctResponses: correctMatchesTwoBack
+        }) // Use .push() here
+            .then(() => {
+                console.log("2-Back Test data saved to Firebase successfully!");
+            })
+            .catch((error) => {
+                console.error("Error saving 2-Back test data to Firebase:", error);
+            });
+    } else {
+        console.warn("Firebase database not initialized. Data not saved.");
+    }
+}
 
         // Event listener for 'm' key press in 2-Back test
         document.addEventListener("keydown", (e) => {
@@ -1977,14 +1999,10 @@
                 if (isMatchExpected) {
                     testFeedbackTwoBack.innerText = "Match!";
                     testFeedbackTwoBack.className = "correct";
-                    correctSound.currentTime = 0;
-                    correctSound.play();
                         correctMatchesTwoBack++;
                 } else {
                     testFeedbackTwoBack.innerText = "No Match!";
                     testFeedbackTwoBack.className = "incorrect";
-                    incorrectSound.currentTime = 0;
-                    incorrectSound.play();
                 }
             }
         });
@@ -2049,12 +2067,12 @@
             console.log("Submitting NASA TLX Results to Firebase:", tlxResults);
 
             // Save NASA TLX results directly to Firebase
-            database.ref(`userSessions/${participantId}/${sessionId}/nasaTlxResults`).set({
+            database.ref(`userSessions/${participantId}/nasaTlxResults`).push({
                 timestamp: Date.now(),
                 ...tlxResults
             })
             .then(() => {
-                alert("Thank you for your feedback! Data submitted successfully to Firebase.");
+                alert("Thank you for your feedback!");
                 console.log('NASA TLX data saved to Firebase.');
                 showSection('thank-you-screen', 'nasa-tlx-form-section');
             })
