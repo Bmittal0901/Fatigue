@@ -801,16 +801,32 @@
             text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
         }
 
-        #matchBtn {
-            width: 60%;
-            padding: 18px;
-            font-size: 20px;
-            border-radius: 10px;
-            border: none;
-            color: white;
-            background-color: #2ecc71; /* Green */
-            font-weight: bold;
+        #mobileControls {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
         }
+
+        #matchBtn {
+            width: 70%;
+            max-width: 250px;
+            height: 60px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: white;
+            background: linear-gradient(135deg, #28a745, #218838);
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s ease, background 0.3s ease;
+        }
+
+        #matchBtn:active {
+            transform: scale(0.95);
+            background: linear-gradient(135deg, #218838, #1e7e34);
+        }
+
 
 
         @keyframes stimulusPop {
@@ -2346,6 +2362,7 @@ function showNextWordStroop() {
                 clearTimeout(blankTimeoutIdTwoBack);
                 testActiveTwoBack = false;
                 stimulusVisible = false;
+                mobileControls.style.display = "none"; // Hide Match button
                 stimulusDisplayTwoBack.style.display = "none";
                 testFeedbackTwoBack.innerText = "";
                 resultsScreenTwoBack.style.display = "block";
