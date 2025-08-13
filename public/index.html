@@ -801,6 +801,18 @@
             text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
         }
 
+        #matchBtn {
+            width: 60%;
+            padding: 18px;
+            font-size: 20px;
+            border-radius: 10px;
+            border: none;
+            color: white;
+            background-color: #2ecc71; /* Green */
+            font-weight: bold;
+        }
+
+
         @keyframes stimulusPop {
             0% {
                 transform: scale(0.5);
@@ -1255,6 +1267,9 @@
 
         <div id="testFeedbackTwoBack"></div>
         <div id="stimulus" style="display: none;">-</div>
+        <div id="mobileControls" style="display:none; margin-top:20px; text-align:center;">
+        <button id="matchBtn" class="btn-match" style="padding:15px; font-size:18px; margin:10px;">✅ Match</button>
+        </div>
 
         <div id="resultsScreenTwoBack">
             <h2>Challenge Complete!</h2>
@@ -2285,28 +2300,46 @@ function showNextWordStroop() {
             }
 
             function showStimulusAndSetTimer() {
-                showStimulusTwoBack();
-                // After STIMULUS_DURATION, hide the stimulus
-                blankTimeoutIdTwoBack = setTimeout(hideStimulusAndPrepareNext, STIMULUS_DURATION_TWOBACK);
-            }
+                    showStimulusTwoBack();
+                    // After STIMULUS_DURATION, hide the stimulus
+                    blankTimeoutIdTwoBack = setTimeout(hideStimulusAndPrepareNext, STIMULUS_DURATION_TWOBACK);
+                }
 
-            function startTwoBackTest() {
-                introScreenTwoBack.style.display = "none";
-                resultsScreenTwoBack.style.display = "none";
-                testFeedbackTwoBack.innerText = "";
-                stimulusDisplayTwoBack.innerText = "-"; // Reset displayed char
+                function startTwoBackTest() {
+        introScreenTwoBack.style.display = "none";
+        resultsScreenTwoBack.style.display = "none";
+        mobileControls.style.display = "block";  // Show Match button
+        testFeedbackTwoBack.innerText = "";
+        stimulusDisplayTwoBack.innerText = "-";
 
-                generateSequenceTwoBack();
-                currentIndexTwoBack = 0;
-                correctMatchesTwoBack = 0;
+        generateSequenceTwoBack();
+        currentIndexTwoBack = 0;
+        correctMatchesTwoBack = 0;
 
-                // Clear any lingering timeouts
-                clearTimeout(trialTimeoutIdTwoBack);
-                clearTimeout(blankTimeoutIdTwoBack);
+        clearTimeout(trialTimeoutIdTwoBack);
+        clearTimeout(blankTimeoutIdTwoBack);
 
-                // Start the first trial after a short delay
-                setTimeout(showStimulusAndSetTimer, 500); // Give a brief moment before first stimulus
-            }
+        setTimeout(showStimulusAndSetTimer, 500);
+    }
+
+    document.getElementById("matchBtn").addEventListener("click", () => {
+        if (!testActiveTwoBack || !stimulusVisible) return;
+
+        testActiveTwoBack = false; // prevent multiple taps
+        const currentLetter = testSequenceTwoBack[currentIndexTwoBack];
+        const letterTwoBack = testSequenceTwoBack[currentIndexTwoBack - 2];
+        const isMatchExpected = (currentIndexTwoBack >= 2 && currentLetter === letterTwoBack);
+
+        if (isMatchExpected) {
+            correctMatchesTwoBack++;
+            testFeedbackTwoBack.innerText = "Correct!";
+            testFeedbackTwoBack.className = "correct";
+        } else {
+            testFeedbackTwoBack.innerText = "Wrong!";
+            testFeedbackTwoBack.className = "incorrect";
+        }
+    });
+
 
             function endTestTwoBack() {
                 clearTimeout(trialTimeoutIdTwoBack);
