@@ -1,29 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Brain Games Central: Complete Cognitive Battery</title>
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='-.1em' font-size='100'%3E🧠%3C/text%3E%3C/svg%3E" />
+    <link rel="icon"
+        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='-.1em' font-size='100'%3E🧠%3C/text%3E%3C/svg%3E" />
 
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Inter:wght@300;400;500;700&family=Quicksand:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Inter:wght@300;400;500;700&family=Quicksand:wght@300;400;500;700&display=swap"
+        rel="stylesheet">
 
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js">
+    document.getElementById("nasaTlxForm").addEventListener("submit", function (e) {
+        e.preventDefault(); // prevent reload
+        showSection('stroop-test-section', 'nasa-tlx-form-section');
+    });
+    </script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 
     <style>
         /* CSS Variables for a more maintainable and impressive palette */
         :root {
-            --primary-blue: #4a90e2; /* Deep playful blue */
-            --secondary-cyan: #7ed6df; /* Lighter complementary cyan */
-            --accent-purple: #8e7bff; /* Vibrant accent purple */
-            --accent-orange: #ffb703; /* Cheerful orange */
-            --bg-dark-blue: #1d3557; /* Dark background blue */
-            --bg-light-blue: #a8dadc; /* Light background blue */
-            --card-bg: #ffffff; /* White card background */
-            --text-dark: #333333; /* Dark grey for most text */
-            --text-light: #f0f0f0; /* Light text for dark backgrounds */
+            --primary-blue: #4a90e2;
+            /* Deep playful blue */
+            --secondary-cyan: #7ed6df;
+            /* Lighter complementary cyan */
+            --accent-purple: #8e7bff;
+            /* Vibrant accent purple */
+            --accent-orange: #ffb703;
+            /* Cheerful orange */
+            --bg-dark-blue: #1d3557;
+            /* Dark background blue */
+            --bg-light-blue: #a8dadc;
+            /* Light background blue */
+            --card-bg: #ffffff;
+            /* White card background */
+            --text-dark: #333333;
+            /* Dark grey for most text */
+            --text-light: #f0f0f0;
+            /* Light text for dark backgrounds */
             --shadow-light: rgba(0, 0, 0, 0.1);
             --shadow-medium: rgba(0, 0, 0, 0.15);
             --shadow-heavy: rgba(0, 0, 0, 0.25);
@@ -62,8 +80,8 @@
             width: 100%;
             height: 100%;
             background-size: 30px 30px;
-            background-image: linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px),
-                              linear-gradient(to bottom, rgba(255,255,255,0.05) 1px, transparent 1px);
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
             animation: panGrid 60s linear infinite;
             opacity: 0.8;
             z-index: 0;
@@ -71,8 +89,13 @@
         }
 
         @keyframes panGrid {
-            from { background-position: 0 0; }
-            to { background-position: 300px 300px; }
+            from {
+                background-position: 0 0;
+            }
+
+            to {
+                background-position: 300px 300px;
+            }
         }
 
         /* Playful background shapes */
@@ -86,16 +109,66 @@
             pointer-events: none;
         }
 
-        .shape-1 { background: var(--accent-orange); width: 150px; height: 150px; top: 10%; left: -5%; animation-delay: 0s; }
-        .shape-2 { background: var(--accent-purple); width: 110px; height: 110px; top: 40%; right: -7%; animation-delay: 3s; }
-        .shape-3 { background: var(--secondary-cyan); width: 170px; height: 170px; bottom: 5%; left: 12%; animation-delay: 6s; }
-        .shape-4 { background: var(--primary-blue); width: 90px; height: 90px; top: 20%; right: 20%; animation-delay: 9s; }
-        .shape-5 { background: var(--accent-orange); width: 140px; height: 140px; bottom: 30%; left: -8%; animation-delay: 12s; }
+        .shape-1 {
+            background: var(--accent-orange);
+            width: 150px;
+            height: 150px;
+            top: 10%;
+            left: -5%;
+            animation-delay: 0s;
+        }
+
+        .shape-2 {
+            background: var(--accent-purple);
+            width: 110px;
+            height: 110px;
+            top: 40%;
+            right: -7%;
+            animation-delay: 3s;
+        }
+
+        .shape-3 {
+            background: var(--secondary-cyan);
+            width: 170px;
+            height: 170px;
+            bottom: 5%;
+            left: 12%;
+            animation-delay: 6s;
+        }
+
+        .shape-4 {
+            background: var(--primary-blue);
+            width: 90px;
+            height: 90px;
+            top: 20%;
+            right: 20%;
+            animation-delay: 9s;
+        }
+
+        .shape-5 {
+            background: var(--accent-orange);
+            width: 140px;
+            height: 140px;
+            bottom: 30%;
+            left: -8%;
+            animation-delay: 12s;
+        }
 
         @keyframes floatAndFade {
-            0% { transform: translate(0, 0) scale(1); opacity: 0.2; }
-            50% { transform: translate(25px, -25px) scale(1.05); opacity: 0.3; }
-            100% { transform: translate(0, 0) scale(1); opacity: 0.2; }
+            0% {
+                transform: translate(0, 0) scale(1);
+                opacity: 0.2;
+            }
+
+            50% {
+                transform: translate(25px, -25px) scale(1.05);
+                opacity: 0.3;
+            }
+
+            100% {
+                transform: translate(0, 0) scale(1);
+                opacity: 0.2;
+            }
         }
 
         /* Header Styling */
@@ -127,13 +200,27 @@
         }
 
         @keyframes fadeInDown {
-            from { opacity: 0; transform: translateY(-30px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         /* Game Section Styling (The "Card" effect) */
@@ -162,13 +249,14 @@
             box-shadow: 0 20px 50px var(--shadow-medium);
         }
 
-        h2, h3 {
+        h2,
+        h3 {
             font-family: 'Fredoka One', cursive;
             color: var(--primary-blue);
             text-align: center;
             margin-bottom: 15px;
             font-size: 1.8em;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.05);
         }
 
         p {
@@ -181,7 +269,13 @@
         }
 
         /* Button Styling - Unified & Impressive */
-        .start-btn, .color-btn, .next-btn, .replay-btn, #two-back-test-section button, .nasa-tlx-form button, .btn {
+        .start-btn,
+        .color-btn,
+        .next-btn,
+        .replay-btn,
+        #two-back-test-section button,
+        .nasa-tlx-form button,
+        .btn {
             display: inline-block;
             padding: 12px 25px;
             margin: 8px 6px;
@@ -193,11 +287,12 @@
             transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             box-shadow: 0 5px 15px var(--shadow-light);
             color: var(--text-light);
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
             position: relative;
             overflow: hidden;
             background: linear-gradient(to right, var(--btn-color-start), var(--btn-color-end));
-            text-decoration: none; /* For anchor tags if used as buttons */
+            text-decoration: none;
+            /* For anchor tags if used as buttons */
         }
 
         .start-btn {
@@ -209,7 +304,13 @@
         }
 
         /* Shine effect on hover */
-        .start-btn::before, .color-btn::before, .next-btn::before, .replay-btn::before, #two-back-test-section button::before, .nasa-tlx-form button::before, .btn::before {
+        .start-btn::before,
+        .color-btn::before,
+        .next-btn::before,
+        .replay-btn::before,
+        #two-back-test-section button::before,
+        .nasa-tlx-form button::before,
+        .btn::before {
             content: '';
             position: absolute;
             top: 0;
@@ -221,19 +322,44 @@
             transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
         }
 
-        .start-btn:hover::before, .color-btn:hover::before, .next-btn:hover::before, .replay-btn:hover::before, #two-back-test-section button:hover::before, .nasa-tlx-form button:hover::before, .btn:hover::before {
+        .start-btn:hover::before,
+        .color-btn:hover::before,
+        .next-btn:hover::before,
+        .replay-btn:hover::before,
+        #two-back-test-section button:hover::before,
+        .nasa-tlx-form button:hover::before,
+        .btn:hover::before {
             left: 100%;
         }
 
         @keyframes pulse {
-            0% { transform: scale(1); box-shadow: 0 5px 15px var(--shadow-light); }
-            50% { transform: scale(1.02); box-shadow: 0 8px 20px var(--shadow-medium); }
-            100% { transform: scale(1); box-shadow: 0 5px 15px var(--shadow-light); }
+            0% {
+                transform: scale(1);
+                box-shadow: 0 5px 15px var(--shadow-light);
+            }
+
+            50% {
+                transform: scale(1.02);
+                box-shadow: 0 8px 20px var(--shadow-medium);
+            }
+
+            100% {
+                transform: scale(1);
+                box-shadow: 0 5px 15px var(--shadow-light);
+            }
         }
 
-        .start-btn:hover, .color-btn:hover, .next-btn:hover, .replay-btn:hover, #two-back-test-section button:hover, .nasa-tlx-form button:hover, .btn:hover {
-            --btn-color-start: #8338ec; /* Example for start-btn */
-            --btn-color-end: #d122b5; /* Example for start-btn */
+        .start-btn:hover,
+        .color-btn:hover,
+        .next-btn:hover,
+        .replay-btn:hover,
+        #two-back-test-section button:hover,
+        .nasa-tlx-form button:hover,
+        .btn:hover {
+            --btn-color-start: #8338ec;
+            /* Example for start-btn */
+            --btn-color-end: #d122b5;
+            /* Example for start-btn */
             transform: translateY(-3px) scale(1.01);
             box-shadow: 0 10px 25px var(--shadow-medium);
             animation: none;
@@ -249,26 +375,31 @@
             --btn-color-end: var(--secondary-cyan);
             margin-top: 15px;
         }
-        
+
         /* Specific button colors for main typing test */
         .btn-primary {
             --btn-color-start: var(--primary-blue);
             --btn-color-end: #347dc8;
         }
+
         .btn-success {
             --btn-color-start: #28a745;
             --btn-color-end: #218838;
         }
+
         .btn-info {
             --btn-color-start: #17a2b8;
             --btn-color-end: #138496;
         }
+
         .btn-warning {
             --btn-color-start: #ffc107;
             --btn-color-end: #e0a800;
-            color: var(--text-dark); /* Dark text for light background */
+            color: var(--text-dark);
+            /* Dark text for light background */
             text-shadow: none;
         }
+
         .btn-danger {
             --btn-color-start: #dc3545;
             --btn-color-end: #c82333;
@@ -277,13 +408,17 @@
 
         /* --- Welcome Screen --- */
         #welcome-screen {
-            display: flex; /* Default to show */
+            display: flex;
+            /* Default to show */
             flex-direction: column;
             align-items: center;
             justify-content: center;
             min-height: 300px;
         }
-        #welcome-screen h2 { color: var(--accent-purple); }
+
+        #welcome-screen h2 {
+            color: var(--accent-purple);
+        }
 
         /* --- New Typing Test Section (Demographics + Typing Area) --- */
         #demographics-typing-container {
@@ -292,7 +427,8 @@
             display: none;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start; /* Align content to top */
+            justify-content: flex-start;
+            /* Align content to top */
             padding: 30px;
         }
 
@@ -348,10 +484,11 @@
             color: #dc3545;
             font-size: 0.875em;
             margin-top: 0.25rem;
-            display: none; /* Controlled by JS for custom validation */
+            display: none;
+            /* Controlled by JS for custom validation */
         }
 
-        .form-control.is-invalid + .invalid-feedback {
+        .form-control.is-invalid+.invalid-feedback {
             display: block;
         }
 
@@ -365,9 +502,11 @@
         /* Main Typing Panel */
         .main-panel {
             width: 100%;
-            display: none; /* Hidden by default, shown after demographics */
+            display: none;
+            /* Hidden by default, shown after demographics */
             animation: fadeIn 0.8s ease-out;
-            padding-top: 20px; /* Add some space from demographics */
+            padding-top: 20px;
+            /* Add some space from demographics */
         }
 
         #typingSentence {
@@ -384,7 +523,7 @@
             align-items: center;
             justify-content: center;
             text-align: center;
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
             line-height: 1.4;
         }
 
@@ -395,7 +534,7 @@
             font-size: 1.2em;
             border: 2px solid var(--primary-blue);
             border-radius: 8px;
-            box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
             transition: border-color 0.3s ease, box-shadow 0.3s ease;
             resize: none;
             outline: none;
@@ -414,8 +553,14 @@
             font-weight: 500;
             color: #6c757d;
         }
-        #statusLabel.text-success { color: #28a745; }
-        #statusLabel.text-danger { color: #dc3545; }
+
+        #statusLabel.text-success {
+            color: #28a745;
+        }
+
+        #statusLabel.text-danger {
+            color: #dc3545;
+        }
 
         #submitSentenceButton {
             margin-top: 20px;
@@ -425,18 +570,19 @@
 
         /* Performance Analytics / Metrics Display */
         #metricsDisplay {
-            margin-top: 30px;
-            background-color: #f8f9fa;
-            border: 1px solid #e0e0e0;
-            border-radius: 15px;
-            padding: 25px;
-            width: 100%;
-            max-width: 450px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-            display: none; /* Hidden until test complete */
-            animation: fadeIn 0.8s ease-out;
-            text-align: left;
-        }
+    max-width: 900px;
+    width: 100%;
+    margin: 30px auto;
+    background-color: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+    display: none; /* Hidden until test complete */
+    animation: fadeIn 0.8s ease-out;
+    text-align: center;
+}
+
 
         #metricsDisplay h3 {
             color: #34495e;
@@ -467,6 +613,7 @@
             margin-top: 25px;
             gap: 10px;
         }
+
         .admin-buttons .btn {
             font-size: 0.9em;
             padding: 10px 18px;
@@ -476,7 +623,8 @@
         /* --- Stroop Test Styles --- */
         #stroop-test-section {
             background-color: var(--card-bg);
-            display: none; /* Hidden by default */
+            display: none;
+            /* Hidden by default */
         }
 
         #stroop-test-section h2 {
@@ -486,6 +634,7 @@
         .example {
             background-color: #f0f7ff;
             padding: 15px;
+            align-items: center;
             border-radius: 10px;
             margin: 15px auto;
             border: 1px dashed #a8dadc;
@@ -508,25 +657,53 @@
             justify-content: center;
             transition: transform 0.15s ease-out, opacity 0.15s ease-out;
             animation: wordPopIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
         }
 
         @keyframes wordPopIn {
-            0% { transform: scale(0.7); opacity: 0; }
-            70% { transform: scale(1.05); opacity: 1; }
-            100% { transform: scale(1); }
+            0% {
+                transform: scale(0.7);
+                opacity: 0;
+            }
+
+            70% {
+                transform: scale(1.05);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1);
+            }
         }
 
         #buttonsStroop {
             display: flex;
             justify-content: center;
             flex-wrap: wrap;
+            margin:20px auto;
         }
 
-        .color-btn.red { --btn-color-start: #e74c3c; --btn-color-end: #c0392b; }
-        .color-btn.blue { --btn-color-start: #3498db; --btn-color-end: #2980b9; }
-        .color-btn.green { --btn-color-start: #2ecc71; --btn-color-end: #27ae60; }
-        .color-btn.yellow { --btn-color-start: #f1c40f; --btn-color-end: #f39c12; color: var(--text-dark); text-shadow: none; }
+        .color-btn.red {
+            --btn-color-start: #e74c3c;
+            --btn-color-end: #c0392b;
+        }
+
+        .color-btn.blue {
+            --btn-color-start: #3498db;
+            --btn-color-end: #2980b9;
+        }
+
+        .color-btn.green {
+            --btn-color-start: #2ecc71;
+            --btn-color-end: #27ae60;
+        }
+
+        .color-btn.yellow {
+            --btn-color-start: #f1c40f;
+            --btn-color-end: #f39c12;
+            color: var(--text-dark);
+            text-shadow: none;
+        }
 
         .color-btn:hover {
             transform: translateY(-3px) scale(1.01);
@@ -552,8 +729,15 @@
             transform: translate(-50%, -50%) scale(1.1);
         }
 
-        #feedback.correct { color: #2ecc71; text-shadow: 0 0 10px rgba(0,255,0,0.7); }
-        #feedback.incorrect { color: #e74c3c; text-shadow: 0 0 10px rgba(255,0,0,0.7); }
+        #feedback.correct {
+            color: #2ecc71;
+            text-shadow: 0 0 10px rgba(0, 255, 0, 0.7);
+        }
+
+        #feedback.incorrect {
+            color: #e74c3c;
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.7);
+        }
 
         #resultDisplay {
             margin-top: 20px;
@@ -570,7 +754,7 @@
             background-color: #f8f8f8;
             padding: 8px 15px;
             border-radius: 15px;
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.08);
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08);
             font-weight: 500;
         }
 
@@ -579,7 +763,8 @@
             background: var(--card-bg);
             box-shadow: 0 15px 40px var(--shadow-heavy);
             border-radius: var(--border-radius-card);
-            display: none; /* Hidden by default */
+            display: none;
+            /* Hidden by default */
             flex-direction: column;
             align-items: center;
             justify-content: center;
@@ -590,7 +775,7 @@
             font-size: 2.2rem;
             margin-bottom: 15px;
             color: var(--accent-purple);
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.08);
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.08);
         }
 
         #two-back-test-section p {
@@ -613,13 +798,23 @@
             font-weight: bold;
             color: var(--primary-blue);
             animation: stimulusPop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-            text-shadow: 2px 2px 8px rgba(0,0,0,0.2);
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
         }
 
         @keyframes stimulusPop {
-            0% { transform: scale(0.5); opacity: 0; }
-            70% { transform: scale(1.1); opacity: 1; }
-            100% { transform: scale(1); }
+            0% {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+
+            70% {
+                transform: scale(1.1);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1);
+            }
         }
 
         #testFeedbackTwoBack {
@@ -629,7 +824,7 @@
             min-height: 2rem;
             text-align: center;
             width: 100%;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.15);
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.15);
         }
 
         #testFeedbackTwoBack.correct {
@@ -658,13 +853,43 @@
             border-radius: 50%;
         }
 
-        .ball:nth-child(1) { background: rgba(var(--secondary-cyan-rgb), 0.15); width: 150px; height: 150px; top: 8%; left: 6%; animation-delay: 0s; }
-        .ball:nth-child(2) { background: rgba(var(--accent-purple-rgb), 0.15); width: 100px; height: 100px; top: 50%; right: 10%; animation-delay: 4s; }
-        .ball:nth-child(3) { background: rgba(var(--accent-orange-rgb), 0.15); width: 180px; height: 180px; bottom: 8%; left: -3%; animation-delay: 8s; }
+        .ball:nth-child(1) {
+            background: rgba(var(--secondary-cyan-rgb), 0.15);
+            width: 150px;
+            height: 150px;
+            top: 8%;
+            left: 6%;
+            animation-delay: 0s;
+        }
+
+        .ball:nth-child(2) {
+            background: rgba(var(--accent-purple-rgb), 0.15);
+            width: 100px;
+            height: 100px;
+            top: 50%;
+            right: 10%;
+            animation-delay: 4s;
+        }
+
+        .ball:nth-child(3) {
+            background: rgba(var(--accent-orange-rgb), 0.15);
+            width: 180px;
+            height: 180px;
+            bottom: 8%;
+            left: -3%;
+            animation-delay: 8s;
+        }
 
         @keyframes float {
-            0%, 100% { transform: translateY(0) translateX(0) scale(1); }
-            50% { transform: translateY(-30px) translateX(15px) scale(1.03); }
+
+            0%,
+            100% {
+                transform: translateY(0) translateX(0) scale(1);
+            }
+
+            50% {
+                transform: translateY(-30px) translateX(15px) scale(1.03);
+            }
         }
 
         #resultsScreenTwoBack {
@@ -677,7 +902,8 @@
         /* --- NASA TLX Form Styles (integrated from previous response) --- */
         #nasa-tlx-form-section {
             background-color: var(--card-bg);
-            display: none; /* Hidden by default */
+            display: none;
+            /* Hidden by default */
         }
 
         .nasa-tlx-form h2 {
@@ -732,7 +958,7 @@
             margin: 0;
             padding: 0;
             cursor: pointer;
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
         .nasa-tlx-form input[type="range"]::-webkit-slider-thumb {
@@ -744,7 +970,7 @@
             background: #4a90e2;
             border: 3px solid #ffffff;
             cursor: pointer;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
             transition: background 0.3s ease, border-color 0.3s ease;
         }
 
@@ -755,12 +981,17 @@
             background: #4a90e2;
             border: 3px solid #ffffff;
             cursor: pointer;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
             transition: background 0.3s ease, border-color 0.3s ease;
         }
 
-        .nasa-tlx-form input[type="range"]:hover::-webkit-slider-thumb { background: #357ABD; }
-        .nasa-tlx-form input[type="range"]:hover::-moz-range-thumb { background: #357ABD; }
+        .nasa-tlx-form input[type="range"]:hover::-webkit-slider-thumb {
+            background: #357ABD;
+        }
+
+        .nasa-tlx-form input[type="range"]:hover::-moz-range-thumb {
+            background: #357ABD;
+        }
 
         .nasa-tlx-form .scale-labels {
             display: flex;
@@ -770,8 +1001,13 @@
             margin-top: 5px;
         }
 
-        .nasa-tlx-form .scale-labels span:first-child { text-align: left; }
-        .nasa-tlx-form .scale-labels span:last-child { text-align: right; }
+        .nasa-tlx-form .scale-labels span:first-child {
+            text-align: left;
+        }
+
+        .nasa-tlx-form .scale-labels span:last-child {
+            text-align: right;
+        }
 
         .nasa-tlx-form .rating-value {
             position: absolute;
@@ -787,7 +1023,24 @@
             transition: opacity 0.2s ease;
         }
 
-        .nasa-tlx-form input[type="range"].show-value + .rating-value { opacity: 1; }
+        .nasa-tlx-form input[type="range"].show-value+.rating-value {
+            opacity: 1;
+        }
+
+         #continueToNASATLXButton {
+            background-color: #4CAF50;
+            color: white;
+            font-size: 1.1em;
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+        }
+
+        #continueToNASATLXButton:hover {
+            background-color: #45a049;
+        }
+
 
         .nasa-tlx-form button[type="submit"] {
             --btn-color-start: #28a745;
@@ -799,25 +1052,28 @@
         #thank-you-screen {
             min-height: 250px;
             padding: 40px;
-            display: none; /* Hidden by default */
+            display: none;
+            /* Hidden by default */
             flex-direction: column;
             align-items: center;
             justify-content: center;
         }
+
         #thank-you-screen h2 {
             color: var(--accent-purple);
             font-size: 2.5em;
             margin-bottom: 20px;
         }
+
         #thank-you-screen p {
             font-size: 1.1em;
             margin-bottom: 30px;
         }
     </style>
 </head>
+
 <body>
     <div class="animated-grid"></div>
-
     <div class="playful-bg-shape shape-1"></div>
     <div class="playful-bg-shape shape-2"></div>
     <div class="playful-bg-shape shape-3"></div>
@@ -831,8 +1087,10 @@
 
     <div class="game-section" id="welcome-screen">
         <h2>Welcome to Your Cognitive Challenge!</h2>
-        <p>This experience will guide you through a series of cognitive tests, starting with a Typing Test, followed by the Stroop Test and 2-Back Challenge, and concluding with a brief questionnaire about your workload.</p>
-        <button class="start-btn" onclick="showSection('demographics-typing-container', 'welcome-screen')">Start Your Journey!</button>
+        <p>This experience will guide you through a series of cognitive tests, starting with a Typing Test, followed by
+            brief questionnaire about your workload and then the Stroop Test and 2-Back Challenge.</p>
+        <button class="start-btn" onclick="showSection('demographics-typing-container', 'welcome-screen')">Start Your
+            Journey!</button>
     </div>
 
     <div class="game-section" id="demographics-typing-container" style="display: none;">
@@ -880,7 +1138,8 @@
                 </div>
                 <div class="form-group">
                     <label for="occupation">Occupation:</label>
-                    <input type="text" class="form-control" id="occupation" required placeholder="e.g., Student, Engineer">
+                    <input type="text" class="form-control" id="occupation" required
+                        placeholder="e.g., Student, Engineer">
                     <div class="invalid-feedback">Occupation is required.</div>
                 </div>
                 <div class="form-group">
@@ -898,23 +1157,36 @@
             </form>
         </div>
 
+        <div id="instructionScreen" class="card p-3 mb-3" style="display: none;">
+            <h5>Instructions</h5>
+            <p>You will go through a typing test where you type a few sentences in blocks. After each block, you will
+                get a short break.</p>
+            <ul>
+                <li>Your typing speed, accuracy, and behavior will be measured.</li>
+                <li>Stay focused and avoid distractions.</li>
+            </ul>
+            <button id="beginTypingTestButton" class="btn btn-primary">Begin Typing Test</button>
+        </div>
         <div class="main-panel" style="display: none;">
             <h2>Typing Test ⌨️</h2>
             <p id="typingSentence" class="alert alert-info">Loading sentences...</p>
-            <textarea id="typingArea" class="form-control" rows="5" placeholder="Type the sentence here..." disabled></textarea>
+            <textarea id="typingArea" class="form-control" rows="5" placeholder="Type the sentence here..."
+                disabled></textarea>
             <p id="statusLabel" class="mt-3"></p>
             <button id="submitSentenceButton" class="btn btn-success mt-4">Submit Sentence</button>
 
             <div id="metricsDisplay" class="mt-4">
-                <h3>Performance Analytics</h3>
                 <div id="finalMetricsContent">
                     <p class='text-muted'>No data available yet.</p>
                 </div>
                 <div class="admin-buttons">
-                    <button id="downloadLogButton" class="btn btn-info" style="display: none;">Download Summary CSV</button>
+                    <button id="downloadLogButton" class="btn btn-info" style="display: none;">Download Summary
+                        CSV</button>
                     <button id="clearLogButton" class="btn btn-danger" style="display: none;">Clear All Data</button>
                 </div>
-                <button class="next-btn mt-4" id="continueToStroopButton" style="display: none;" onclick="showNextContinuousTest()">Continue to Stroop Test</button>
+                <button id="continueToNASATLXButton" class="next-btn mt-4" style="display: none;">
+                Continue to NASA-TLX
+                </button>
             </div>
         </div>
     </div>
@@ -922,12 +1194,18 @@
     <div class="game-section" id="stroop-test-section" style="display: none;">
         <div id="introScreenStroop">
             <h2>Stroop Test 🧠</h2>
-            <p>Your goal: Identify the *ink color* of each word, not the word itself. This test will run for **30 seconds**. Focus on both speed and accuracy.</p>
-            <p>Use the buttons below or the keyboard shortcuts: <span style="font-weight: bold;">R</span> for Red, <span style="font-weight: bold;">B</span> for Blue, <span style="font-weight: bold;">G</span> for Green, <span style="font-weight: bold;">Y</span> for Yellow.</p>
+            <p>Your goal: Identify the *ink color* of each word, not the word itself. This test will run for **30
+                seconds**. Focus on both speed and accuracy.</p>
+            <p>Use the buttons below or the keyboard shortcuts: <span style="font-weight: bold;">R</span> for Red, <span
+                    style="font-weight: bold;">B</span> for Blue, <span style="font-weight: bold;">G</span> for Green,
+                <span style="font-weight: bold;">Y</span> for Yellow.
+            </p>
 
             <div class="example">
                 <p style="font-weight: 500;"><strong>Example:</strong></p>
-                <div style="font-family: 'Fredoka One', cursive; font-size: 36px; font-weight: bold; color: red; margin: 10px 0;">BLUE</div>
+                <div
+                    style="font-family: 'Fredoka One', cursive; font-size: 36px; font-weight: bold; color: red; margin: 10px 0;align-items: center;">
+                    BLUE</div>
                 <p style="margin-top: 15px;">You should select <strong>RED</strong>.</p>
             </div>
 
@@ -954,7 +1232,8 @@
             <h3>Stroop Test Complete!</h3>
             <p>Time's up! Here are your results:</p>
             <p id="resultDisplay">You correctly identified <span id="finalCorrectCountStroop">0</span> words!</p>
-            <button class="next-btn" onclick="showSection('two-back-test-section', 'stroop-test-section')">Continue to 2-Back Challenge</button>
+            <button class="next-btn" onclick="showSection('two-back-test-section', 'stroop-test-section')">Continue to
+                2-Back Challenge</button>
         </div>
     </div>
 
@@ -968,7 +1247,8 @@
         <div id="introScreenTwoBack">
             <h1>2-Back Challenge</h1>
             <p>Sharpen your working memory! A letter will appear on screen for a short time.</p>
-            <p>Your mission: Press the <span style="color: #4e54c8; font-weight: bold;">M key</span> on your keyboard if the current letter matches the letter that appeared *2 steps back* in the sequence.</p>
+            <p>Your mission: Press the <span style="color: #4e54c8; font-weight: bold;">M key</span> on your keyboard if
+                the current letter matches the letter that appeared *2 steps back* in the sequence.</p>
             <p>Stay focused; this challenge requires your full attention!</p>
             <button id="startButtonTwoBack" class="start-btn">Start Challenge</button>
         </div>
@@ -978,8 +1258,9 @@
 
         <div id="resultsScreenTwoBack">
             <h2>Challenge Complete!</h2>
-            <p id="resultDisplayTwoBack">You correctly identified <span id="finalCorrectCountTwoBack">0</span> matches!</p>
-            <button class="next-btn" onclick="showSection('nasa-tlx-form-section', 'two-back-test-section')">Continue to Assessment</button>
+            <p id="resultDisplayTwoBack">You correctly identified <span id="finalCorrectCountTwoBack">0</span> matches!
+            </p>
+            <button class="next-btn" onclick="showSection('thank-you-screen', 'two-back-test-section')">Finish Assessment</button>
         </div>
     </div>
 
@@ -987,18 +1268,21 @@
         <div class="nasa-tlx-form">
             <h2>Workload Assessment</h2>
             <div class="instructions">
-                <p>Thank you for participating in the cognitive tasks! Please evaluate your experience. Consider all three tasks (Typing, Stroop Test, and 2-Back Challenge) together as one overall experience.</p>
-                <p>For each of the six scales below, place a mark on the line that corresponds to your experience. Read the descriptions carefully and rate each factor honestly.</p>
+                <p>Please evaluate your experience.</p>
+                <p>For each of the six scales below, place a mark on the line that corresponds to your experience. Read
+                    the descriptions carefully and rate each factor honestly.</p>
             </div>
 
             <form id="nasaTlxForm">
                 <div class="nasa-tlx-factor-block">
                     <label for="mentalDemand">
                         1. Mental Demand:<br>
-                        How much mental and perceptual activity was required (e.g., thinking, deciding, calculating, remembering, looking, searching, etc.)?
+                        How much mental and perceptual activity was required (e.g., thinking, deciding, calculating,
+                        remembering, looking, searching, etc.)?
                     </label>
                     <div class="scale-container">
-                        <input type="range" id="mentalDemand" name="mentalDemand" min="0" max="20" value="10" oninput="updateTlxRangeValue(this)">
+                        <input type="range" id="mentalDemand" name="mentalDemand" min="0" max="20" value="10"
+                            oninput="updateTlxRangeValue(this)">
                         <span class="rating-value">10</span>
                     </div>
                     <div class="scale-labels">
@@ -1010,10 +1294,12 @@
                 <div class="nasa-tlx-factor-block">
                     <label for="physicalDemand">
                         2. Physical Demand:<br>
-                        How much physical activity was required (e.g., pushing, pulling, turning, controlling, activating, etc.)?
+                        How much physical activity was required (e.g., pushing, pulling, turning, controlling,
+                        activating, etc.)?
                     </label>
                     <div class="scale-container">
-                        <input type="range" id="physicalDemand" name="physicalDemand" min="0" max="20" value="10" oninput="updateTlxRangeValue(this)">
+                        <input type="range" id="physicalDemand" name="physicalDemand" min="0" max="20" value="10"
+                            oninput="updateTlxRangeValue(this)">
                         <span class="rating-value">10</span>
                     </div>
                     <div class="scale-labels">
@@ -1025,10 +1311,12 @@
                 <div class="nasa-tlx-factor-block">
                     <label for="temporalDemand">
                         3. Temporal Demand:<br>
-                        How much time pressure did you feel due to the rate or pace at which the tasks or task elements occurred?
+                        How much time pressure did you feel due to the rate or pace at which the tasks or task elements
+                        occurred?
                     </label>
                     <div class="scale-container">
-                        <input type="range" id="temporalDemand" name="temporalDemand" min="0" max="20" value="10" oninput="updateTlxRangeValue(this)">
+                        <input type="range" id="temporalDemand" name="temporalDemand" min="0" max="20" value="10"
+                            oninput="updateTlxRangeValue(this)">
                         <span class="rating-value">10</span>
                     </div>
                     <div class="scale-labels">
@@ -1040,17 +1328,20 @@
                 <div class="nasa-tlx-factor-block">
                     <label for="performance">
                         4. Performance:<br>
-                        How successful were you in accomplishing the goals of the task? How satisfied were you with your performance?
+                        How successful were you in accomplishing the goals of the task? How satisfied were you with your
+                        performance?
                     </label>
                     <div class="scale-container">
-                        <input type="range" id="performance" name="performance" min="0" max="20" value="10" oninput="updateTlxRangeValue(this)">
+                        <input type="range" id="performance" name="performance" min="0" max="20" value="10"
+                            oninput="updateTlxRangeValue(this)">
                         <span class="rating-value">10</span>
                     </div>
                     <div class="scale-labels">
                         <span>Perfect</span>
                         <span>Failure</span>
                     </div>
-                    <p style="font-size:0.85em; color:#777; text-align:right; margin-top:5px;">(Note: For 'Performance', 'Low' represents 'Perfect' and 'High' represents 'Failure')</p>
+                    <p style="font-size:0.85em; color:#777; text-align:right; margin-top:5px;">(Note: For 'Performance',
+                        'Low' represents 'Perfect' and 'High' represents 'Failure')</p>
                 </div>
 
                 <div class="nasa-tlx-factor-block">
@@ -1059,7 +1350,8 @@
                         How hard did you have to work (mentally and physically) to accomplish your level of performance?
                     </label>
                     <div class="scale-container">
-                        <input type="range" id="effort" name="effort" min="0" max="20" value="10" oninput="updateTlxRangeValue(this)">
+                        <input type="range" id="effort" name="effort" min="0" max="20" value="10"
+                            oninput="updateTlxRangeValue(this)">
                         <span class="rating-value">10</span>
                     </div>
                     <div class="scale-labels">
@@ -1071,10 +1363,12 @@
                 <div class="nasa-tlx-factor-block">
                     <label for="frustration">
                         6. Frustration:<br>
-                        How insecure, discouraged, irritated, stressed, or annoyed versus secure, gratified, content, relaxed, or complacent did you feel during the tasks?
+                        How insecure, discouraged, irritated, stressed, or annoyed versus secure, gratified, content,
+                        relaxed, or complacent did you feel during the tasks?
                     </label>
                     <div class="scale-container">
-                        <input type="range" id="frustration" name="frustration" min="0" max="20" value="10" oninput="updateTlxRangeValue(this)">
+                        <input type="range" id="frustration" name="frustration" min="0" max="20" value="10"
+                            oninput="updateTlxRangeValue(this)">
                         <span class="rating-value">10</span>
                     </div>
                     <div class="scale-labels">
@@ -1082,7 +1376,7 @@
                         <span>High</span>
                     </div>
                 </div>
-                <button type="submit">Submit Assessment</button>
+                <button type="submit">Submit </button>
             </form>
         </div>
     </div>
@@ -1096,34 +1390,6 @@
 
 
     <script>
-        // server.js or app.js
-const express = require('express');
-const path = require('path');
-const app = express();
-
-// ✅ Set CSP headers to allow Google Fonts
-app.use((req, res, next) => {
-  res.setHeader(
-    'Content-Security-Policy',
-    "default-src 'self'; style-src 'self' 'https://fonts.googleapis.com'; font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://www.gstatic.com;"
-  );
-  next();
-});
-
-// ✅ Serve static files (adjust if your folder is different)
-app.use(express.static(path.join(__dirname, 'public')));
-
-// ✅ Your routes (if any)
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-// ✅ Start server
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
-
         // --- Global Section Management ---
         // showSection function is now more general, hiding a current section and showing a new one.
         function showSection(sectionIdToShow, sectionIdToHide) {
@@ -1131,7 +1397,7 @@ app.listen(PORT, () => {
                 document.getElementById(sectionIdToHide).style.display = 'none';
             }
             // Use 'flex' for game-section display property
-            document.getElementById(sectionIdToShow).style.display = 'flex'; 
+            document.getElementById(sectionIdToShow).style.display = 'flex';
             window.scrollTo(0, 0); // Scroll to top of the page
         }
 
@@ -1174,8 +1440,18 @@ app.listen(PORT, () => {
 
         // Global Variables
         let allCorpusSentences = [];
-        const TEST_DURATION_MINUTES = 0.5;
+        const TEST_DURATION_MINUTES = 0.416;
         const TEST_DURATION_MS = TEST_DURATION_MINUTES * 60 * 1000;
+        const BLOCK_SEQUENCE = [
+            { type: 'typing', durationMs: 5000 },
+            { type: 'rest', durationMs: 5000 },
+            { type: 'typing', durationMs: 5000 },
+            { type: 'rest', durationMs: 5000 },
+            { type: 'typing', durationMs: 5000 },
+        ]; // Total: 3 minutes (45+15+45+15+45)
+
+        let blockIndex = 0;
+        let blockTimeoutId = null;
         let currentTestSentences = [];
         let currentSentenceIndex = 0;
         let logs = [];
@@ -1192,6 +1468,36 @@ app.listen(PORT, () => {
         //     '2005': 'adminpass123', // Example: { 'AdminID': 'password' }
         //     '1001': 'securepass'
         // };
+
+        function runNextBlock() {
+            if (blockIndex >= BLOCK_SEQUENCE.length) {
+                endTypingTest();
+                return;
+            }
+
+            const currentBlock = BLOCK_SEQUENCE[blockIndex];
+            blockIndex++;
+
+            if (currentBlock.type === 'typing') {
+                testIsActive = true;
+                document.getElementById('typingArea').style.display='block';
+                submitSentenceButton.style.display = 'block';   
+                displayNextSentence();
+                statusLabel.classList.remove('text-danger');
+                statusLabel.classList.add('text-success');
+            } else if (currentBlock.type === 'rest') {
+                testIsActive = false;
+                document.getElementById('typingArea').style.display='none';
+                typingArea.disabled = true;
+                submitSentenceButton.style.display = 'none';
+                typingSentenceElement.innerText = '⏳ Rest Time — Relax for 15 seconds.';
+                statusLabel.innerText = ' ';
+                statusLabel.classList.remove('text-success');
+                statusLabel.classList.add('text-warning');
+            }
+
+            blockTimeoutId = setTimeout(runNextBlock, currentBlock.durationMs);
+        }
 
         // Prevent cursor movement via arrow keys, Home/End
         typingArea.addEventListener('keydown', (e) => {
@@ -1235,7 +1541,7 @@ app.listen(PORT, () => {
         }
 
         // Function to fetch corpus.txt
-        async function loadCorpus() {
+                async function loadCorpus() {
             try {
                 const response = await fetch('corpus.txt');
                 if (!response.ok) {
@@ -1279,36 +1585,28 @@ app.listen(PORT, () => {
         }
 
         // Function to end the typing test
+        // Function to end the typing test
         function endTypingTest() {
-            if (!testIsActive) return; // Prevent multiple calls
+    // Show a message and stop the timer
+    clearTimeout(blockTimeoutId);
 
-            testIsActive = false;
-            // clearInterval(timerIntervalId); // REMOVED: No interval to clear
+    // Hide the typing area and submit button
+    document.getElementById('typingSentence').style.display = 'none';
+    document.getElementById('typingArea').style.display = 'none';
+    document.getElementById('submitSentenceButton').style.display = 'none';
+    document.getElementById('statusLabel').style.display = 'none';
+    document.getElementById('demographics-form-container').style.display = 'none';
+    document.getElementById('instructionScreen').style.display = 'none';
+    
+    // Immediately show the metrics display and the continue button
+    document.getElementById('metricsDisplay').style.display = 'block';
+    document.getElementById('continueToNASATLXButton').style.display = 'block';
 
-            typingSentenceElement.innerText = "Typing Test Complete! Your summary is below.";
-            typingArea.disabled = true;
-            submitSentenceButton.style.display = 'none';
+    // Update the final metrics to show the completion message
+    document.getElementById('finalMetricsContent').innerHTML = '<h3>Typing Test Complete!</h3><p>Please click "Continue" to proceed to the next section.</p>';
 
-            statusLabel.innerText = "Test completed! Review Performance Analytics.";
-            statusLabel.classList.remove('text-danger');
-            statusLabel.classList.add('text-success');
+}
 
-            showFinalMetrics();
-
-            // Show button to continue to the next test
-            continueToStroopButton.style.display = 'block';
-
-            if (typeof confetti !== 'undefined') {
-                confetti({
-                    particleCount: 100,
-                    spread: 70,
-                    origin: { y: 0.6 }
-                });
-            }
-            // Re-enable demographics fields for a new test
-            document.getElementById('demographicsForm').querySelectorAll('input, select, button').forEach(el => el.disabled = false);
-            document.getElementById('startTestButton').disabled = false;
-        }
 
 
         // Function to handle the "Start Test" button click (Demographics submission)
@@ -1383,734 +1681,770 @@ app.listen(PORT, () => {
                     document.getElementById('demographicsForm').querySelectorAll('input, select, button').forEach(el => el.disabled = true);
                     document.getElementById('startTestButton').disabled = true; // explicitly disable start button
                     document.getElementById('demographics-form-container').style.display = 'none'; // Hide demographics form
-                    document.querySelector('.main-panel').style.display = 'block'; // Show the main test panel
+                    document.getElementById('instructionScreen').style.display = 'block'; // Show the main test panel
 
 
                     // For a timed test, we can pre-select many sentences or simply iterate
                     // Let's shuffle the entire corpus and just keep presenting from it
-                    const shuffledCorpus = [...allCorpusSentences].sort(() => 0.5 - Math.random());
-                    currentTestSentences = shuffledCorpus; // Use the entire shuffled corpus
-                    currentSentenceIndex = 0;
-                    logs = [];
 
-                    typingArea.value = '';
-                    typingArea.disabled = true; // Will be enabled by displayNextSentence
-                    submitSentenceButton.style.display = 'none'; // Will be shown by displayNextSentence
+                    document.getElementById('beginTypingTestButton').addEventListener('click', () => {
+                        document.getElementById('instructionScreen').style.display = 'none';
+                        document.querySelector('.main-panel').style.display = 'block';
+                        const shuffledCorpus = [...allCorpusSentences].sort(() => 0.5 - Math.random());
+                        currentTestSentences = shuffledCorpus; // Use the entire shuffled corpus
+                        currentSentenceIndex = 0;
+                        logs = [];
 
-                    statusLabel.classList.remove('text-success', 'text-danger');
+                        typingArea.value = '';
+                        typingArea.disabled = true; // Will be enabled by displayNextSentence
+                        submitSentenceButton.style.display = 'none'; // Will be shown by displayNextSentence
 
-                    metricsDisplay.style.display = 'none'; // Hide summary metrics until end of test
-                    finalMetricsContent.innerHTML = "<p class='text-muted'>No data available yet.</p>"; // Reset summary display
-                    continueToStroopButton.style.display = 'none'; // Hide continue button initially
+                        statusLabel.classList.remove('text-success', 'text-danger');
 
-                    // Start the test timer (internal, no display)
-                    testStartTime = Date.now();
-                    testIsActive = true;
-                    // timerIntervalId = setInterval(updateTimerDisplay, 1000); // REMOVED: No display update needed
-                    // updateTimerDisplay(); // REMOVED: No display update needed
+                        metricsDisplay.style.display = 'none'; // Hide summary metrics until end of test
+                        finalMetricsContent.innerHTML = "<p class='text-muted'>No data available yet.</p>"; // Reset summary display
 
-                    displayNextSentence(); // Start the first sentence
+                        testStartTime = Date.now();
+                        blockIndex = 0;
+                        runNextBlock(); // ⬅️ Start the block sequence
+
+                    })
+                        .catch(error => {
+                            console.error("Error saving demographics:", error);
+                            alert("Failed to save demographics. Please try again.");
+                            // Re-enable form fields if there's an error saving to Firebase
+                            document.getElementById('demographicsForm').querySelectorAll('input, select, button').forEach(el => el.disabled = false);
+                            document.getElementById('startTestButton').disabled = false;
+                        });
                 })
-                .catch(error => {
-                    console.error("Error saving demographics:", error);
-                    alert("Failed to save demographics. Please try again.");
-                    // Re-enable form fields if there's an error saving to Firebase
-                    document.getElementById('demographicsForm').querySelectorAll('input, select, button').forEach(el => el.disabled = false);
-                    document.getElementById('startTestButton').disabled = false;
-                });
-        }
-
-
-        // Function to handle the "Submit Sentence" button click
-        function submitSentence() {
-            // Check if test has already become inactive due to time running out.
-            // This handles cases where user types quickly and then hits submit just as time expires.
-            if (!testIsActive) {
-                endTypingTest(); // This will show final metrics and hide elements
-                return;
-            }
-
-            const typedText = typingArea.value.trim();
-            const originalSentence = currentTestSentences[currentSentenceIndex].trim();
-
-            if (typedText === "") {
-                statusLabel.innerText = "Please type something before submitting!";
-                statusLabel.classList.add('text-danger');
-                return;
-            }
-
-            const { wpm, errorDistance, errorPercentage, iki, kspc, backspaceCount } =
-                calculateMetrics(originalSentence, typedText, currentKeyTimestamps, backspaceCounter, sentenceStartTime);
-
-            const sentenceLog = {
-                timestamp: new Date().toISOString(),
-                displayTimestamp: formatTimestamp(new Date()),
-                participantId: participantId,
-                ageGroup: document.getElementById('ageGroup').value,
-                gender: document.getElementById('gender').value,
-                typingSkill: document.getElementById('typingSkill').value,
-                occupation: document.getElementById('occupation').value,
-                typingHours: cleanTypingHours(document.getElementById('typingHours').value),
-                sentenceNumber: currentSentenceIndex + 1,
-                originalSentence: originalSentence,
-                typedText: typedText,
-                wpm: wpm,
-                errorDistance: parseFloat(errorDistance),
-                errorPercentage: parseFloat(errorPercentage),
-                iki: iki,
-                kspc: parseFloat(kspc),
-                backspaceCount: backspaceCount,
-                durationMs: new Date().getTime() - sentenceStartTime
             };
 
-            logs.push(sentenceLog);
-
-            // Save each sentence log to Firebase under the participant's session.
-            // Using push to ensure each sentence log gets a unique ID.
-            // database.ref(`userSessions/${participantId}/typingTestLogs`).push(sentenceLog)
-            //     .then(() => {
-            //         console.log(`Sentence ${currentSentenceIndex + 1} data saved.`);
-            //     })
-            //     .catch(error => {
-            //         console.error("Error saving sentence log:", error);
-            //     });
-
-            currentSentenceIndex++;
-
-            statusLabel.innerText = `Sentence submitted! Keep typing.`;
-            statusLabel.classList.remove('text-danger');
-            statusLabel.classList.add('text-success');
-
-            // Check if time has run out before displaying the next sentence
-            if (Date.now() - testStartTime >= TEST_DURATION_MS) {
-                endTypingTest();
-            } else {
-                // If we run out of sentences from the current shuffled batch, reshuffle for continuous typing
-                if (currentSentenceIndex >= currentTestSentences.length) {
-                    currentTestSentences = [...allCorpusSentences].sort(() => 0.5 - Math.random());
-                    currentSentenceIndex = 0;
-                }
-                displayNextSentence();
-            }
-        }
-
-
-        // Event listener for typingArea to track key timestamps and backspaces
-        typingArea.addEventListener('keydown', (e) => {
-            if (!typingArea.disabled && testIsActive) { // Only record if test is active
-                if (currentKeyTimestamps.length === 0 && typingArea.value.length === 0) {
-                    sentenceStartTime = new Date().getTime();
-                }
-                currentKeyTimestamps.push(new Date().getTime());
-
-                if (e.key === 'Backspace') {
-                    backspaceCounter++;
-                }
-            }
-        });
-
-
-        // Helper function to calculate all metrics
-        function calculateMetrics(original, typed, keyTimestamps, backspaces, startMs) {
-    let wpm = 0;
-    let errorDistance = 0;
-    let errorPercentage = 0;
-    let iki = 0;
-    let kspc = 0;
-
-    const currentTime = new Date().getTime();
-    // Ensure duration is only calculated if startMs is valid and positive
-    const durationInSeconds = (startMs > 0 && currentTime > startMs) ? (currentTime - startMs) / 1000 : 0;
-
-    const keyboardLayout = {
-        q: [0, 0], w: [1, 0], e: [2, 0], r: [3, 0], t: [4, 0], y: [5, 0], u: [6, 0], i: [7, 0], o: [8, 0], p: [9, 0],
-        a: [1, 1], s: [2, 1], d: [3, 1], f: [4, 1], g: [5, 1], h: [6, 1], j: [7, 1], k: [8, 1], l: [9, 1],
-        z: [2, 2], x: [3, 2], c: [4, 2], v: [5, 2], b: [6, 2], n: [7, 2], m: [8, 2],
-        ' ': [3, 3]
-    };
-
-    const THEORETICAL_MAX_KEY_DISTANCE = Math.sqrt((9 - 0) ** 2 + (3 - 0) ** 2); // sqrt(81 + 9) = sqrt(90) approx 9.4868
-
-    function getKeyDistance(c1, c2) {
-        const p1 = keyboardLayout[c1.toLowerCase()];
-        const p2 = keyboardLayout[c2.toLowerCase()];
-        // If either key is not in the layout, return the theoretical max distance as a penalty.
-        // This means an unknown character is treated as a "worst-case" positional error.
-        if (!p1 || !p2) return THEORETICAL_MAX_KEY_DISTANCE;
-        return Math.sqrt((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2);
-    }
-
-    const minLength = Math.min(original.length, typed.length);
-    for (let i = 0; i < minLength; i++) {
-        if (original[i] !== typed[i]) {
-            errorDistance += getKeyDistance(original[i], typed[i]);
-        }
-    }
-
-    // Penalize for added/missing characters with the max possible distance
-    const charLengthDifference = Math.abs(original.length - typed.length);
-    if (original.length > 0) {
-        errorDistance += charLengthDifference * THEORETICAL_MAX_KEY_DISTANCE;
-    } else if (typed.length > 0) {
-        // If original is empty but typed has content, penalize for all typed characters
-        errorDistance += typed.length * THEORETICAL_MAX_KEY_DISTANCE;
-    }
-
-    // MAX_PENALTY_PER_CHAR is now consistent with the theoretical max key distance
-    const MAX_PENALTY_PER_CHAR = THEORETICAL_MAX_KEY_DISTANCE;
-    const totalPossiblePenalty = original.length * MAX_PENALTY_PER_CHAR;
-
-    if (totalPossiblePenalty > 0) {
-        errorPercentage = (errorDistance / totalPossiblePenalty) * 100;
-        // The Math.min(errorPercentage, 100) is still good practice to prevent
-        // percentages > 100 if, for example, the definition of errorDistance
-        // might include other penalties not perfectly bounded by totalPossiblePenalty.
-        errorPercentage = Math.min(errorPercentage, 100);
-    } else {
-        errorPercentage = 0;
-        // If no original text, but user typed something, it's 100% error
-        if (typed.length > 0) {
-            errorPercentage = 100;
-        }
-    }
-
-    const typedWords = typed.split(/\s+/).filter(word => word.length > 0);
-    const durationInMinutes = durationInSeconds / 60;
-    // Minimum duration of 1 second (0.0166 minutes) to avoid division by near zero
-    wpm = durationInMinutes > (1/60) ? Math.round(typedWords.length / durationInMinutes) : 0;
-
-    if (keyTimestamps.length > 1) {
-        let totalIki = 0;
-        for (let i = 1; i < keyTimestamps.length; i++) {
-            totalIki += (keyTimestamps[i] - keyTimestamps[i - 1]);
-        }
-        iki = Math.round(totalIki / (keyTimestamps.length - 1));
-    } else {
-        iki = 0;
-    }
-
-    let correctCharsTyped = 0;
-    for(let i = 0; i < Math.min(original.length, typed.length); i++) {
-        if (original[i] === typed[i]) {
-            correctCharsTyped++;
-        }
-    }
-    const totalKeystrokes = keyTimestamps.length; // Includes backspaces and any re-typed keys
-
-    if (correctCharsTyped > 0) {
-        kspc = totalKeystrokes / correctCharsTyped;
-    } else if (totalKeystrokes > 0) {
-        // If no correct chars, but keystrokes were made, KSPC is total keystrokes (highly inefficient)
-        kspc = totalKeystrokes;
-    } else {
-        kspc = 0; // No correct chars, no keystrokes
-    }
-
-    return {
-        wpm: wpm,
-        errorDistance: errorDistance.toFixed(2),
-        errorPercentage: errorPercentage.toFixed(2),
-        iki: iki,
-        kspc: kspc.toFixed(2),
-        backspaceCount: backspaces
-    };
-}
-        // Function to display final aggregate metrics
-        function showFinalMetrics() {
-            console.log("Test finished! Here are the aggregated logs:", logs);
-            metricsDisplay.style.display = 'block'; // Show the performance analytics card
-            finalMetricsContent.innerHTML = ""; // Clear previous content
-
-            if (logs.length > 0) {
-                let totalWpm = 0;
-                let totalIki = 0;
-                let totalKspc = 0;
-                let totalBackspaces = 0;
-                let totalErrorPercentage = 0;
-
-                logs.forEach(log => {
-                    totalWpm += log.wpm;
-                    totalIki += log.iki;
-                    totalKspc += parseFloat(log.kspc);
-                    totalBackspaces += log.backspaceCount;
-                    totalErrorPercentage += parseFloat(log.errorPercentage);
+            document.addEventListener("DOMContentLoaded", function () {
+            const continueBtn = document.getElementById("continueToNASATLXButton");
+            if (continueBtn) {
+                continueBtn.addEventListener("click", function () {
+                    showSection('nasa-tlx-form-section', 'demographics-typing-container');
                 });
+            } else {
+                console.warn("Continue to NASA-TLX button not found in DOM");
+            }
+         });
 
-                const avgWpm = (totalWpm / logs.length).toFixed(2);
-                const avgIki = (totalIki / logs.length).toFixed(2);
-                const avgKspc = (totalKspc / logs.length).toFixed(2);
-                const avgErrorPercentage = (totalErrorPercentage / logs.length).toFixed(2);
 
-                // Populate the content, mirroring the analytics section from the screenshot
-                finalMetricsContent.innerHTML += `<p class="mb-1">Overall WPM: <b>${avgWpm}</b></p>`;
-                finalMetricsContent.innerHTML += `<p class="mb-1">Avg. IKI (ms): <b>${avgIki}</b></p>`;
-                finalMetricsContent.innerHTML += `<p class="mb-1">Avg. KSPC: <b>${avgKspc}</b></p>`;
-                finalMetricsContent.innerHTML += `<p class="mb-1">Avg. Error %: <b>${avgErrorPercentage}%</b></p>`;
-                finalMetricsContent.innerHTML += `<p class="mb-0">Total Backspaces: <b>${totalBackspaces}</b></p>`;
-                finalMetricsContent.innerHTML += `<p class="mb-0">Total Sentences Completed: <b>${logs.length}</b></p>`;
 
-                const summaryData = {
-                    timestamp: Date.now(),
-                    //participantId: participantId,
-                    avgWpm: parseFloat(avgWpm),
-                    avgIki: parseFloat(avgIki),
-                    avgKspc: parseFloat(avgKspc),
-                    avgErrorPercentage: parseFloat(avgErrorPercentage),
-                    totalBackspaces: totalBackspaces,
-                    totalSentencesCompleted: logs.length,
-                    //testDurationMinutes: TEST_DURATION_MINUTES, // Add test duration to summary
-                    //actualDurationMs: Date.now() - testStartTime // Actual time elapsed
+            // Function to handle the "Submit Sentence" button click
+            function submitSentence() {
+                // Check if test has already become inactive due to time running out.
+                // This handles cases where user types quickly and then hits submit just as time expires.
+                if (!testIsActive) {
+                    endTypingTest(); // This will show final metrics and hide elements
+                    return;
+                }
+
+                const typedText = typingArea.value.trim();
+                const originalSentence = currentTestSentences[currentSentenceIndex].trim();
+
+                if (typedText === "") {
+                    statusLabel.innerText = "Please type something before submitting!";
+                    statusLabel.classList.add('text-danger');
+                    return;
+                }
+
+                const { wpm, errorDistance, errorPercentage, iki, kspc, backspaceCount } =
+                    calculateMetrics(originalSentence, typedText, currentKeyTimestamps, backspaceCounter, sentenceStartTime);
+
+                const sentenceLog = {
+                    timestamp: new Date().toISOString(),
+                    displayTimestamp: formatTimestamp(new Date()),
+                    participantId: participantId,
+                    ageGroup: document.getElementById('ageGroup').value,
+                    gender: document.getElementById('gender').value,
+                    typingSkill: document.getElementById('typingSkill').value,
+                    occupation: document.getElementById('occupation').value,
+                    typingHours: cleanTypingHours(document.getElementById('typingHours').value),
+                    sentenceNumber: currentSentenceIndex + 1,
+                    originalSentence: originalSentence,
+                    typedText: typedText,
+                    wpm: wpm,
+                    errorDistance: parseFloat(errorDistance),
+                    errorPercentage: parseFloat(errorPercentage),
+                    iki: iki,
+                    kspc: parseFloat(kspc),
+                    backspaceCount: backspaceCount,
+                    durationMs: new Date().getTime() - sentenceStartTime
                 };
-                console.log("Saving summary to Firebase:", summaryData);
-                // Saving summary under participantId using push to ensure unique entry per test
-                database.ref(`userSessions/${participantId}/typingTestSummary`).push(summaryData)
-                    .then(() => console.log("Summary data saved to Firebase successfully!"))
-                    .catch(error => console.error("Error saving summary data:", error));
 
-            } else {
-                finalMetricsContent.innerHTML += "<p class='text-muted'>No typing data available.</p>";
-            }
-        }
+                logs.push(sentenceLog);
 
-        // Function to download aggregated data as CSV (no change needed here)
-        function downloadSummaryCSV() {
-            const ref = database.ref('userSessions');
+                // Save each sentence log to Firebase under the participant's session.
+                // Using push to ensure each sentence log gets a unique ID.
+                // database.ref(`userSessions/${participantId}/typingTestLogs`).push(sentenceLog)
+                //     .then(() => {
+                //         console.log(`Sentence ${currentSentenceIndex + 1} data saved.`);
+                //     })
+                //     .catch(error => {
+                //         console.error("Error saving sentence log:", error);
+                //     });
 
-            ref.once('value')
-                .then(snapshot => {
-                    const data = snapshot.val();
-                    const rows = [];
+                currentSentenceIndex++;
 
-                    // CSV header
-                    rows.push([
-                        'Participant ID', 'Timestamp',
-                        'Avg WPM', 'Avg IKI', 'Avg KSPC', 'Avg Error %', 'Total Backspaces', 'Total Sentences', 'Test Duration (min)', 'Actual Duration (ms)'
-                    ].join(','));
+                statusLabel.innerText = `Sentence submitted! Keep typing.`;
+                statusLabel.classList.remove('text-danger');
+                statusLabel.classList.add('text-success');
 
-                    if (data) {
-                        const wrap = str => `"${String(str || '').replace(/"/g, '""').replace(/\n/g, '\\n')}"`;
-
-                        Object.keys(data).forEach(pId => {
-                            const participantSessions = data[pId];
-                            const summaries = participantSessions.typingTestSummaries; // Access typingTestSummaries
-                            if (summaries) {
-                                Object.keys(summaries).forEach(sId => {
-                                    const summary = summaries[sId];
-
-                                    rows.push([
-                                        wrap(pId),
-                                        formatTimestamp(summary.timestamp || Date.now()),
-                                        summary.avgWpm || 0,
-                                        summary.avgIki || 0,
-                                        summary.avgKspc || 0,
-                                        summary.avgErrorPercentage || 0,
-                                        summary.totalBackspaces || 0,
-                                        summary.totalSentencesCompleted || 0,
-                                        summary.testDurationMinutes || 0,
-                                        summary.actualDurationMs || 0
-                                    ].join(','));
-                                });
-                            }
-                        });
-                    } else {
-                        alert("No summary logs found.");
-                        return;
+                // Check if time has run out before displaying the next sentence
+                if (Date.now() - testStartTime >= TEST_DURATION_MS) {
+                    endTypingTest();
+                } else {
+                    // If we run out of sentences from the current shuffled batch, reshuffle for continuous typing
+                    if (currentSentenceIndex >= currentTestSentences.length) {
+                        currentTestSentences = [...allCorpusSentences].sort(() => 0.5 - Math.random());
+                        currentSentenceIndex = 0;
                     }
+                    displayNextSentence();
+                }
+            }
 
-                    const blob = new Blob([rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = 'all_typing_test_summary_logs.csv';
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
-                })
-                .catch(error => {
-                    console.error("Error downloading CSV:", error);
-                    alert("Could not download CSV. See console for details.");
-                });
-        }
 
-        // Function to clear all data from Firebase (modified to clear specific typing test paths)
-        function clearAllSummaries() {
-            if (confirm("Are you sure you want to delete ALL typing test data (demographics, sentence logs, and summaries) for ALL participants? This cannot be undone.")) {
-                const dbRef = database.ref('userSessions'); // This will delete everything under userSessions
+            // Event listener for typingArea to track key timestamps and backspaces
+            typingArea.addEventListener('keydown', (e) => {
+                if (!typingArea.disabled && testIsActive) { // Only record if test is active
+                    if (currentKeyTimestamps.length === 0 && typingArea.value.length === 0) {
+                        sentenceStartTime = new Date().getTime();
+                    }
+                    currentKeyTimestamps.push(new Date().getTime());
 
-                dbRef.remove()
-                    .then(() => {
-                        console.log("All Firebase user sessions data cleared.");
-                        statusLabel.classList.remove('text-danger');
-                        statusLabel.classList.add('text-success');
-                        statusLabel.innerText = "All Firebase logs cleared!";
-                        downloadLogButton.style.display = 'none';
-                        clearLogButton.style.display = 'none';
+                    if (e.key === 'Backspace') {
+                        backspaceCounter++;
+                    }
+                }
+            });
+
+
+            // Helper function to calculate all metrics
+            function calculateMetrics(original, typed, keyTimestamps, backspaces, startMs) {
+                let wpm = 0;
+                let errorDistance = 0;
+                let errorPercentage = 0;
+                let iki = 0;
+                let kspc = 0;
+
+                const currentTime = new Date().getTime();
+                // Ensure duration is only calculated if startMs is valid and positive
+                const durationInSeconds = (startMs > 0 && currentTime > startMs) ? (currentTime - startMs) / 1000 : 0;
+
+                const keyboardLayout = {
+                    q: [0, 0], w: [1, 0], e: [2, 0], r: [3, 0], t: [4, 0], y: [5, 0], u: [6, 0], i: [7, 0], o: [8, 0], p: [9, 0],
+                    a: [1, 1], s: [2, 1], d: [3, 1], f: [4, 1], g: [5, 1], h: [6, 1], j: [7, 1], k: [8, 1], l: [9, 1],
+                    z: [2, 2], x: [3, 2], c: [4, 2], v: [5, 2], b: [6, 2], n: [7, 2], m: [8, 2],
+                    ' ': [3, 3]
+                };
+
+                const THEORETICAL_MAX_KEY_DISTANCE = Math.sqrt((9 - 0) ** 2 + (3 - 0) ** 2); // sqrt(81 + 9) = sqrt(90) approx 9.4868
+
+                function getKeyDistance(c1, c2) {
+                    const p1 = keyboardLayout[c1.toLowerCase()];
+                    const p2 = keyboardLayout[c2.toLowerCase()];
+                    // If either key is not in the layout, return the theoretical max distance as a penalty.
+                    // This means an unknown character is treated as a "worst-case" positional error.
+                    if (!p1 || !p2) return THEORETICAL_MAX_KEY_DISTANCE;
+                    return Math.sqrt((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2);
+                }
+
+                const minLength = Math.min(original.length, typed.length);
+                for (let i = 0; i < minLength; i++) {
+                    if (original[i] !== typed[i]) { 
+                        errorDistance += getKeyDistance(original[i], typed[i]);
+                    }
+                }
+
+                // Penalize for added/missing characters with the max possible distance
+                const charLengthDifference = Math.abs(original.length - typed.length);
+                if (original.length > 0) {
+                    errorDistance += charLengthDifference * THEORETICAL_MAX_KEY_DISTANCE;
+                } else if (typed.length > 0) {
+                    // If original is empty but typed has content, penalize for all typed characters
+                    errorDistance += typed.length * THEORETICAL_MAX_KEY_DISTANCE;
+                }
+
+                // MAX_PENALTY_PER_CHAR is now consistent with the theoretical max key distance
+                const MAX_PENALTY_PER_CHAR = THEORETICAL_MAX_KEY_DISTANCE;
+                const totalPossiblePenalty = original.length * MAX_PENALTY_PER_CHAR;
+
+                if (totalPossiblePenalty > 0) {
+                    errorPercentage = (errorDistance / totalPossiblePenalty) * 100;
+                    // The Math.min(errorPercentage, 100) is still good practice to prevent
+                    // percentages > 100 if, for example, the definition of errorDistance
+                    // might include other penalties not perfectly bounded by totalPossiblePenalty.
+                    errorPercentage = Math.min(errorPercentage, 100);
+                } else {
+                    errorPercentage = 0;
+                    // If no original text, but user typed something, it's 100% error
+                    if (typed.length > 0) {
+                        errorPercentage = 100;
+                    }
+                }
+
+                const typedWords = typed.split(/\s+/).filter(word => word.length > 0);
+                const durationInMinutes = durationInSeconds / 60;
+                // Minimum duration of 1 second (0.0166 minutes) to avoid division by near zero
+                wpm = durationInMinutes > (1 / 60) ? Math.round(typedWords.length / durationInMinutes) : 0;
+
+                if (keyTimestamps.length > 1) {
+                    let totalIki = 0;
+                    for (let i = 1; i < keyTimestamps.length; i++) {
+                        totalIki += (keyTimestamps[i] - keyTimestamps[i - 1]);
+                    }
+                    iki = Math.round(totalIki / (keyTimestamps.length - 1));
+                } else {
+                    iki = 0;
+                }
+
+                let correctCharsTyped = 0;
+                for (let i = 0; i < Math.min(original.length, typed.length); i++) {
+                    if (original[i] === typed[i]) {
+                        correctCharsTyped++;
+                    }
+                }
+                const totalKeystrokes = keyTimestamps.length; // Includes backspaces and any re-typed keys
+
+                if (correctCharsTyped > 0) {
+                    kspc = totalKeystrokes / correctCharsTyped;
+                } else if (totalKeystrokes > 0) {
+                    // If no correct chars, but keystrokes were made, KSPC is total keystrokes (highly inefficient)
+                    kspc = totalKeystrokes;
+                } else {
+                    kspc = 0; // No correct chars, no keystrokes
+                }
+
+                return {
+                    wpm: wpm,
+                    errorDistance: errorDistance.toFixed(2),
+                    errorPercentage: errorPercentage.toFixed(2),
+                    iki: iki,
+                    kspc: kspc.toFixed(2),
+                    backspaceCount: backspaces
+                };
+            }
+            // Function to display final aggregate metrics
+            function showFinalMetrics() {
+                console.log("Test finished! Here are the aggregated logs:", logs);
+                // metricsDisplay.style.display = 'block'; // Show the performance analytics card
+                // finalMetricsContent.innerHTML = ""; // Clear previous content
+
+                if (logs.length > 0) {
+                    let totalWpm = 0;
+                    let totalIki = 0;
+                    let totalKspc = 0;
+                    let totalBackspaces = 0;
+                    let totalErrorPercentage = 0;
+
+                    logs.forEach(log => {
+                        totalWpm += log.wpm;
+                        totalIki += log.iki;
+                        totalKspc += parseFloat(log.kspc);
+                        totalBackspaces += log.backspaceCount;
+                        totalErrorPercentage += parseFloat(log.errorPercentage);
+                    });
+
+                    const avgWpm = (totalWpm / logs.length).toFixed(2);
+                    const avgIki = (totalIki / logs.length).toFixed(2);
+                    const avgKspc = (totalKspc / logs.length).toFixed(2);
+                    const avgErrorPercentage = (totalErrorPercentage / logs.length).toFixed(2);
+
+                    // Populate the content, mirroring the analytics section from the screenshot
+                    // finalMetricsContent.innerHTML += `<p class="mb-1">Overall WPM: <b>${avgWpm}</b></p>`;
+                    // finalMetricsContent.innerHTML += `<p class="mb-1">Avg. IKI (ms): <b>${avgIki}</b></p>`;
+                    // finalMetricsContent.innerHTML += `<p class="mb-1">Avg. KSPC: <b>${avgKspc}</b></p>`;
+                    // finalMetricsContent.innerHTML += `<p class="mb-1">Avg. Error %: <b>${avgErrorPercentage}%</b></p>`;
+                    // finalMetricsContent.innerHTML += `<p class="mb-0">Total Backspaces: <b>${totalBackspaces}</b></p>`;
+                    // finalMetricsContent.innerHTML += `<p class="mb-0">Total Sentences Completed: <b>${logs.length}</b></p>`;
+
+                    const summaryData = {
+                        timestamp: Date.now(),
+                        //participantId: participantId,
+                        avgWpm: parseFloat(avgWpm),
+                        avgIki: parseFloat(avgIki),
+                        avgKspc: parseFloat(avgKspc),
+                        avgErrorPercentage: parseFloat(avgErrorPercentage),
+                        totalBackspaces: totalBackspaces,
+                        totalSentencesCompleted: logs.length,
+                        //testDurationMinutes: TEST_DURATION_MINUTES, // Add test duration to summary
+                        //actualDurationMs: Date.now() - testStartTime // Actual time elapsed
+                    };
+                    console.log("Saving summary to Firebase:", summaryData);
+                    // Saving summary under participantId using push to ensure unique entry per test
+                    database.ref(`userSessions/${participantId}/typingTestSummary`).push(summaryData)
+                        .then(() => console.log("Summary data saved to Firebase successfully!"))
+                        .catch(error => console.error("Error saving summary data:", error));
+
+                } else {
+                    finalMetricsContent.innerHTML += "<p class='text-muted'>No typing data available.</p>";
+                }
+            }
+
+            // Function to download aggregated data as CSV (no change needed here)
+            function downloadSummaryCSV() {
+                const ref = database.ref('userSessions');
+
+                ref.once('value')
+                    .then(snapshot => {
+                        const data = snapshot.val();
+                        const rows = [];
+
+                        // CSV header
+                        rows.push([
+                            'Participant ID', 'Timestamp',
+                            'Avg WPM', 'Avg IKI', 'Avg KSPC', 'Avg Error %', 'Total Backspaces', 'Total Sentences', 'Test Duration (min)', 'Actual Duration (ms)'
+                        ].join(','));
+
+                        if (data) {
+                            const wrap = str => `"${String(str || '').replace(/"/g, '""').replace(/\n/g, '\\n')}"`;
+
+                            Object.keys(data).forEach(pId => {
+                                const participantSessions = data[pId];
+                                const summaries = participantSessions.typingTestSummaries; // Access typingTestSummaries
+                                if (summaries) {
+                                    Object.keys(summaries).forEach(sId => {
+                                        const summary = summaries[sId];
+
+                                        rows.push([
+                                            wrap(pId),
+                                            formatTimestamp(summary.timestamp || Date.now()),
+                                            summary.avgWpm || 0,
+                                            summary.avgIki || 0,
+                                            summary.avgKspc || 0,
+                                            summary.avgErrorPercentage || 0,
+                                            summary.totalBackspaces || 0,
+                                            summary.totalSentencesCompleted || 0,
+                                            summary.testDurationMinutes || 0,
+                                            summary.actualDurationMs || 0
+                                        ].join(','));
+                                    });
+                                }
+                            });
+                        } else {
+                            alert("No summary logs found.");
+                            return;
+                        }
+
+                        const blob = new Blob([rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'all_typing_test_summary_logs.csv';
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
                     })
-                    .catch((error) => {
-                        console.error("Error clearing Firebase logs:", error);
-                        statusLabel.classList.remove('text-success');
-                        statusLabel.classList.add('text-danger');
-                        statusLabel.innerText = "Failed to clear Firebase logs.";
+                    .catch(error => {
+                        console.error("Error downloading CSV:", error);
+                        alert("Could not download CSV. See console for details.");
                     });
             }
-        }
+
+            // Function to clear all data from Firebase (modified to clear specific typing test paths)
+            function clearAllSummaries() {
+                if (confirm("Are you sure you want to delete ALL typing test data (demographics, sentence logs, and summaries) for ALL participants? This cannot be undone.")) {
+                    const dbRef = database.ref('userSessions'); // This will delete everything under userSessions
+
+                    dbRef.remove()
+                        .then(() => {
+                            console.log("All Firebase user sessions data cleared.");
+                            statusLabel.classList.remove('text-danger');
+                            statusLabel.classList.add('text-success');
+                            statusLabel.innerText = "All Firebase logs cleared!";
+                            downloadLogButton.style.display = 'none';
+                            clearLogButton.style.display = 'none';
+                        })
+                        .catch((error) => {
+                            console.error("Error clearing Firebase logs:", error);
+                            statusLabel.classList.remove('text-success');
+                            statusLabel.classList.add('text-danger');
+                            statusLabel.innerText = "Failed to clear Firebase logs.";
+                        });
+                }
+            }
 
 
-        // Initialize when DOM is fully loaded
-        document.addEventListener('DOMContentLoaded', () => {
-            loadCorpus();
+            // Initialize when DOM is fully loaded
+            document.addEventListener('DOMContentLoaded', () => {
+                loadCorpus();
 
-            // Hide admin buttons initially
-            downloadLogButton.style.display = 'none';
-            clearLogButton.style.display = 'none';
+                // Hide admin buttons initially
+                downloadLogButton.style.display = 'none';
+                clearLogButton.style.display = 'none';
 
-            // Connect "Start Typing Test" button to the submitDemographics function
-            document.getElementById('startTestButton').addEventListener('click', submitDemographics);
-            submitSentenceButton.addEventListener('click', submitSentence);
+                // Connect "Start Typing Test" button to the submitDemographics function
+                document.getElementById('startTestButton').addEventListener('click', submitDemographics);
+                submitSentenceButton.addEventListener('click', submitSentence);
 
-            downloadLogButton.addEventListener('click', downloadSummaryCSV);
-            clearLogButton.addEventListener('click', clearAllSummaries);
+                downloadLogButton.addEventListener('click', downloadSummaryCSV);
+                clearLogButton.addEventListener('click', clearAllSummaries);
 
-            // Initial state: hide the main panel and metrics until test starts
-            document.querySelector('.main-panel').style.display = 'none';
-            metricsDisplay.style.display = 'none';
-            continueToStroopButton.style.display = 'none'; // Ensure this is hidden initially
-            // timerDisplay.style.display = 'none'; // REMOVED: No timer element to hide
-        });
+                // Initial state: hide the main panel and metrics until test starts
+                document.querySelector('.main-panel').style.display = 'none';
+                metricsDisplay.style.display = 'none';
+                // timerDisplay.style.display = 'none'; // REMOVED: No timer element to hide
+            });
 
 
-        // --- Stroop Test Logic ---
-        const COLORS_STROOP = ['red', 'blue', 'green', 'yellow'];
-        const WORDS_STROOP = ['RED', 'BLUE', 'GREEN', 'YELLOW'];
-        const TEST_DURATION_SECONDS_STROOP = 30; // 30 seconds
+            // --- Stroop Test Logic ---
+            const COLORS_STROOP = ['red', 'blue', 'green', 'yellow'];
+            const WORDS_STROOP = ['RED', 'BLUE', 'GREEN', 'YELLOW'];
+            const TEST_DURATION_SECONDS_STROOP = 30; // 30 seconds
 
-        let correctAnswersStroop = 0;
-        let startTimeStroop = 0;
-        let testActiveStroop = false;
-        let timerTimeoutStroop;
+            let correctAnswersStroop = 0;
+            let startTimeStroop = 0;
+            let testActiveStroop = false;
+            let timerTimeoutStroop;
 
-        const introScreenStroop = document.getElementById("introScreenStroop");
-        const testScreenStroop = document.getElementById("testScreenStroop");
-        const resultScreenStroop = document.getElementById("resultScreenStroop");
-        const wordDisplay = document.getElementById("wordDisplay");
-        const feedback = document.getElementById("feedback");
-        const finalCorrectCountStroop = document.getElementById("finalCorrectCountStroop");
+            const introScreenStroop = document.getElementById("introScreenStroop");
+            const testScreenStroop = document.getElementById("testScreenStroop");
+            const resultScreenStroop = document.getElementById("resultScreenStroop");
+            const wordDisplay = document.getElementById("wordDisplay");
+            const feedback = document.getElementById("feedback");
+            const finalCorrectCountStroop = document.getElementById("finalCorrectCountStroop");
 
-        function getRandomElement(arr) {
-            return arr[Math.floor(Math.random() * arr.length)];
-        }
+            function getRandomElement(arr) {
+                return arr[Math.floor(Math.random() * arr.length)];
+            }
 
-        function startStroopTest() {
-            introScreenStroop.style.display = 'none';
-            resultScreenStroop.style.display = 'none';
-            testScreenStroop.style.display = 'block';
+            function startStroopTest() {
+                introScreenStroop.style.display = 'none';
+                resultScreenStroop.style.display = 'none';
+                testScreenStroop.style.display = 'block';
 
-            correctAnswersStroop = 0;
-            testActiveStroop = true;
-            feedback.className = '';
+                correctAnswersStroop = 0;
+                testActiveStroop = true;
+                feedback.className = '';
 
-            showNextWordStroop();
+                showNextWordStroop();
 
-            clearTimeout(timerTimeoutStroop);
-            timerTimeoutStroop = setTimeout(() => {
-                endStroopTest();
-            }, TEST_DURATION_SECONDS_STROOP * 1000);
-        }
+                clearTimeout(timerTimeoutStroop);
+                timerTimeoutStroop = setTimeout(() => {
+                    endStroopTest();
+                }, TEST_DURATION_SECONDS_STROOP * 1000);
+            }
+            let lastWord = null;
+            let lastColor = null;
 
-        function showNextWordStroop() {
-            if (!testActiveStroop) return;
+function showNextWordStroop() {
+    if (!testActiveStroop) return;
 
-            const word = getRandomElement(WORDS_STROOP);
-            const color = getRandomElement(COLORS_STROOP);
+    let word, color;
+
+            do {
+                word = getRandomElement(WORDS_STROOP);
+                do {
+                    color = getRandomElement(COLORS_STROOP);
+                } while (color.toLowerCase() === word.toLowerCase()); 
+
+            } while (word === lastWord && color === lastColor);
+
+            lastWord = word;
+            lastColor = color;
+
             wordDisplay.innerText = word;
             wordDisplay.style.color = color;
             startTimeStroop = performance.now();
+
             wordDisplay.classList.remove('wordPopIn');
             void wordDisplay.offsetWidth;
             wordDisplay.classList.add('wordPopIn');
         }
 
-        function submitStroopAnswer(selectedColor) {
-            if (!testActiveStroop) return;
+            function submitStroopAnswer(selectedColor) {
+                if (!testActiveStroop) return;
 
-            const inkColor = wordDisplay.style.color;
-            const isCorrect = (selectedColor === inkColor);
+                const inkColor = wordDisplay.style.color;
+                const isCorrect = (selectedColor === inkColor);
 
-            if (isCorrect) {
-                correctAnswersStroop++;
-                feedback.innerText = 'Correct!';
-                feedback.className = 'show correct';
-            } else {
-                feedback.innerText = `Incorrect!`;
-                feedback.className = 'show incorrect';
-            }
-
-            testActiveStroop = false;
-
-            setTimeout(() => {
-                feedback.className = '';
-                if (timerTimeoutStroop) { // Check if test timer is still active
-                    testActiveStroop = true;
-                    showNextWordStroop();
-                }
-            }, 500);
-        }
-
-        function endStroopTest() {
-            testActiveStroop = false;
-            clearTimeout(timerTimeoutStroop);
-
-            testScreenStroop.style.display = 'none';
-            resultScreenStroop.style.display = 'block';
-
-            finalCorrectCountStroop.innerText = correctAnswersStroop;
-
-            // Save Stroop results to Firebase
-            database.ref(`userSessions/${participantId}/stroopResults`).push({
-                timestamp: Date.now(),
-                correctAnswers: correctAnswersStroop,
-                testDurationSeconds: TEST_DURATION_SECONDS_STROOP
-            }).then(() => {
-                console.log("Stroop results saved to Firebase.");
-            }).catch(error => {
-                console.error("Error saving Stroop results:", error);
-            });
-        }
-
-        // Keyboard shortcuts for Stroop
-        document.addEventListener('keydown', (e) => {
-            if (testScreenStroop.style.display === 'block' && testActiveStroop) {
-                const keyMap = {
-                    'r': 'red',
-                    'b': 'blue',
-                    'g': 'green',
-                    'y': 'yellow'
-                };
-
-                const color = keyMap[e.key.toLowerCase()];
-                if (color) {
-                    submitStroopAnswer(color);
-                }
-            }
-        });
-
-
-        // --- 2-Back Memory Test Logic ---
-         const stimulusDisplayTwoBack = document.getElementById("stimulus");
-        const startButtonTwoBack = document.getElementById("startButtonTwoBack");
-        const replayButtonTwoBack = document.getElementById("replayButtonTwoBack");
-        const introScreenTwoBack = document.getElementById("introScreenTwoBack");
-        const resultsScreenTwoBack = document.getElementById("resultsScreenTwoBack");
-        const testFeedbackTwoBack = document.getElementById("testFeedbackTwoBack");
-        const finalCorrectCountTwoBack = document.getElementById("finalCorrectCountTwoBack");
-
-        const CHARACTERS_TWOBACK = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        const TOTAL_TRIALS_TWOBACK = 5; // Number of letters to show
-        const STIMULUS_DURATION_TWOBACK = 1000; // How long each letter is visible
-        const INTERVAL_BETWEEN_TRIALS_TWOBACK = 600; // Total time for one trial (stimulus + blank)
-
-        let testSequenceTwoBack = [];
-        let currentIndexTwoBack = 0;
-        let correctMatchesTwoBack = 0;
-        let testActiveTwoBack = false; // Controls if 'm' key is registered for the current stimulus
-        let stimulusVisible = false; // To track if the stimulus is currently on screen
-        let trialTimeoutIdTwoBack;
-        let blankTimeoutIdTwoBack;
-
-        function generateSequenceTwoBack() {
-            testSequenceTwoBack = [];
-            for (let i = 0; i < TOTAL_TRIALS_TWOBACK; i++) {
-                // ~35% chance of being a match to 2-back
-                if (i >= 2 && Math.random() < 0.35) {
-                    testSequenceTwoBack.push(testSequenceTwoBack[i - 2]);
+                if (isCorrect) {
+                    correctAnswersStroop++;
+                    feedback.innerText = 'Correct!';
+                    feedback.className = 'show correct';
                 } else {
-                    let char;
-                    do { // Ensure it's not accidentally a 2-back match if not intended
-                        char = CHARACTERS_TWOBACK[Math.floor(Math.random() * CHARACTERS_TWOBACK.length)];
-                    } while (i >= 2 && char === testSequenceTwoBack[i - 2]);
-                    testSequenceTwoBack.push(char);
+                    feedback.innerText = `Incorrect!`;
+                    feedback.className = 'show incorrect';
                 }
+
+                testActiveStroop = false;
+
+                setTimeout(() => {
+                    feedback.className = '';
+                    if (timerTimeoutStroop) {
+                        testActiveStroop = true;
+                        showNextWordStroop();
+                    }
+                }, 500);
             }
-        }
 
-        function showStimulusTwoBack() {
-            stimulusDisplayTwoBack.style.display = "block";
-            stimulusDisplayTwoBack.innerText = testSequenceTwoBack[currentIndexTwoBack];
-            stimulusDisplayTwoBack.classList.remove("stimulusPop"); // Reset animation
-            void stimulusDisplayTwoBack.offsetWidth; // Trigger reflow
-            stimulusDisplayTwoBack.classList.add("stimulusPop"); // Re-add animation
-            stimulusVisible = true;
-            testActiveTwoBack = true; // Key input is active when stimulus is visible
-        }
+            function endStroopTest() {
+                testActiveStroop = false;
+                clearTimeout(timerTimeoutStroop);
 
-        function hideStimulusAndPrepareNext() {
-            stimulusDisplayTwoBack.style.display = "none";
-            stimulusVisible = false;
-            testActiveTwoBack = false; // Key input becomes inactive during blank period
-            testFeedbackTwoBack.innerText = "";
-            testFeedbackTwoBack.className = "";
+                testScreenStroop.style.display = 'none';
+                resultScreenStroop.style.display = 'block';
 
-            currentIndexTwoBack++;
+                finalCorrectCountStroop.innerText = correctAnswersStroop;
 
-            if (currentIndexTwoBack < TOTAL_TRIALS_TWOBACK) {
-                trialTimeoutIdTwoBack = setTimeout(showStimulusAndSetTimer, INTERVAL_BETWEEN_TRIALS_TWOBACK - STIMULUS_DURATION_TWOBACK);
-            } else {
-                endTestTwoBack();
+                // Save Stroop results to Firebase
+                database.ref(`userSessions/${participantId}/stroopResults`).push({
+                    timestamp: Date.now(),
+                    correctAnswers: correctAnswersStroop,
+                    testDurationSeconds: TEST_DURATION_SECONDS_STROOP
+                }).then(() => {
+                    console.log("Stroop results saved to Firebase.");
+                }).catch(error => {
+                    console.error("Error saving Stroop results:", error);
+                });
             }
-        }
 
-        function showStimulusAndSetTimer() {
-            showStimulusTwoBack();
-            // After STIMULUS_DURATION, hide the stimulus
-            blankTimeoutIdTwoBack = setTimeout(hideStimulusAndPrepareNext, STIMULUS_DURATION_TWOBACK);
-        }
+            // Keyboard shortcuts for Stroop
+            document.addEventListener('keydown', (e) => {
+                if (testScreenStroop.style.display === 'block' && testActiveStroop) {
+                    const keyMap = {
+                        'r': 'red',
+                        'b': 'blue',
+                        'g': 'green',
+                        'y': 'yellow'
+                    };
 
-        function startTwoBackTest() {
-            introScreenTwoBack.style.display = "none";
-            resultsScreenTwoBack.style.display = "none";
-            testFeedbackTwoBack.innerText = "";
-            stimulusDisplayTwoBack.innerText = "-"; // Reset displayed char
-
-            generateSequenceTwoBack();
-            currentIndexTwoBack = 0;
-            correctMatchesTwoBack = 0;
-
-            // Clear any lingering timeouts
-            clearTimeout(trialTimeoutIdTwoBack);
-            clearTimeout(blankTimeoutIdTwoBack);
-
-            // Start the first trial after a short delay
-            setTimeout(showStimulusAndSetTimer, 500); // Give a brief moment before first stimulus
-        }
-
-        function endTestTwoBack() {
-    clearTimeout(trialTimeoutIdTwoBack);
-    clearTimeout(blankTimeoutIdTwoBack);
-    testActiveTwoBack = false;
-    stimulusVisible = false;
-    stimulusDisplayTwoBack.style.display = "none";
-    testFeedbackTwoBack.innerText = "";
-    resultsScreenTwoBack.style.display = "block";
-    finalCorrectCountTwoBack.innerText = correctMatchesTwoBack;
-
-    // Save to Firebase under 'user sessions/2back_tests' using .push()
-    // This will create a new unique entry for each test completion.
-    if (typeof database !== 'undefined') { // Check if Firebase is initialized
-        database.ref(`userSessions/${participantId}/nbackresults`).push({
-        date: new Date().toISOString(), // Use ISO string for consistent date format
-        correctResponses: correctMatchesTwoBack
-        }) // Use .push() here
-            .then(() => {
-                console.log("2-Back Test data saved to Firebase successfully!");
-            })
-            .catch((error) => {
-                console.error("Error saving 2-Back test data to Firebase:", error);
+                    const color = keyMap[e.key.toLowerCase()];
+                    if (color) {
+                        submitStroopAnswer(color);
+                    }
+                }
             });
-    } else {
-        console.warn("Firebase database not initialized. Data not saved.");
-    }
-}
 
-        // Event listener for 'm' key press in 2-Back test
-        document.addEventListener("keydown", (e) => {
-            // Only process if 2-Back test is on screen, is active, and stimulus is visible
-            if (document.getElementById("two-back-test-section").style.display === 'flex' && testActiveTwoBack && stimulusVisible && e.key.toLowerCase() === "m") {
-                // To prevent multiple presses for the same stimulus, deactivate input immediately
-                testActiveTwoBack = false;
 
-                const currentLetter = testSequenceTwoBack[currentIndexTwoBack];
-                const letterTwoBack = testSequenceTwoBack[currentIndexTwoBack - 2];
+            // --- 2-Back Memory Test Logic ---
+            const stimulusDisplayTwoBack = document.getElementById("stimulus");
+            const startButtonTwoBack = document.getElementById("startButtonTwoBack");
+            const replayButtonTwoBack = document.getElementById("replayButtonTwoBack");
+            const introScreenTwoBack = document.getElementById("introScreenTwoBack");
+            const resultsScreenTwoBack = document.getElementById("resultsScreenTwoBack");
+            const testFeedbackTwoBack = document.getElementById("testFeedbackTwoBack");
+            const finalCorrectCountTwoBack = document.getElementById("finalCorrectCountTwoBack");
 
-                const isMatchExpected = (currentIndexTwoBack >= 2 && currentLetter === letterTwoBack);
+            const CHARACTERS_TWOBACK = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            const TOTAL_TRIALS_TWOBACK = 5; // Number of letters to show
+            const STIMULUS_DURATION_TWOBACK = 1000; // How long each letter is visible
+            const INTERVAL_BETWEEN_TRIALS_TWOBACK = 600; // Total time for one trial (stimulus + blank)
 
-                if (isMatchExpected) {
-                    testFeedbackTwoBack.innerText = "Match!";
-                    testFeedbackTwoBack.className = "correct";
-                        correctMatchesTwoBack++;
-                } else {
-                    testFeedbackTwoBack.innerText = "No Match!";
-                    testFeedbackTwoBack.className = "incorrect";
+            let testSequenceTwoBack = [];
+            let currentIndexTwoBack = 0;
+            let correctMatchesTwoBack = 0;
+            let testActiveTwoBack = false; // Controls if 'm' key is registered for the current stimulus
+            let stimulusVisible = false; // To track if the stimulus is currently on screen
+            let trialTimeoutIdTwoBack;
+            let blankTimeoutIdTwoBack;
+
+            function generateSequenceTwoBack() {
+                testSequenceTwoBack = [];
+                for (let i = 0; i < TOTAL_TRIALS_TWOBACK; i++) {
+                    // ~35% chance of being a match to 2-back
+                    if (i >= 2 && Math.random() < 0.35) {
+                        testSequenceTwoBack.push(testSequenceTwoBack[i - 2]);
+                    } else {
+                        let char;
+                        do { // Ensure it's not accidentally a 2-back match if not intended
+                            char = CHARACTERS_TWOBACK[Math.floor(Math.random() * CHARACTERS_TWOBACK.length)];
+                        } while (i >= 2 && char === testSequenceTwoBack[i - 2]);
+                        testSequenceTwoBack.push(char);
+                    }
                 }
             }
-        });
 
-        // Event listener for 'm' key press in 2-Back test
-        document.addEventListener("keydown", (e) => {
-            if (document.getElementById("two-back-test-section").style.display === 'flex' &&
-                document.getElementById("two-back-test-section").dataset.trialActive === 'true' &&
-                e.key.toLowerCase() === "m") {
+            function showStimulusTwoBack() {
+                stimulusDisplayTwoBack.style.display = "block";
+                stimulusDisplayTwoBack.innerText = testSequenceTwoBack[currentIndexTwoBack];
+                stimulusDisplayTwoBack.classList.remove("stimulusPop"); // Reset animation
+                void stimulusDisplayTwoBack.offsetWidth; // Trigger reflow
+                stimulusDisplayTwoBack.classList.add("stimulusPop"); // Re-add animation
+                stimulusVisible = true;
+                testActiveTwoBack = true; // Key input is active when stimulus is visible
+            }
 
-                userPressedMThisTrial = true;
-                testFeedbackTwoBack.innerText = "Registered Press!";
+            function hideStimulusAndPrepareNext() {
+                stimulusDisplayTwoBack.style.display = "none";
+                stimulusVisible = false;
+                testActiveTwoBack = false; // Key input becomes inactive during blank period
+                testFeedbackTwoBack.innerText = "";
                 testFeedbackTwoBack.className = "";
-                // No sound here, sound is played in evaluateTrialResult
-                document.getElementById("two-back-test-section").dataset.trialActive = 'false'; // Only one press per trial
+
+                currentIndexTwoBack++;
+
+                if (currentIndexTwoBack < TOTAL_TRIALS_TWOBACK) {
+                    trialTimeoutIdTwoBack = setTimeout(showStimulusAndSetTimer, INTERVAL_BETWEEN_TRIALS_TWOBACK - STIMULUS_DURATION_TWOBACK);
+                } else {
+                    endTestTwoBack();
+                }
             }
-        });
 
-        startButtonTwoBack.addEventListener("click", startTwoBackTest);
-
-
-        // --- NASA TLX Form Logic (MODIFIED FOR FIREBASE SAVE) ---
-        function updateTlxRangeValue(input) {
-            const valueSpan = input.nextElementSibling;
-            valueSpan.innerText = input.value;
-            const percentage = (input.value - input.min) / (input.max - input.min);
-            const thumbWidth = 25;
-            const offset = (thumbWidth / 2) - (thumbWidth * percentage);
-            valueSpan.style.left = `calc(${percentage * 100}% + ${offset}px)`;
-
-            input.classList.add('show-value');
-            if (input.timeout) {
-                clearTimeout(input.timeout);
+            function showStimulusAndSetTimer() {
+                showStimulusTwoBack();
+                // After STIMULUS_DURATION, hide the stimulus
+                blankTimeoutIdTwoBack = setTimeout(hideStimulusAndPrepareNext, STIMULUS_DURATION_TWOBACK);
             }
-            input.timeout = setTimeout(() => {
-                input.classList.remove('show-value');
-            }, 1000);
-        }
 
-        document.querySelectorAll('#nasaTlxForm input[type="range"]').forEach(input => {
-            updateTlxRangeValue(input);
-            input.addEventListener('mousedown', () => input.classList.add('show-value'));
-            input.addEventListener('mouseup', () => {
+            function startTwoBackTest() {
+                introScreenTwoBack.style.display = "none";
+                resultsScreenTwoBack.style.display = "none";
+                testFeedbackTwoBack.innerText = "";
+                stimulusDisplayTwoBack.innerText = "-"; // Reset displayed char
+
+                generateSequenceTwoBack();
+                currentIndexTwoBack = 0;
+                correctMatchesTwoBack = 0;
+
+                // Clear any lingering timeouts
+                clearTimeout(trialTimeoutIdTwoBack);
+                clearTimeout(blankTimeoutIdTwoBack);
+
+                // Start the first trial after a short delay
+                setTimeout(showStimulusAndSetTimer, 500); // Give a brief moment before first stimulus
+            }
+
+            function endTestTwoBack() {
+                clearTimeout(trialTimeoutIdTwoBack);
+                clearTimeout(blankTimeoutIdTwoBack);
+                testActiveTwoBack = false;
+                stimulusVisible = false;
+                stimulusDisplayTwoBack.style.display = "none";
+                testFeedbackTwoBack.innerText = "";
+                resultsScreenTwoBack.style.display = "block";
+                finalCorrectCountTwoBack.innerText = correctMatchesTwoBack;
+
+                // Save to Firebase under 'user sessions/2back_tests' using .push()
+                // This will create a new unique entry for each test completion.
+                if (typeof database !== 'undefined') { // Check if Firebase is initialized
+                    database.ref(`userSessions/${participantId}/nbackresults`).push({
+                        date: new Date().toISOString(), // Use ISO string for consistent date format
+                        correctResponses: correctMatchesTwoBack
+                    }) // Use .push() here
+                        .then(() => {
+                            console.log("2-Back Test data saved to Firebase successfully!");
+                        })
+                        .catch((error) => {
+                            console.error("Error saving 2-Back test data to Firebase:", error);
+                        });
+                } else {
+                    console.warn("Firebase database not initialized. Data not saved.");
+                }
+            }
+
+            // Event listener for 'm' key press in 2-Back test
+            document.addEventListener("keydown", (e) => {
+                // Only process if 2-Back test is on screen, is active, and stimulus is visible
+                if (document.getElementById("two-back-test-section").style.display === 'flex' && testActiveTwoBack && stimulusVisible && e.key.toLowerCase() === "m") {
+                    // To prevent multiple presses for the same stimulus, deactivate input immediately
+                    testActiveTwoBack = false;
+
+                    const currentLetter = testSequenceTwoBack[currentIndexTwoBack];
+                    const letterTwoBack = testSequenceTwoBack[currentIndexTwoBack - 2];
+
+                    const isMatchExpected = (currentIndexTwoBack >= 2 && currentLetter === letterTwoBack);
+
+                    if (isMatchExpected) {
+                        testFeedbackTwoBack.innerText = "Match!";
+                        testFeedbackTwoBack.className = "correct";
+                        correctMatchesTwoBack++;
+                    } else {
+                        testFeedbackTwoBack.innerText = "No Match!";
+                        testFeedbackTwoBack.className = "incorrect";
+                    }
+                }
+            });
+
+            // Event listener for 'm' key press in 2-Back test
+            document.addEventListener("keydown", (e) => {
+                if (document.getElementById("two-back-test-section").style.display === 'flex' &&
+                    document.getElementById("two-back-test-section").dataset.trialActive === 'true' &&
+                    e.key.toLowerCase() === "m") {
+
+                    userPressedMThisTrial = true;
+                    testFeedbackTwoBack.innerText = "Registered Press!";
+                    testFeedbackTwoBack.className = "";
+                    // No sound here, sound is played in evaluateTrialResult
+                    document.getElementById("two-back-test-section").dataset.trialActive = 'false'; // Only one press per trial
+                }
+            });
+
+            startButtonTwoBack.addEventListener("click", startTwoBackTest);
+
+
+            // --- NASA TLX Form Logic (MODIFIED FOR FIREBASE SAVE) ---
+            function updateTlxRangeValue(input) {
+                const valueSpan = input.nextElementSibling;
+                valueSpan.innerText = input.value;
+                const percentage = (input.value - input.min) / (input.max - input.min);
+                const thumbWidth = 25;
+                const offset = (thumbWidth / 2) - (thumbWidth * percentage);
+                valueSpan.style.left = `calc(${percentage * 100}% + ${offset}px)`;
+
+                input.classList.add('show-value');
                 if (input.timeout) {
                     clearTimeout(input.timeout);
                 }
                 input.timeout = setTimeout(() => {
                     input.classList.remove('show-value');
-                }, 500);
-            });
-        });
-
-        document.getElementById('nasaTlxForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-
-            const formData = new FormData(this);
-            const tlxResults = {};
-            for (let [key, value] of formData.entries()) {
-                tlxResults[key] = parseInt(value, 10);
+                }, 1000);
             }
 
-            console.log("Submitting NASA TLX Results to Firebase:", tlxResults);
-
-            // Save NASA TLX results directly to Firebase
-            database.ref(`userSessions/${participantId}/nasaTlxResults`).push({
-                timestamp: Date.now(),
-                ...tlxResults
-            })
-            .then(() => {
-                alert("Thank you for your feedback!");
-                console.log('NASA TLX data saved to Firebase.');
-                showSection('thank-you-screen', 'nasa-tlx-form-section');
-            })
-            .catch((error) => {
-                console.error('Error submitting NASA TLX data to Firebase:', error);
-                alert("There was an error submitting your feedback. Data might not have been saved. Please check Firebase connection and rules.\n\nError: " + error.message);
+            document.querySelectorAll('#nasaTlxForm input[type="range"]').forEach(input => {
+                updateTlxRangeValue(input);
+                input.addEventListener('mousedown', () => input.classList.add('show-value'));
+                input.addEventListener('mouseup', () => {
+                    if (input.timeout) {
+                        clearTimeout(input.timeout);
+                    }
+                    input.timeout = setTimeout(() => {
+                        input.classList.remove('show-value');
+                    }, 500);
+                });
             });
+
+            document.getElementById('nasaTlxForm').addEventListener('submit', function (event) {
+                event.preventDefault();
+
+                const formData = new FormData(this);
+                const tlxResults = {};
+                for (let [key, value] of formData.entries()) {
+                    tlxResults[key] = parseInt(value, 10);
+                }
+
+                console.log("Submitting NASA TLX Results to Firebase:", tlxResults);
+
+                // Save NASA TLX results directly to Firebase
+                database.ref(`userSessions/${participantId}/nasaTlxResults`).push({
+                    timestamp: Date.now(),
+                    ...tlxResults
+                })
+                    .then(() => {
+                        console.log('NASA TLX data saved to Firebase.');
+                        showSection('stroop-test-section', 'nasa-tlx-form-section');
+                    })
+                    .catch((error) => {
+                        console.error('Error submitting NASA TLX data to Firebase:', error);
+                        alert("There was an error submitting your feedback. Data might not have been saved. Please check Firebase connection and rules.\n\nError: " + error.message);
+                    });
+            });
+
+            document.addEventListener("DOMContentLoaded", function () {
+            const continueBtn = document.getElementById("continueToNASATLXButton");
+            if (continueBtn) {
+                continueBtn.addEventListener("click", function () {
+                    showSection('nasa-tlx-form-section', 'demographics-typing-container');
+                });
+            } else {
+                console.warn("Continue to NASA-TLX button not found when attaching click event");
+            }
         });
 
     </script>
 </body>
-</html>
 
+</html>
