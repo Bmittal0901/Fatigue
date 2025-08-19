@@ -976,50 +976,30 @@
             align-items: center;
         }
 
-        .nasa-tlx-form input[type="range"] {
-            -webkit-appearance: none;
+        .nasa-tlx-form select {
             width: 100%;
-            height: 10px;
-            background: linear-gradient(to right, #4CAF50, #FFC107, #F44336);
-            border-radius: 5px;
+            padding: 12px;
+            font-size: 1em;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            background: #fff;
+            color: #333;
+            margin-top: 10px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .nasa-tlx-form select:focus {
             outline: none;
-            margin: 0;
-            padding: 0;
-            cursor: pointer;
-            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+            border-color: #4a90e2;
+            box-shadow: 0 0 8px rgba(74, 144, 226, 0.4);
         }
 
-        .nasa-tlx-form input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 25px;
-            height: 25px;
-            border-radius: 50%;
-            background: #4a90e2;
-            border: 3px solid #ffffff;
-            cursor: pointer;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-            transition: background 0.3s ease, border-color 0.3s ease;
+        .nasa-tlx-form option {
+            padding: 10px;
         }
 
-        .nasa-tlx-form input[type="range"]::-moz-range-thumb {
-            width: 25px;
-            height: 25px;
-            border-radius: 50%;
-            background: #4a90e2;
-            border: 3px solid #ffffff;
-            cursor: pointer;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-            transition: background 0.3s ease, border-color 0.3s ease;
-        }
-
-        .nasa-tlx-form input[type="range"]:hover::-webkit-slider-thumb {
-            background: #357ABD;
-        }
-
-        .nasa-tlx-form input[type="range"]:hover::-moz-range-thumb {
-            background: #357ABD;
-        }
 
         .nasa-tlx-form .scale-labels {
             display: flex;
@@ -1085,6 +1065,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            z-index: 9999;
         }
 
         #thank-you-screen h2 {
@@ -1311,15 +1292,12 @@
                         How much mental and perceptual activity was required (e.g., thinking, deciding, calculating,
                         remembering, looking, searching, etc.)?
                     </label>
-                    <div class="scale-container">
-                        <input type="range" id="mentalDemand" name="mentalDemand" min="0" max="20" value="10"
-                            oninput="updateTlxRangeValue(this)">
-                        <span class="rating-value">10</span>
-                    </div>
-                    <div class="scale-labels">
-                        <span>Low</span>
-                        <span>High</span>
-                    </div>
+                        <select id="mentalDemand" name="mentalDemand" required>
+                        <option value="" disabled selected>Select level</option>
+                        <option value="1">Low</option>
+                        <option value="2">Medium</option>
+                        <option value="3">High</option>
+                        </select>
                 </div>
 
                 <div class="nasa-tlx-factor-block">
@@ -1328,15 +1306,12 @@
                         How much physical activity was required (e.g., pushing, pulling, turning, controlling,
                         activating, etc.)?
                     </label>
-                    <div class="scale-container">
-                        <input type="range" id="physicalDemand" name="physicalDemand" min="0" max="20" value="10"
-                            oninput="updateTlxRangeValue(this)">
-                        <span class="rating-value">10</span>
-                    </div>
-                    <div class="scale-labels">
-                        <span>Low</span>
-                        <span>High</span>
-                    </div>
+                        <select id="physicalDemand" name="physicalDemand" required>
+                        <option value="" disabled selected>Select level</option>
+                        <option value="1">Low</option>
+                        <option value="2">Medium</option>
+                        <option value="3">High</option>
+                     </select>
                 </div>
 
                 <div class="nasa-tlx-factor-block">
@@ -1345,72 +1320,59 @@
                         How much time pressure did you feel due to the rate or pace at which the tasks or task elements
                         occurred?
                     </label>
-                    <div class="scale-container">
-                        <input type="range" id="temporalDemand" name="temporalDemand" min="0" max="20" value="10"
-                            oninput="updateTlxRangeValue(this)">
-                        <span class="rating-value">10</span>
-                    </div>
-                    <div class="scale-labels">
-                        <span>Low</span>
-                        <span>High</span>
-                    </div>
+                    <select id="temporalDemand" name="temporalDemand" required>
+                        <option value="" disabled selected>Select level</option>
+                        <option value="1">Low</option>
+                        <option value="2">Medium</option>
+                        <option value="3">High</option>
+                     </select>
                 </div>
 
                 <div class="nasa-tlx-factor-block">
-                    <label for="performance">
-                        4. Performance:<br>
-                        How successful were you in accomplishing the goals of the task? How satisfied were you with your
-                        performance?
-                    </label>
-                    <div class="scale-container">
-                        <input type="range" id="performance" name="performance" min="0" max="20" value="10"
-                            oninput="updateTlxRangeValue(this)">
-                        <span class="rating-value">10</span>
-                    </div>
-                    <div class="scale-labels">
-                        <span>Perfect</span>
-                        <span>Failure</span>
-                    </div>
-                    <p style="font-size:0.85em; color:#777; text-align:right; margin-top:5px;">(Note: For 'Performance',
-                        'Low' represents 'Perfect' and 'High' represents 'Failure')</p>
-                </div>
+                <label for="performance">
+                    4. Performance:<br>
+                    How successful were you in accomplishing the goals of the task? How satisfied were you with your performance?
+                </label>
+                <select id="performance" name="performance" required>
+                    <option value="" disabled selected>Select level</option>
+                    <option value="1">Perfect</option>
+                    <option value="2">Moderate</option>
+                    <option value="3">Failure</option>
+                </select>
+                <p style="font-size:0.85em; color:#777; text-align:right; margin-top:5px;">(Note: 'Perfect' = Low, 'Failure' = High)</p>
+            </div>
+
 
                 <div class="nasa-tlx-factor-block">
-                    <label for="effort">
-                        5. Effort:<br>
-                        How hard did you have to work (mentally and physically) to accomplish your level of performance?
-                    </label>
-                    <div class="scale-container">
-                        <input type="range" id="effort" name="effort" min="0" max="20" value="10"
-                            oninput="updateTlxRangeValue(this)">
-                        <span class="rating-value">10</span>
-                    </div>
-                    <div class="scale-labels">
-                        <span>Low</span>
-                        <span>High</span>
-                    </div>
-                </div>
+                <label for="effort">
+                    5. Effort:<br>
+                    How hard did you have to work (mentally and physically) to accomplish your level of performance?
+                </label>
+                <select id="effort" name="effort" required>
+                    <option value="" disabled selected>Select level</option>
+                    <option value="1">Low</option>
+                    <option value="2">Medium</option>
+                    <option value="3">High</option>
+                </select>
+            </div>
 
-                <div class="nasa-tlx-factor-block">
-                    <label for="frustration">
-                        6. Frustration:<br>
-                        How insecure, discouraged, irritated, stressed, or annoyed versus secure, gratified, content,
-                        relaxed, or complacent did you feel during the tasks?
-                    </label>
-                    <div class="scale-container">
-                        <input type="range" id="frustration" name="frustration" min="0" max="20" value="10"
-                            oninput="updateTlxRangeValue(this)">
-                        <span class="rating-value">10</span>
-                    </div>
-                    <div class="scale-labels">
-                        <span>Low</span>
-                        <span>High</span>
-                    </div>
-                </div>
-                <button type="submit">Submit </button>
-            </form>
+
+            <div class="nasa-tlx-factor-block">
+            <label for="frustration">
+                6. Frustration:<br>
+                How insecure, discouraged, irritated, stressed, or annoyed versus secure, gratified, content, relaxed, or complacent did you feel during the tasks?
+            </label>
+            <select id="frustration" name="frustration" required>
+                <option value="" disabled selected>Select level</option>
+                <option value="1">Low</option>
+                <option value="2">Medium</option>
+                <option value="3">High</option>
+            </select>
         </div>
+        <button type="submit">Submit</button>
+        </form>
     </div>
+</div>
 
     <div class="game-section" id="thank-you-screen" style="display: none;">
         <h2>All Tests Complete! 🎉</h2>
@@ -1423,13 +1385,23 @@
     <script>
         // --- Global Section Management ---
         // showSection function is now more general, hiding a current section and showing a new one.
-        function showSection(sectionIdToShow, sectionIdToHide) {
+                function showSection(sectionIdToShow, sectionIdToHide) {
+            // Hide the section specified
             if (sectionIdToHide) {
                 document.getElementById(sectionIdToHide).style.display = 'none';
             }
-            // Use 'flex' for game-section display property
+
+            // Hide all other sections to prevent overlap
+            const allSections = document.querySelectorAll('.game-section');
+            allSections.forEach(section => {
+                section.style.display = 'none';
+            });
+
+            // Show the requested section
             document.getElementById(sectionIdToShow).style.display = 'flex';
-            window.scrollTo(0, 0); // Scroll to top of the page
+
+            // Scroll to top for visibility
+            window.scrollTo(0, 0);
         }
 
         // Custom function to bridge typing test completion to Stroop
@@ -1635,7 +1607,7 @@
 
     // Update the final metrics to show the completion message
     document.getElementById('finalMetricsContent').innerHTML = '<h3>Typing Test Complete!</h3><p>Please click "Continue" to proceed to the next section.</p>';
-
+            showFinalMetrics();
 }
 
 
@@ -1706,48 +1678,41 @@
 
             // Using push under participantId to avoid overwriting and store multiple demographic entries if needed
             database.ref(`userSessions/${participantId}/demographics`).push(demographicsData)
-                .then(() => {
-                    console.log("Demographics saved successfully!");
-                    // Disable demographics fields once test starts
-                    document.getElementById('demographicsForm').querySelectorAll('input, select, button').forEach(el => el.disabled = true);
-                    document.getElementById('startTestButton').disabled = true; // explicitly disable start button
-                    document.getElementById('demographics-form-container').style.display = 'none'; // Hide demographics form
-                    document.getElementById('instructionScreen').style.display = 'block'; // Show the main test panel
+    .then(() => {
+        console.log("Demographics saved successfully!");
+        document.getElementById('demographicsForm').querySelectorAll('input, select, button').forEach(el => el.disabled = true);
+        document.getElementById('startTestButton').disabled = true;
+        document.getElementById('demographics-form-container').style.display = 'none';
+        document.getElementById('instructionScreen').style.display = 'block';
 
+        document.getElementById('beginTypingTestButton').addEventListener('click', () => {
+            document.getElementById('instructionScreen').style.display = 'none';
+            document.querySelector('.main-panel').style.display = 'block';
 
-                    // For a timed test, we can pre-select many sentences or simply iterate
-                    // Let's shuffle the entire corpus and just keep presenting from it
+            const shuffledCorpus = [...allCorpusSentences].sort(() => 0.5 - Math.random());
+            currentTestSentences = shuffledCorpus;
+            currentSentenceIndex = 0;
+            logs = [];
 
-                    document.getElementById('beginTypingTestButton').addEventListener('click', () => {
-                        document.getElementById('instructionScreen').style.display = 'none';
-                        document.querySelector('.main-panel').style.display = 'block';
-                        const shuffledCorpus = [...allCorpusSentences].sort(() => 0.5 - Math.random());
-                        currentTestSentences = shuffledCorpus; // Use the entire shuffled corpus
-                        currentSentenceIndex = 0;
-                        logs = [];
+            typingArea.value = '';
+            typingArea.disabled = true;
+            submitSentenceButton.style.display = 'none';
 
-                        typingArea.value = '';
-                        typingArea.disabled = true; // Will be enabled by displayNextSentence
-                        submitSentenceButton.style.display = 'none'; // Will be shown by displayNextSentence
+            statusLabel.classList.remove('text-success', 'text-danger');
+            metricsDisplay.style.display = 'none';
+            finalMetricsContent.innerHTML = "<p class='text-muted'>No data available yet.</p>";
 
-                        statusLabel.classList.remove('text-success', 'text-danger');
-
-                        metricsDisplay.style.display = 'none'; // Hide summary metrics until end of test
-                        finalMetricsContent.innerHTML = "<p class='text-muted'>No data available yet.</p>"; // Reset summary display
-
-                        testStartTime = Date.now();
-                        blockIndex = 0;
-                        runNextBlock(); // ⬅️ Start the block sequence
-
-                    })
-                        .catch(error => {
-                            console.error("Error saving demographics:", error);
-                            alert("Failed to save demographics. Please try again.");
-                            // Re-enable form fields if there's an error saving to Firebase
-                            document.getElementById('demographicsForm').querySelectorAll('input, select, button').forEach(el => el.disabled = false);
-                            document.getElementById('startTestButton').disabled = false;
-                        });
-                })
+            testStartTime = Date.now();
+            blockIndex = 0;
+            runNextBlock();
+        });
+    })
+    .catch(error => {
+        console.error("Error saving demographics:", error);
+        alert("Failed to save demographics. Please try again.");
+        document.getElementById('demographicsForm').querySelectorAll('input, select, button').forEach(el => el.disabled = false);
+        document.getElementById('startTestButton').disabled = false;
+    });
             };
 
             document.addEventListener("DOMContentLoaded", function () {
@@ -2251,249 +2216,190 @@ function showNextWordStroop() {
             });
 
 
-            // --- 2-Back Memory Test Logic ---
-            const stimulusDisplayTwoBack = document.getElementById("stimulus");
-            const startButtonTwoBack = document.getElementById("startButtonTwoBack");
-            const replayButtonTwoBack = document.getElementById("replayButtonTwoBack");
-            const introScreenTwoBack = document.getElementById("introScreenTwoBack");
-            const resultsScreenTwoBack = document.getElementById("resultsScreenTwoBack");
-            const testFeedbackTwoBack = document.getElementById("testFeedbackTwoBack");
-            const finalCorrectCountTwoBack = document.getElementById("finalCorrectCountTwoBack");
+            // === 2-BACK TEST LOGIC ===
+const stimulusDisplayTwoBack = document.getElementById("stimulus");
+const startButtonTwoBack = document.getElementById("startButtonTwoBack");
+const introScreenTwoBack = document.getElementById("introScreenTwoBack");
+const resultsScreenTwoBack = document.getElementById("resultsScreenTwoBack");
+const testFeedbackTwoBack = document.getElementById("testFeedbackTwoBack");
+const finalCorrectCountTwoBack = document.getElementById("finalCorrectCountTwoBack");
+const mobileControls = document.getElementById("mobileControls");
 
-            const CHARACTERS_TWOBACK = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-            const TOTAL_TRIALS_TWOBACK = 5; // Number of letters to show
-            const STIMULUS_DURATION_TWOBACK = 1000; // How long each letter is visible
-            const INTERVAL_BETWEEN_TRIALS_TWOBACK = 600; // Total time for one trial (stimulus + blank)
+const CHARACTERS_TWOBACK = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const TOTAL_TRIALS_TWOBACK = 5;
+const STIMULUS_DURATION_TWOBACK = 1000;
+const INTERVAL_BETWEEN_TRIALS_TWOBACK = 600;
 
-            let testSequenceTwoBack = [];
-            let currentIndexTwoBack = 0;
-            let correctMatchesTwoBack = 0;
-            let testActiveTwoBack = false; // Controls if 'm' key is registered for the current stimulus
-            let stimulusVisible = false; // To track if the stimulus is currently on screen
-            let trialTimeoutIdTwoBack;
-            let blankTimeoutIdTwoBack;
+let testSequenceTwoBack = [];
+let currentIndexTwoBack = 0;
+let correctMatchesTwoBack = 0;
+let testActiveTwoBack = false;
+let stimulusVisible = false;
+let trialTimeoutIdTwoBack;
+let blankTimeoutIdTwoBack;
 
-            function generateSequenceTwoBack() {
-                testSequenceTwoBack = [];
-                for (let i = 0; i < TOTAL_TRIALS_TWOBACK; i++) {
-                    // ~35% chance of being a match to 2-back
-                    if (i >= 2 && Math.random() < 0.35) {
-                        testSequenceTwoBack.push(testSequenceTwoBack[i - 2]);
-                    } else {
-                        let char;
-                        do { // Ensure it's not accidentally a 2-back match if not intended
-                            char = CHARACTERS_TWOBACK[Math.floor(Math.random() * CHARACTERS_TWOBACK.length)];
-                        } while (i >= 2 && char === testSequenceTwoBack[i - 2]);
-                        testSequenceTwoBack.push(char);
-                    }
-                }
-            }
-
-            function showStimulusTwoBack() {
-                stimulusDisplayTwoBack.style.display = "block";
-                stimulusDisplayTwoBack.innerText = testSequenceTwoBack[currentIndexTwoBack];
-                stimulusDisplayTwoBack.classList.remove("stimulusPop"); // Reset animation
-                void stimulusDisplayTwoBack.offsetWidth; // Trigger reflow
-                stimulusDisplayTwoBack.classList.add("stimulusPop"); // Re-add animation
-                stimulusVisible = true;
-                testActiveTwoBack = true; // Key input is active when stimulus is visible
-            }
-
-            function hideStimulusAndPrepareNext() {
-                stimulusDisplayTwoBack.style.display = "none";
-                stimulusVisible = false;
-                testActiveTwoBack = false; // Key input becomes inactive during blank period
-                testFeedbackTwoBack.innerText = "";
-                testFeedbackTwoBack.className = "";
-
-                currentIndexTwoBack++;
-
-                if (currentIndexTwoBack < TOTAL_TRIALS_TWOBACK) {
-                    trialTimeoutIdTwoBack = setTimeout(showStimulusAndSetTimer, INTERVAL_BETWEEN_TRIALS_TWOBACK - STIMULUS_DURATION_TWOBACK);
-                } else {
-                    endTestTwoBack();
-                }
-            }
-
-            function showStimulusAndSetTimer() {
-                    showStimulusTwoBack();
-                    // After STIMULUS_DURATION, hide the stimulus
-                    blankTimeoutIdTwoBack = setTimeout(hideStimulusAndPrepareNext, STIMULUS_DURATION_TWOBACK);
-                }
-
-                function startTwoBackTest() {
-        introScreenTwoBack.style.display = "none";
-        resultsScreenTwoBack.style.display = "none";
-        mobileControls.style.display = "block";  // Show Match button
-        testFeedbackTwoBack.innerText = "";
-        stimulusDisplayTwoBack.innerText = "-";
-
-        generateSequenceTwoBack();
-        currentIndexTwoBack = 0;
-        correctMatchesTwoBack = 0;
-
-        clearTimeout(trialTimeoutIdTwoBack);
-        clearTimeout(blankTimeoutIdTwoBack);
-
-        setTimeout(showStimulusAndSetTimer, 500);
+function generateSequenceTwoBack() {
+    testSequenceTwoBack = [];
+    for (let i = 0; i < TOTAL_TRIALS_TWOBACK; i++) {
+        if (i >= 2 && Math.random() < 0.35) {
+            testSequenceTwoBack.push(testSequenceTwoBack[i - 2]);
+        } else {
+            let char;
+            do {
+                char = CHARACTERS_TWOBACK[Math.floor(Math.random() * CHARACTERS_TWOBACK.length)];
+            } while (i >= 2 && char === testSequenceTwoBack[i - 2]);
+            testSequenceTwoBack.push(char);
+        }
     }
+}
 
-    document.getElementById("matchBtn").addEventListener("click", () => {
-        if (!testActiveTwoBack || !stimulusVisible) return;
+function showStimulusTwoBack() {
+    stimulusDisplayTwoBack.style.display = "block";
+    stimulusDisplayTwoBack.innerText = testSequenceTwoBack[currentIndexTwoBack];
+    stimulusDisplayTwoBack.classList.remove("stimulusPop");
+    void stimulusDisplayTwoBack.offsetWidth;
+    stimulusDisplayTwoBack.classList.add("stimulusPop");
+    stimulusVisible = true;
+    testActiveTwoBack = true;
+}
 
-        testActiveTwoBack = false; // prevent multiple taps
+function hideStimulusAndPrepareNext() {
+    stimulusDisplayTwoBack.style.display = "none";
+    stimulusVisible = false;
+    testActiveTwoBack = false;
+    testFeedbackTwoBack.innerText = "";
+    testFeedbackTwoBack.className = "";
+
+    currentIndexTwoBack++;
+
+    if (currentIndexTwoBack < TOTAL_TRIALS_TWOBACK) {
+        trialTimeoutIdTwoBack = setTimeout(showStimulusAndSetTimer, INTERVAL_BETWEEN_TRIALS_TWOBACK - STIMULUS_DURATION_TWOBACK);
+    } else {
+        endTestTwoBack();
+    }
+}
+
+function showStimulusAndSetTimer() {
+    showStimulusTwoBack();
+    blankTimeoutIdTwoBack = setTimeout(hideStimulusAndPrepareNext, STIMULUS_DURATION_TWOBACK);
+}
+
+function startTwoBackTest() {
+    introScreenTwoBack.style.display = "none";
+    resultsScreenTwoBack.style.display = "none";
+    mobileControls.style.display = "block"; // Show Match button
+    testFeedbackTwoBack.innerText = "";
+    stimulusDisplayTwoBack.innerText = "-";
+
+    generateSequenceTwoBack();
+    currentIndexTwoBack = 0;
+    correctMatchesTwoBack = 0;
+
+    clearTimeout(trialTimeoutIdTwoBack);
+    clearTimeout(blankTimeoutIdTwoBack);
+
+    setTimeout(showStimulusAndSetTimer, 500);
+}
+
+document.getElementById("matchBtn").addEventListener("click", () => {
+    if (!testActiveTwoBack || !stimulusVisible) return;
+
+    testActiveTwoBack = false;
+    const currentLetter = testSequenceTwoBack[currentIndexTwoBack];
+    const letterTwoBack = testSequenceTwoBack[currentIndexTwoBack - 2];
+    const isMatchExpected = (currentIndexTwoBack >= 2 && currentLetter === letterTwoBack);
+
+    if (isMatchExpected) {
+        correctMatchesTwoBack++;
+        testFeedbackTwoBack.innerText = "Correct!";
+        testFeedbackTwoBack.className = "correct";
+    } else {
+        testFeedbackTwoBack.innerText = "Wrong!";
+        testFeedbackTwoBack.className = "incorrect";
+    }
+});
+
+function endTestTwoBack() {
+    clearTimeout(trialTimeoutIdTwoBack);
+    clearTimeout(blankTimeoutIdTwoBack);
+    testActiveTwoBack = false;
+    stimulusVisible = false;
+    mobileControls.style.display = "none";
+    stimulusDisplayTwoBack.style.display = "none";
+    testFeedbackTwoBack.innerText = "";
+    resultsScreenTwoBack.style.display = "block";
+    finalCorrectCountTwoBack.innerText = correctMatchesTwoBack;
+
+    if (typeof database !== 'undefined') {
+        database.ref(`userSessions/${participantId}/nbackresults`).push({
+            date: new Date().toISOString(),
+            correctResponses: correctMatchesTwoBack
+        }).then(() => {
+            console.log("2-Back Test data saved to Firebase successfully!");
+        }).catch((error) => {
+            console.error("Error saving 2-Back test data to Firebase:", error);
+        });
+    }
+}
+
+document.addEventListener("keydown", (e) => {
+    if (document.getElementById("two-back-test-section").style.display === 'flex' &&
+        testActiveTwoBack && stimulusVisible && e.key.toLowerCase() === "m") {
+        testActiveTwoBack = false;
         const currentLetter = testSequenceTwoBack[currentIndexTwoBack];
         const letterTwoBack = testSequenceTwoBack[currentIndexTwoBack - 2];
         const isMatchExpected = (currentIndexTwoBack >= 2 && currentLetter === letterTwoBack);
 
         if (isMatchExpected) {
-            correctMatchesTwoBack++;
-            testFeedbackTwoBack.innerText = "Correct!";
+            testFeedbackTwoBack.innerText = "Match!";
             testFeedbackTwoBack.className = "correct";
+            correctMatchesTwoBack++;
         } else {
-            testFeedbackTwoBack.innerText = "Wrong!";
+            testFeedbackTwoBack.innerText = "No Match!";
             testFeedbackTwoBack.className = "incorrect";
         }
-    });
+    }
+});
 
+startButtonTwoBack.addEventListener("click", startTwoBackTest);
 
-            function endTestTwoBack() {
-                clearTimeout(trialTimeoutIdTwoBack);
-                clearTimeout(blankTimeoutIdTwoBack);
-                testActiveTwoBack = false;
-                stimulusVisible = false;
-                mobileControls.style.display = "none"; // Hide Match button
-                stimulusDisplayTwoBack.style.display = "none";
-                testFeedbackTwoBack.innerText = "";
-                resultsScreenTwoBack.style.display = "block";
-                finalCorrectCountTwoBack.innerText = correctMatchesTwoBack;
+// === NASA TLX LOGIC (UPDATED FOR DROPDOWNS) ===
+document.getElementById('nasaTlxForm').addEventListener('submit', function (event) {
+    event.preventDefault();
 
-                // Save to Firebase under 'user sessions/2back_tests' using .push()
-                // This will create a new unique entry for each test completion.
-                if (typeof database !== 'undefined') { // Check if Firebase is initialized
-                    database.ref(`userSessions/${participantId}/nbackresults`).push({
-                        date: new Date().toISOString(), // Use ISO string for consistent date format
-                        correctResponses: correctMatchesTwoBack
-                    }) // Use .push() here
-                        .then(() => {
-                            console.log("2-Back Test data saved to Firebase successfully!");
-                        })
-                        .catch((error) => {
-                            console.error("Error saving 2-Back test data to Firebase:", error);
-                        });
-                } else {
-                    console.warn("Firebase database not initialized. Data not saved.");
-                }
-            }
+    const formData = new FormData(this);
+    const tlxResults = {};
+    for (let [key, value] of formData.entries()) {
+        tlxResults[key] = value; // Dropdown values (Low, Medium, High)
+    }
 
-            // Event listener for 'm' key press in 2-Back test
-            document.addEventListener("keydown", (e) => {
-                // Only process if 2-Back test is on screen, is active, and stimulus is visible
-                if (document.getElementById("two-back-test-section").style.display === 'flex' && testActiveTwoBack && stimulusVisible && e.key.toLowerCase() === "m") {
-                    // To prevent multiple presses for the same stimulus, deactivate input immediately
-                    testActiveTwoBack = false;
+    console.log("Submitting NASA TLX Results to Firebase:", tlxResults);
 
-                    const currentLetter = testSequenceTwoBack[currentIndexTwoBack];
-                    const letterTwoBack = testSequenceTwoBack[currentIndexTwoBack - 2];
-
-                    const isMatchExpected = (currentIndexTwoBack >= 2 && currentLetter === letterTwoBack);
-
-                    if (isMatchExpected) {
-                        testFeedbackTwoBack.innerText = "Match!";
-                        testFeedbackTwoBack.className = "correct";
-                        correctMatchesTwoBack++;
-                    } else {
-                        testFeedbackTwoBack.innerText = "No Match!";
-                        testFeedbackTwoBack.className = "incorrect";
-                    }
-                }
-            });
-
-            // Event listener for 'm' key press in 2-Back test
-            document.addEventListener("keydown", (e) => {
-                if (document.getElementById("two-back-test-section").style.display === 'flex' &&
-                    document.getElementById("two-back-test-section").dataset.trialActive === 'true' &&
-                    e.key.toLowerCase() === "m") {
-
-                    userPressedMThisTrial = true;
-                    testFeedbackTwoBack.innerText = "Registered Press!";
-                    testFeedbackTwoBack.className = "";
-                    // No sound here, sound is played in evaluateTrialResult
-                    document.getElementById("two-back-test-section").dataset.trialActive = 'false'; // Only one press per trial
-                }
-            });
-
-            startButtonTwoBack.addEventListener("click", startTwoBackTest);
-
-
-            // --- NASA TLX Form Logic (MODIFIED FOR FIREBASE SAVE) ---
-            function updateTlxRangeValue(input) {
-                const valueSpan = input.nextElementSibling;
-                valueSpan.innerText = input.value;
-                const percentage = (input.value - input.min) / (input.max - input.min);
-                const thumbWidth = 25;
-                const offset = (thumbWidth / 2) - (thumbWidth * percentage);
-                valueSpan.style.left = `calc(${percentage * 100}% + ${offset}px)`;
-
-                input.classList.add('show-value');
-                if (input.timeout) {
-                    clearTimeout(input.timeout);
-                }
-                input.timeout = setTimeout(() => {
-                    input.classList.remove('show-value');
-                }, 1000);
-            }
-
-            document.querySelectorAll('#nasaTlxForm input[type="range"]').forEach(input => {
-                updateTlxRangeValue(input);
-                input.addEventListener('mousedown', () => input.classList.add('show-value'));
-                input.addEventListener('mouseup', () => {
-                    if (input.timeout) {
-                        clearTimeout(input.timeout);
-                    }
-                    input.timeout = setTimeout(() => {
-                        input.classList.remove('show-value');
-                    }, 500);
-                });
-            });
-
-            document.getElementById('nasaTlxForm').addEventListener('submit', function (event) {
-                event.preventDefault();
-
-                const formData = new FormData(this);
-                const tlxResults = {};
-                for (let [key, value] of formData.entries()) {
-                    tlxResults[key] = parseInt(value, 10);
-                }
-
-                console.log("Submitting NASA TLX Results to Firebase:", tlxResults);
-
-                // Save NASA TLX results directly to Firebase
-                database.ref(`userSessions/${participantId}/nasaTlxResults`).push({
-                    timestamp: Date.now(),
-                    ...tlxResults
-                })
-                    .then(() => {
-                        console.log('NASA TLX data saved to Firebase.');
-                        showSection('stroop-test-section', 'nasa-tlx-form-section');
-                    })
-                    .catch((error) => {
-                        console.error('Error submitting NASA TLX data to Firebase:', error);
-                        alert("There was an error submitting your feedback. Data might not have been saved. Please check Firebase connection and rules.\n\nError: " + error.message);
-                    });
-            });
-
-            document.addEventListener("DOMContentLoaded", function () {
-            const continueBtn = document.getElementById("continueToNASATLXButton");
-            if (continueBtn) {
-                continueBtn.addEventListener("click", function () {
-                    showSection('nasa-tlx-form-section', 'demographics-typing-container');
-                });
-            } else {
-                console.warn("Continue to NASA-TLX button not found when attaching click event");
-            }
+    if (typeof database !== 'undefined') {
+        database.ref(`userSessions/${participantId}/nasaTlxResults`).push({
+            timestamp: Date.now(),
+            ...tlxResults
+        }).then(() => {
+            console.log('NASA TLX data saved to Firebase.');
+            showSection('stroop-test-section', 'nasa-tlx-form-section');
+        }).catch((error) => {
+            console.error('Error submitting NASA TLX data to Firebase:', error);
+            alert("There was an error submitting your feedback. Please check Firebase connection.\nError: " + error.message);
         });
+    }
+});
 
+// === Navigation ===
+document.addEventListener("DOMContentLoaded", function () {
+    const continueBtn = document.getElementById("continueToNASATLXButton");
+    if (continueBtn) {
+        continueBtn.addEventListener("click", function () {
+            showSection('nasa-tlx-form-section', 'demographics-typing-container');
+        });
+    } else {
+        console.warn("Continue to NASA-TLX button not found");
+    }
+});
     </script>
 </body>
 
