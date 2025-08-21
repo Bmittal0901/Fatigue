@@ -14,9 +14,8 @@
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js">
     document.getElementById("nasaTlxForm").addEventListener("submit", function (e) {
-        e.preventDefault(); // prevent reload
-        showSection('stroop-test-section', 'nasa-tlx-form-section');
-    });
+        e.preventDefault();
+        });
     </script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
@@ -1102,6 +1101,26 @@
             Journey!</button>
     </div>
 
+            <div class="game-section" id="break-screen" style="display:none;">
+            <h2>Take a Short Break 🛋️</h2>
+            <p>Please relax for 2 minutes before continuing.</p>
+            <p id="breakTimer">02:00</p>
+        </div>
+
+        <div class="game-section" id="choice-screen" style="display:none;">
+            <h2>Next Activity</h2>
+            <p>Please choose the type of task you want to continue with:</p>
+            <button class="start-btn" onclick="startCognitiveFlow()">Cognitive Task</button>
+            <button class="start-btn" onclick="startPhysicalFlow()">Physical Task</button>
+        </div>
+
+        <div class="game-section" id="physical-task-screen" style="display:none;">
+            <h2>Physical Activity</h2>
+            <p>Perform your physical task for 10 minutes.</p>
+            <p id="physicalTimer">10:00</p>
+        </div>
+
+
     <div class="game-section" id="demographics-typing-container" style="display: none;">
         <div id="demographics-form-container">
             <h2>Participant Information</h2>
@@ -1376,7 +1395,7 @@
 
     <div class="game-section" id="thank-you-screen" style="display: none;">
         <h2>All Tests Complete! 🎉</h2>
-        <p>Thank you for completing all the cognitive challenges and the workload assessment.</p>
+        <p>Thank you for completing all the challenges and the workload assessment.</p>
         <p>Your responses have been recorded.</p>
         <button class="next-btn" onclick="location.reload()">Start New Session</button>
     </div>
@@ -1715,18 +1734,62 @@
     });
             };
 
-            document.addEventListener("DOMContentLoaded", function () {
-            const continueBtn = document.getElementById("continueToNASATLXButton");
-            if (continueBtn) {
-                continueBtn.addEventListener("click", function () {
-                    showSection('nasa-tlx-form-section', 'demographics-typing-container');
-                });
-            } else {
-                console.warn("Continue to NASA-TLX button not found in DOM");
+            document.addEventListener('DOMContentLoaded', function () {
+                const nasaForm = document.getElementById('nasaTlxForm');
+                if (nasaForm) {
+                    nasaForm.addEventListener('submit', function (e) {
+                        e.preventDefault();
+                        // Save NASA TLX responses here if needed
+                        showBreakScreen();
+                    });
+                }
+            });
+
+            function showBreakScreen() {
+                showSection('break-screen', 'nasa-tlx-form-section');
+                let breakTime = 10; // 2 minutes in seconds
+                const breakTimerDisplay = document.getElementById('breakTimer');
+
+                const breakInterval = setInterval(() => {
+                    let minutes = Math.floor(breakTime / 60);
+                    let seconds = breakTime % 60;
+                    breakTimerDisplay.textContent = 
+                        `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                    breakTime--;
+
+                    if (breakTime < 0) {
+                        clearInterval(breakInterval);
+                        showSection('choice-screen', 'break-screen');
+                    }
+                }, 1000);
             }
-         });
 
+            function startCognitiveFlow() {
+                showSection('stroop-test-section', 'choice-screen');
+            }
 
+            function startPhysicalFlow() {
+                showSection('physical-task-screen', 'choice-screen');
+                startPhysicalTimer();
+            }
+
+            function startPhysicalTimer() {
+                let physicalTime = 10; // 10 minutes in seconds
+                const physicalTimerDisplay = document.getElementById('physicalTimer');
+
+                const physicalInterval = setInterval(() => {
+                    let minutes = Math.floor(physicalTime / 60);
+                    let seconds = physicalTime % 60;
+                    physicalTimerDisplay.textContent = 
+                        `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                    physicalTime--;
+
+                    if (physicalTime < 0) {
+                        clearInterval(physicalInterval);
+                        showSection('thank-you-screen', 'physical-task-screen');
+                    }
+                }, 1000);
+            }
 
             // Function to handle the "Submit Sentence" button click
             function submitSentence() {
@@ -2366,6 +2429,7 @@ startButtonTwoBack.addEventListener("click", startTwoBackTest);
 // === NASA TLX LOGIC (UPDATED FOR DROPDOWNS) ===
 document.getElementById('nasaTlxForm').addEventListener('submit', function (event) {
     event.preventDefault();
+    showBreakScreen();
 
     const formData = new FormData(this);
     const tlxResults = {};
@@ -2381,7 +2445,6 @@ document.getElementById('nasaTlxForm').addEventListener('submit', function (even
             ...tlxResults
         }).then(() => {
             console.log('NASA TLX data saved to Firebase.');
-            showSection('stroop-test-section', 'nasa-tlx-form-section');
         }).catch((error) => {
             console.error('Error submitting NASA TLX data to Firebase:', error);
             alert("There was an error submitting your feedback. Please check Firebase connection.\nError: " + error.message);
@@ -2400,7 +2463,11 @@ document.addEventListener("DOMContentLoaded", function () {
         console.warn("Continue to NASA-TLX button not found");
     }
 });
+document.getElementById('continueToNASATLXButton').addEventListener('click', function () {
+    showSection('nasa-tlx-form-section', 'demographics-typing-container');
+});
     </script>
+
 </body>
 
 </html>
