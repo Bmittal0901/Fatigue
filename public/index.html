@@ -13,13 +13,9 @@
         rel="stylesheet">
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script>
-        document.getElementById("nasaTlxForm").addEventListener("submit", function (e) {
-            e.preventDefault();
-        });
-    </script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <script> document.getElementById("nasaTlxForm").addEventListener("submit", function (e) { e.preventDefault(); }); </script>
 
     <style>
         /* CSS Variables for a more maintainable and impressive palette */
@@ -776,6 +772,19 @@
             margin-bottom: 15px;
             color: var(--accent-purple);
             text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.08);
+            flex-direction: column;
+            align-items: center;      /* ⬅ centers horizontally */
+            text-align: center;       /* ⬅ centers text */
+        }
+
+            #two-back-test-section h4 {
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.08);
+            flex-direction: column;
+            align-items: center;      /* ⬅ centers horizontally */
+            text-align: center;       /* ⬅ centers text */
         }
 
         #two-back-test-section p {
@@ -783,6 +792,9 @@
             max-width: 90%;
             margin: 0 auto 10px auto;
             font-size: 0.95em;
+            flex-direction: column;
+            align-items: center;      /* ⬅ centers horizontally */
+            text-align: center;       /* ⬅ centers text */
         }
 
         #two-back-test-section button {
@@ -1118,6 +1130,7 @@
 
     <div class="game-section" id="welcome-screen">
         <h2>Welcome to Your Cognitive Challenge!</h2>
+        <h4>This Test will be conducted in 3 phases. Each phase consists of multiple tasks.</h4>
         <p>This experience will guide you through a series of cognitive tests, starting with a Typing Test, followed by
             brief questionnaire about your workload and then the Stroop Test and 2-Back Challenge.</p>
         <button class="start-btn" onclick="fullResetAndStart()">Start Your
@@ -1276,7 +1289,7 @@
         <div id="resultScreenStroop" style="display: none;">
             <h3>Stroop Test Complete!</h3>
             <p>Time's up! Here are your results:</p>
-            <p id="resultDisplay">You correctly identified <span id="finalCorrectCountStroop">0</span> words!</p>
+            <p id="resultDisplay"><span id="finalCorrectCountStroop"></span></p>
             <button class="next-btn" onclick="showTwoBackInstructions()">Continue to 2-Back Challenge</button>
         </div>
     </div>
@@ -1290,9 +1303,10 @@
 
         <div id="introScreenTwoBack" style="display:none;">
             <h1>2-Back Challenge</h1>
+            <h4>The Test Will Continue for <strong>6 Minutes.</strong></h4>
             <p>Sharpen your working memory! A letter will appear on screen for a short time.</p>
             <p>Your mission: Press the <span style="color: #4e54c8; font-weight: bold;">M key</span> on your keyboard if
-                the current letter matches the letter that appeared *2 steps back* in the sequence.</p>
+                the current letter matches the letter that appeared <strong>2 steps back</strong> in the sequence.</p>
             <p>Stay focused; this challenge requires your full attention!</p>
             <div style="display: flex; justify-content: center; width: 100%;">
                 <button id="startButtonTwoBack" onclick="beginTwoBackTest()">Start Challenge</button>
@@ -1307,9 +1321,10 @@
         </div>
         </div>
 
-        <div id="resultsScreenTwoBack">
-            <h2>Challenge Complete!</h2>
-            <button class="next-btn" onclick="showSection('thank-you-screen', 'two-back-test-section')">Finish Assessment</button>
+        <div id="resultsScreenTwoBack" style="display:none; flex-direction:column; align-items:center;">
+            <h2 style="margin-bottom:20px;">Challenge Complete!</h2>
+            <p id="resultDisplayTwoBack" style="font-size:20px; margin:15px 0; font-weight:500;"></p>
+            <button class="next-btn" style="margin-top:25px;" onclick=showThankYouScreen()>Finish Assessment</button>
         </div>
     </div>
 
@@ -1399,37 +1414,62 @@
         <h2>All Tests Complete! 🎉</h2>
         <p>Thank you for completing all the challenges and the workload assessment.</p>
         <p>Your responses have been recorded.</p>
+
         <div style="display: flex; justify-content: center; width: 100%;">
-    <button id="continueFromTyping" class="next-btn" onclick="continueFromThankYou()">Continue</button>
+
+            <!-- NEXT PHASE BUTTON -->
+            <button id="continueFromTyping"
+                    class="next-btn"
+                    onclick="continueFromThankYou()"
+                    style="display:none;">
+                Next Phase
+            </button>
+
+            <!-- END TEST BUTTON -->
+            <button id="endTestBtn"
+                    class="next-btn"
+                    onclick="endExperiment()"
+                    style="display:none;">
+                End Test
+            </button>
+        </div>
     </div>
-    </div>
+</div>
 
 
     <script>
         // --- Global Section Management ---
         let typingSummarySaved = false;
         let currentCycle = 0;
-        const TOTAL_CYCLES = 3;
+        const TOTAL_CYCLES = 2;
 
         // showSection function is now more general, hiding a current section and showing a new one.
-                function showSection(sectionIdToShow, sectionIdToHide) {
-            // Hide the section specified
+        function showSection(sectionIdToShow, sectionIdToHide) {
+
+            // Hide specific section if provided AND exists
             if (sectionIdToHide) {
-                document.getElementById(sectionIdToHide).style.display = 'none';
+                const hideEl = document.getElementById(sectionIdToHide);
+                if (hideEl) {
+                    hideEl.style.display = 'none';
+                }
             }
 
-            // Hide all other sections to prevent overlap
-            const allSections = document.querySelectorAll('.game-section');
-            allSections.forEach(section => {
+            // Hide all game sections
+            document.querySelectorAll('.game-section').forEach(section => {
                 section.style.display = 'none';
             });
 
-            // Show the requested section
-            document.getElementById(sectionIdToShow).style.display = 'flex';
+            // Show target section safely
+            const showEl = document.getElementById(sectionIdToShow);
+            if (!showEl) {
+                console.error(`❌ showSection(): Section not found -> ${sectionIdToShow}`);
+                return;
+            }
 
-            // Scroll to top for visibility
+            showEl.style.display = 'flex';
             window.scrollTo(0, 0);
         }
+
 
         function nextCycleOrEnd() {
             console.log(`Cycle finished. Current cycle = ${currentCycle}`);
@@ -1473,7 +1513,7 @@
                     if (currentCycle > TOTAL_CYCLES) {
                     return; // stop at 4 cycles
                 }
-                    showSection("demographics-typing-container", "thank-you-screen");
+                    showSection("demographics-typing-container", "ThankYouScreen");
                     resetTypingTestState();
                     runNextBlock();
                 });
@@ -1507,6 +1547,17 @@
                 typingArea.disabled = true;
                 metricsDisplay.style.display = "none";
                 finalMetricsContent.style.display = "none";
+
+                // 🔁 RESET N-BACK STATE
+                testSequenceTwoBack = [];
+                currentIndexTwoBack = 0;
+                totalStimuliShown = 0;
+                hitsTwoBack = 0;
+                missesTwoBack = 0;
+                falseAlarmsTwoBack = 0;
+                testActiveTwoBack = false;
+                stimulusVisible = false;
+
             }
 
 
@@ -1667,18 +1718,6 @@
         typingArea.addEventListener('contextmenu', (e) => e.preventDefault());
         typingArea.addEventListener('paste', (e) => e.preventDefault());
 
-        /* ---------- Helpers ---------------------------------- */
-        const formatTimestamp = ts =>
-            new Date(ts).toLocaleString('en-GB', {
-                day: '2-digit',
-                month: 'short',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: false,
-                timeZone: 'Asia/Kolkata'
-            }).replace(',', '');
-
         function cleanTypingHours(hours) {
             if (!hours) return '0-1 hours';
             const normalized = hours.replace(/[–—−‑‒–]/g, '-');
@@ -1766,7 +1805,7 @@
             }
 
             const demographicsData = {
-                timestamp: Date.now(),
+                timestamp: new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata"}),
                 participantId,
                 ageGroup,
                 gender,
@@ -1904,8 +1943,7 @@
                     calculateMetrics(originalSentence, typedText, currentKeyTimestamps, backspaceCounter, sentenceStartTime);
 
                 const sentenceLog = {
-                    timestamp: new Date().toISOString(),
-                    displayTimestamp: formatTimestamp(new Date()),
+                    timestamp: new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata"}),
                     participantId: participantId,
                     ageGroup: document.getElementById('ageGroup').value,
                     gender: document.getElementById('gender').value,
@@ -2112,7 +2150,7 @@
                     // finalMetricsContent.innerHTML += `<p class="mb-0">Total Sentences Completed: <b>${logs.length}</b></p>`;
 
                     const summaryData = {
-                        timestamp: Date.now(),
+                        timestamp: new Date().toLocaleString("en-IN", {timeZone: "Asia/Kolkata"}),
                         //participantId: participantId,
                         avgWpm: parseFloat(avgWpm),
                         avgIki: parseFloat(avgIki),
@@ -2294,7 +2332,7 @@ function showNextWordStroop() {
             database
             .ref(`userSessions/${participantId}/cycles/${cycleKey}/stroop`)
             .set({
-                timestamp: Date.now(),
+                timestamp: new Date().toLocaleString("en-IN", {timeZone: "Asia/Kolkata"}),
                 cycle: currentCycle,
                 correctAnswers: correctAnswersStroop,
                 totalTrials: totalWordsShownStroop,
@@ -2373,6 +2411,8 @@ let totalStimuliShown = 0;
 let hitsTwoBack = 0;
 let falseAlarmsTwoBack = 0;
 let missesTwoBack = 0;
+let responseRegisteredTwoBack = false;
+let endTestTimeoutTwoBack = null;
 
 function generateNextStimulusTwoBack() {
     if (testSequenceTwoBack.length >= 2 && Math.random() < 0.35) {
@@ -2400,14 +2440,19 @@ function showStimulusTwoBack() {
     stimulusDisplayTwoBack.classList.remove("stimulusPop");
     void stimulusDisplayTwoBack.offsetWidth;
     stimulusDisplayTwoBack.classList.add("stimulusPop");
+    responseRegisteredTwoBack = false;
+    testFeedbackTwoBack.style.display = "block";
+    testFeedbackTwoBack.innerText = "";
+    testFeedbackTwoBack.className = "";
     stimulusVisible = true;
     testActiveTwoBack = true;
+    
 }
 
 function hideStimulusAndPrepareNext() {
     stimulusDisplayTwoBack.style.display = "none";
     stimulusVisible = false;
-    testActiveTwoBack = false;
+    //testActiveTwoBack = false;
     testFeedbackTwoBack.innerText = "";
     testFeedbackTwoBack.className = "";
 
@@ -2427,7 +2472,7 @@ function hideStimulusAndPrepareNext() {
 
     trialTimeoutIdTwoBack = setTimeout(
         showStimulusAndSetTimer,
-        INTERVAL_BETWEEN_TRIALS_TWOBACK - STIMULUS_DURATION_TWOBACK
+        Math.max(0, INTERVAL_BETWEEN_TRIALS_TWOBACK - STIMULUS_DURATION_TWOBACK)
     );
 }
 
@@ -2456,6 +2501,10 @@ function startTwoBackTest() {
 
 
 function beginTwoBackTest() {
+    if (endTestTimeoutTwoBack) {
+    clearTimeout(endTestTimeoutTwoBack);
+    endTestTimeoutTwoBack = null;
+}
     totalStimuliShown = 0;
     hitsTwoBack = 0;
     falseAlarmsTwoBack = 0;
@@ -2472,17 +2521,25 @@ function beginTwoBackTest() {
     testActiveTwoBack = true;
     stimulusVisible = true;
 
+    responseRegisteredTwoBack = false;
+    testFeedbackTwoBack.style.display = "block";
+
+
     generateNextStimulusTwoBack();
 
     setTimeout(showStimulusAndSetTimer, 500);
 
-    setTimeout(endTestTwoBack, TEST_DURATION_MS_TWOBACK);
+    endTestTimeoutTwoBack = setTimeout(() => {
+    if (!document.getElementById("two-back-test-section")) return;
+    endTestTwoBack();
+}, TEST_DURATION_MS_TWOBACK);
+
 }
 
 document.getElementById("matchBtn").addEventListener("click", () => {
-    if (!testActiveTwoBack || !stimulusVisible) return;
-
-    testActiveTwoBack = false;
+    if (!testActiveTwoBack ||!stimulusVisible || responseRegisteredTwoBack) return;
+    responseRegisteredTwoBack = true;
+    // testActiveTwoBack = false;
 
     const isMatchExpected =
         currentIndexTwoBack >= 2 &&
@@ -2526,9 +2583,16 @@ function endTestTwoBack() {
             : 0;
 
     // ✅ SHOW RESULT SCREEN
-    document.getElementById("resultsScreenTwoBack").style.display = "flex";
-    document.getElementById("resultDisplayTwoBack").innerHTML = `
-        <strong>Accuracy:</strong> ${accuracyPercent}%<br>`;
+    // 🔒 Cache DOM references (VERY IMPORTANT)
+        const resultDisplayTwoBack = document.getElementById("resultDisplayTwoBack");
+        const testFeedbackTwoBack = document.getElementById("testFeedbackTwoBack");
+    if (!resultsScreenTwoBack || !resultDisplayTwoBack) {
+    console.error("❌ 2-Back result screen not found");
+    return;
+}
+
+resultsScreenTwoBack.style.display = "flex";
+resultDisplayTwoBack.innerHTML = `<strong>Accuracy:</strong> ${accuracyPercent}%<br>`;
 
     // ✅ SAVE TO FIREBASE
     if (typeof database !== "undefined") {
@@ -2536,7 +2600,7 @@ function endTestTwoBack() {
         database
         .ref(`userSessions/${participantId}/cycles/${cycleKey}/nBack`)
         .set({
-            timestamp: Date.now(),
+            timestamp: new Date().toLocaleString("en-IN", {timeZone: "Asia/Kolkata"}),
             cycle: currentCycle,
             totalLetters: totalStimuliShown,
             hits: hitsTwoBack,
@@ -2554,6 +2618,7 @@ document.addEventListener("keydown", (e) => {
         document.getElementById("two-back-test-section").style.display === "flex" &&
         testActiveTwoBack &&
         stimulusVisible &&
+        !responseRegisteredTwoBack &&
         e.key.toLowerCase() === "m"
     ) {
         testActiveTwoBack = false;
@@ -2590,14 +2655,14 @@ document.addEventListener("keydown", (e) => {
             database
                 .ref(`userSessions/${participantId}/cycles/${cycleKey}/nasaTlx`)
                 .set({
-                    timestamp: Date.now(),
+                    timestamp: new Date().toLocaleString("en-IN", {timeZone: "Asia/Kolkata"}),
                     cycle: currentCycle,
                     ...tlxResults
                 })
                 .then(() => {
                     // ✅ FLOW CONTROL IN ONE PLACE
                     if (currentCycle >= TOTAL_CYCLES) {
-                        showSection('thank-you-screen', 'nasa-tlx-form-section');
+                        showThankYouScreen();
                     } else {
                         showBreakScreen();
                     }
@@ -2618,32 +2683,58 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
-        function continueFromThankYou() {
-        currentCycle++;
-        typingSummarySaved = false;
-        if (currentCycle > TOTAL_CYCLES) {
-            alert("All cycles completed! Thank you for your participation.");
-            showSection("welcome-screen", "thank-you-screen");
-            return;
-        }
- 
-        blockIndex = 0;
-        currentSentenceIndex = 0;
-        logs = [];
+    function showThankYouScreen() {
+    showSection("thank-you-screen");
 
-        // ADD THESE TWO LINES:
-        document.getElementById("metricsDisplay").style.display = "none";
-        document.getElementById("finalMetricsContent").style.display = "none";
+    const nextBtn = document.getElementById("continueFromTyping");
+    const endBtn = document.getElementById("endTestBtn");
 
-        document.getElementById("thank-you-screen").style.display = "none";
-        document.getElementById("demographics-typing-container").style.display = "flex";
-        
-        // Ensure the typing area is visible and form is hidden
-        document.getElementById("demographics-form-container").style.display = "none";
-        document.getElementById("instructionScreen").style.display = "block";
-        document.querySelector(".main-panel").style.display = "none";
+    nextBtn.style.display = "none";
+    endBtn.style.display  = "none";
 
-            testIsActive = false;
+    // 🔑 Decide button visibility HERE
+    if (currentCycle < TOTAL_CYCLES) {
+        nextBtn.style.display = "block";
+        endBtn.style.display = "none";
+    } else {
+        nextBtn.style.display = "none";
+        endBtn.style.display = "block";
+    }
+}
+
+ function continueFromThankYou() {
+    // 🔁 Move to next cycle
+    currentCycle++;
+    typingSummarySaved = false;
+
+    // 🧹 Reset state safely
+    resetForNewCycle();
+
+    blockIndex = 0;
+    currentSentenceIndex = 0;
+    logs = [];
+
+    document.getElementById("metricsDisplay").style.display = "none";
+    document.getElementById("finalMetricsContent").style.display = "none";
+
+    document.getElementById("demographics-form-container").style.display = "none";
+    document.getElementById("instructionScreen").style.display = "block";
+    document.querySelector(".main-panel").style.display = "none";
+
+    testIsActive = false;
+
+    // 🚀 Navigate cleanly
+    showSection("demographics-typing-container", "thank-you-screen");
+}
+
+    function endExperiment() {
+    alert("Thank you for participating! Your session is complete.");
+
+    // Optional: redirect or final screen
+    showSection("welcome-screen", "thank-you-screen");
+
+    // Optional: freeze all further actions
+    console.log("Experiment fully completed.");
     }
 
     function fullResetAndStart() {
