@@ -1238,8 +1238,8 @@
     <div class="game-section" id="stroop-test-section" style="display: none;">
         <div id="introScreenStroop">
             <h2>Stroop Test 🧠</h2>
-            <p>Your goal: Identify the *ink color* of each word, not the word itself. This test will run for **30
-                seconds**. Focus on both speed and accuracy.</p>
+            <p>Your goal: Identify the <strong>ink color</strong> of each word, not the word itself. This test will run for <strong>6 minutes</strong>
+                . Focus on both speed and accuracy.</p>
             <p>Use the buttons below or the keyboard shortcuts: <span style="font-weight: bold;">R</span> for Red, <span
                     style="font-weight: bold;">B</span> for Blue, <span style="font-weight: bold;">G</span> for Green,
                 <span style="font-weight: bold;">Y</span> for Yellow.
@@ -1309,8 +1309,6 @@
 
         <div id="resultsScreenTwoBack">
             <h2>Challenge Complete!</h2>
-            <p id="resultDisplayTwoBack">You correctly identified <span id="finalCorrectCountTwoBack">0</span> matches!
-            </p>
             <button class="next-btn" onclick="showSection('thank-you-screen', 'two-back-test-section')">Finish Assessment</button>
         </div>
     </div>
@@ -1475,13 +1473,42 @@
                     if (currentCycle > TOTAL_CYCLES) {
                     return; // stop at 4 cycles
                 }
-                    currentCycle++;
                     showSection("demographics-typing-container", "thank-you-screen");
                     resetTypingTestState();
                     runNextBlock();
                 });
                 }
             });
+
+            function resetForNewCycle() {
+                // ⛔ Clear ALL timers
+                clearTimeout(blockTimeoutId);
+                clearTimeout(timerTimeoutStroop);
+                clearTimeout(trialTimeoutIdTwoBack);
+                clearTimeout(blankTimeoutIdTwoBack);
+
+                if (window.breakInterval) clearInterval(window.breakInterval);
+                if (window.physicalInterval) clearInterval(window.physicalInterval);
+
+                // 🔁 Reset typing test state
+                blockTimeoutId = null;
+                blockIndex = 0;
+                currentSentenceIndex = 0;
+                logs = [];
+                currentKeyTimestamps = [];
+                backspaceCounter = 0;
+
+                // ⏱️ RESET TIME
+                testStartTime = 0;
+                testIsActive = false;
+
+                // UI cleanup
+                typingArea.value = "";
+                typingArea.disabled = true;
+                metricsDisplay.style.display = "none";
+                finalMetricsContent.style.display = "none";
+            }
+
 
         // Custom function to bridge typing test completion to Stroop
         function showNextContinuousTest() {
@@ -1759,27 +1786,36 @@
         document.getElementById('demographics-form-container').style.display = 'none';
         document.getElementById('instructionScreen').style.display = 'block';
 
-        document.getElementById('beginTypingTestButton').addEventListener('click', () => {
-            document.getElementById('instructionScreen').style.display = 'none';
-            document.querySelector('.main-panel').style.display = 'block';
+        document.getElementById('beginTypingTestButton').onclick = () => {
+    
 
-            const shuffledCorpus = [...allCorpusSentences].sort(() => 0.5 - Math.random());
-            currentTestSentences = shuffledCorpus;
-            currentSentenceIndex = 0;
-            logs = [];
+    // ⛔ Kill ALL previous timers & state
+    resetForNewCycle();
 
-            typingArea.value = '';
-            typingArea.disabled = true;
-            submitSentenceButton.style.display = 'none';
+    // UI setup
+    document.getElementById('instructionScreen').style.display = 'none';
+    document.querySelector('.main-panel').style.display = 'block';
 
-            statusLabel.classList.remove('text-success', 'text-danger');
-            metricsDisplay.style.display = 'none';
-            finalMetricsContent.innerHTML = "<p class='text-muted'>No data available yet.</p>";
+    const shuffledCorpus = [...allCorpusSentences].sort(() => 0.5 - Math.random());
+    currentTestSentences = shuffledCorpus;
+    currentSentenceIndex = 0;
+    logs = [];
 
-            testStartTime = Date.now();
-            blockIndex = 0;
-            runNextBlock();
-        });
+    typingArea.value = '';
+    typingArea.disabled = true;
+    submitSentenceButton.style.display = 'none';
+
+    statusLabel.classList.remove('text-success', 'text-danger');
+    metricsDisplay.style.display = 'none';
+    finalMetricsContent.innerHTML = "<p class='text-muted'>No data available yet.</p>";
+
+    // ⏱️ CRITICAL RESET
+    testStartTime = Date.now();
+    blockIndex = 0;
+
+    // 🚀 Start timing correctly
+    runNextBlock();
+        };
     })
     .catch(error => {
         console.error("Error saving demographics:", error);
@@ -1789,31 +1825,18 @@
     });
             };
 
-            document.addEventListener('DOMContentLoaded', function () {
-            const nasaForm = document.getElementById('nasaTlxForm');
-            if (nasaForm) {
-                nasaForm.addEventListener('submit', function (e) {
-                    e.preventDefault();
-
-                    // ✅ IF THIS IS THE LAST CYCLE → END FLOW
-                    if (currentCycle >= TOTAL_CYCLES) {
-                        showSection('thank-you-screen', 'nasa-tlx-form-section');
-                        return;
-                    }
-
-                    // 🔁 OTHERWISE CONTINUE NORMAL FLOW
-                    showBreakScreen();
-                });
-            }
-        });
-
-
             function showBreakScreen() {
+                if (window.breakInterval) {
+                clearInterval(window.breakInterval);
+                window.breakInterval = null;
+                }
                 showSection('break-screen', 'nasa-tlx-form-section');
                 let breakTime = 120; // 2 minutes in seconds
                 const breakTimerDisplay = document.getElementById('breakTimer');
 
-                const breakInterval = setInterval(() => {
+                if (window.breakInterval) clearInterval(window.breakInterval);
+
+                window.breakInterval = setInterval(() => {
                     let minutes = Math.floor(breakTime / 60);
                     let seconds = breakTime % 60;
                     breakTimerDisplay.textContent = 
@@ -1821,7 +1844,8 @@
                     breakTime--;
 
                     if (breakTime < 0) {
-                        clearInterval(breakInterval);
+                        clearInterval(window.breakInterval);
+                        window.breakInterval = null;
                         showSection('choice-screen', 'break-screen');
                     }
                 }, 1000);
@@ -1844,7 +1868,7 @@
                 let physicalTime = 720; // 12 minutes in seconds
                 const physicalTimerDisplay = document.getElementById('physicalTimer');
 
-                const physicalInterval = setInterval(() => {
+                window.physicalInterval = setInterval(() => {
                     let minutes = Math.floor(physicalTime / 60);
                     let seconds = physicalTime % 60;
                     physicalTimerDisplay.textContent = 
@@ -1852,7 +1876,7 @@
                     physicalTime--;
 
                     if (physicalTime < 0) {
-                        clearInterval(physicalInterval);
+                        clearInterval(window.physicalInterval);
                         showSection('thank-you-screen', 'physical-task-screen');
                     }
                 }, 1000);
@@ -2552,34 +2576,35 @@ document.addEventListener("keydown", (e) => {
 });
 
 // === NASA TLX LOGIC (UPDATED FOR DROPDOWNS) ===
-document.getElementById('nasaTlxForm').addEventListener('submit', function (event) {
-    event.preventDefault();
-    showBreakScreen();
+        document.getElementById('nasaTlxForm').addEventListener('submit', function (event) {
+            event.preventDefault();
 
-    const formData = new FormData(this);
-    const tlxResults = {};
-    for (let [key, value] of formData.entries()) {
-        tlxResults[key] = value; // Dropdown values (Low, Medium, High)
-    }
+            const formData = new FormData(this);
+            const tlxResults = {};
+            for (let [key, value] of formData.entries()) {
+                tlxResults[key] = value;
+            }
 
-    console.log("Submitting NASA TLX Results to Firebase:", tlxResults);
+            const cycleKey = `cycle_${currentCycle}`;
 
-    if (typeof database !== 'undefined') {
-        const cycleKey = `cycle_${currentCycle}`;
-        database
-        .ref(`userSessions/${participantId}/cycles/${cycleKey}/nasaTlx`)
-        .set({
-            timestamp: Date.now(),
-            cycle: currentCycle,
-            ...tlxResults
-        }).then(() => {
-            console.log('NASA TLX data saved to Firebase.');
-        }).catch((error) => {
-            console.error('Error submitting NASA TLX data to Firebase:', error);
-            alert("There was an error submitting your feedback. Please check Firebase connection.\nError: " + error.message);
+            database
+                .ref(`userSessions/${participantId}/cycles/${cycleKey}/nasaTlx`)
+                .set({
+                    timestamp: Date.now(),
+                    cycle: currentCycle,
+                    ...tlxResults
+                })
+                .then(() => {
+                    // ✅ FLOW CONTROL IN ONE PLACE
+                    if (currentCycle >= TOTAL_CYCLES) {
+                        showSection('thank-you-screen', 'nasa-tlx-form-section');
+                    } else {
+                        showBreakScreen();
+                    }
+                })
+                .catch(err => console.error(err));
         });
-    }
-});
+
 
 // === Navigation ===
 document.addEventListener("DOMContentLoaded", function () {
@@ -2593,20 +2618,15 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
-
-document.getElementById('continueToNASATLXButton').addEventListener('click', function () {
-    showSection('nasa-tlx-form-section', 'demographics-typing-container');
-});
-
         function continueFromThankYou() {
+        currentCycle++;
         typingSummarySaved = false;
         if (currentCycle > TOTAL_CYCLES) {
             alert("All cycles completed! Thank you for your participation.");
             showSection("welcome-screen", "thank-you-screen");
             return;
         }
-
-        currentCycle++; 
+ 
         blockIndex = 0;
         currentSentenceIndex = 0;
         logs = [];
