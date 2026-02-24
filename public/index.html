@@ -1560,17 +1560,12 @@
 
             }
 
-
-        // Custom function to bridge typing test completion to Stroop
         function showNextContinuousTest() {
             showSection('stroop-test-section', 'demographics-typing-container');
         }
-
-        // --- Typing Test Logic (Your provided code, with slight modifications for flow) ---
-
-        // Firebase Configuration (keep as is)
+        // Firebase Configuration 
         const firebaseConfig = {
-            apiKey: "YOUR_FIREBASE_API_KEY", // REPLACE WITH YOUR ACTUAL API KEY
+            apiKey: "AIzaSyDU56-FribrzudeFeh1-gz7ch25HHoWAGk", 
             authDomain: "fatiguedetection-e13a1.firebaseapp.com",
             databaseURL: "https://fatiguedetection-e13a1-default-rtdb.firebaseio.com",
             projectId: "fatiguedetection-e13a1",
@@ -1593,38 +1588,31 @@
         // Ensure metrics panel is hidden at startup
         if (metricsDisplay) metricsDisplay.style.display = 'none';
         const finalMetricsContent = document.getElementById('finalMetricsContent');
-        const continueToStroopButton = document.getElementById('continueToStroopButton'); // New button for flow
-        // const timerDisplay = document.getElementById('timerDisplay'); // REMOVED: No longer needed for display
-
-        // Admin buttons
-        // const downloadLogButton = document.getElementById('downloadLogButton');
-        // const clearLogButton = document.getElementById('clearLogButton');
-
-        // Global Variables
+        const continueToStroopButton = document.getElementById('continueToStroopButton'); 
         let allCorpusSentences = [];
-        const TEST_DURATION_MINUTES = 10;
+        const TEST_DURATION_MINUTES = 1;
         const TEST_DURATION_MS = TEST_DURATION_MINUTES * 60 * 1000;
         function getBlockSequenceForCycle(cycle) {
             return [
-        { type: 'typing', durationMs: 50000 }, // 50 seconds typing
-        { type: 'rest', durationMs: 10000 },   // 10 seconds break
-        { type: 'typing', durationMs: 50000 }, // 50 seconds typing
-        { type: 'rest', durationMs: 10000 },   // 10 seconds break
-        { type: 'typing', durationMs: 50000 }, // 50 seconds typing
-        { type: 'rest', durationMs: 10000 },   // 10 seconds break
-        { type: 'typing', durationMs: 50000 }, // 50 seconds typing
-        { type: 'rest', durationMs: 10000 },   // 10 seconds break
-        { type: 'typing', durationMs: 50000 }, // 50 seconds typing
-        { type: 'rest', durationMs: 10000 },   // 10 seconds break
-        { type: 'typing', durationMs: 50000 }, // 50 seconds typing
-        { type: 'rest', durationMs: 10000 },   // 10 seconds break
-        { type: 'typing', durationMs: 50000 }, // 50 seconds typing
-        { type: 'rest', durationMs: 10000 },   // 10 seconds break
-        { type: 'typing', durationMs: 50000 }, // 50 seconds typing
-        { type: 'rest', durationMs: 10000 },   // 10 seconds break
-        { type: 'typing', durationMs: 50000 }, // 50 seconds typing
-        { type: 'rest', durationMs: 10000 },   // 10 seconds break
-        { type: 'typing', durationMs: 50000 }, // 50 seconds typing
+        { type: 'typing', durationMs: 500 }, // 50 seconds typing
+        { type: 'rest', durationMs: 100 },   // 10 seconds break
+        { type: 'typing', durationMs: 500 }, // 50 seconds typing
+        { type: 'rest', durationMs: 100 },   // 10 seconds break
+        { type: 'typing', durationMs: 500 }, // 50 seconds typing
+        { type: 'rest', durationMs: 100 },   // 10 seconds break
+        { type: 'typing', durationMs: 5000 }, // 50 seconds typing
+        { type: 'rest', durationMs: 100 },   // 10 seconds break
+        { type: 'typing', durationMs: 500 }, // 50 seconds typing
+        { type: 'rest', durationMs: 100 },   // 10 seconds break
+        { type: 'typing', durationMs: 500 }, // 50 seconds typing
+        { type: 'rest', durationMs: 100 },   // 10 seconds break
+        { type: 'typing', durationMs: 500 }, // 50 seconds typing
+        { type: 'rest', durationMs: 100 },   // 10 seconds break
+        { type: 'typing', durationMs: 500 }, // 50 seconds typing
+        { type: 'rest', durationMs: 100 },   // 10 seconds break
+        { type: 'typing', durationMs: 500}, // 50 seconds typing
+        { type: 'rest', durationMs: 100 },   // 10 seconds break
+        { type: 'typing', durationMs: 500 }, // 50 seconds typing
             ];
         }
 
@@ -1870,7 +1858,7 @@
                 window.breakInterval = null;
                 }
                 showSection('break-screen', 'nasa-tlx-form-section');
-                let breakTime = 120; // 2 minutes in seconds
+                let breakTime = 10; // 2 minutes in seconds
                 const breakTimerDisplay = document.getElementById('breakTimer');
 
                 if (window.breakInterval) clearInterval(window.breakInterval);
@@ -1904,7 +1892,7 @@
             }
 
             function startPhysicalTimer() {
-                let physicalTime = 720; // 12 minutes in seconds
+                let physicalTime = 10; // 12 minutes in seconds
                 const physicalTimerDisplay = document.getElementById('physicalTimer');
 
                 window.physicalInterval = setInterval(() => {
@@ -2226,7 +2214,7 @@
             // --- Stroop Test Logic ---
             const COLORS_STROOP = ['red', 'blue', 'green', 'yellow'];
             const WORDS_STROOP = ['RED', 'BLUE', 'GREEN', 'YELLOW'];
-            const TEST_DURATION_SECONDS_STROOP = 360; // 6 MINUTES
+            const TEST_DURATION_SECONDS_STROOP = 10; // 6 MINUTES in seconds
             let totalWordsShownStroop = 0;
             let correctAnswersStroop = 0;
             let startTimeStroop = 0;
@@ -2396,7 +2384,7 @@ const finalCorrectCountTwoBack = document.getElementById("finalCorrectCountTwoBa
 const mobileControls = document.getElementById("mobileControls");
 
 const CHARACTERS_TWOBACK = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const TEST_DURATION_MS_TWOBACK = 6 * 60 * 1000; // 6 minutes
+const TEST_DURATION_MS_TWOBACK = 0.1 * 60 * 1000; // 6 minutes
 const STIMULUS_DURATION_TWOBACK = 1000;
 const INTERVAL_BETWEEN_TRIALS_TWOBACK = 600;
 
